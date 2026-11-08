@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booth 06 — Clinical Diagnosis Challenge</title>
+<style>
+  :root {
+    --teal: #0a7e8c; --teal-dark: #075e69; --bg: #f2f6f8; --card: #fff; --ink: #142026;
+    --muted: #5b6b73; --ok: #1b8a3a; --ok-bg: #e3f6e8; --bad: #b00020; --bad-bg: #fde7ea;
+    --sel: #0a7e8c; --sel-bg: #dff3f5; --warn: #e08a00;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 20px; }
+  .banner { background: var(--bad); color: #fff; text-align: center; font-weight: 800; padding: 10px 16px; font-size: 1.1rem; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 12px 24px; background: var(--teal-dark); color: #fff; }
+  .brand { font-size: 1.5rem; font-weight: 800; }
+  .brand small { display: block; font-size: .85rem; font-weight: 500; opacity: .85; }
+  .player { font-size: 1.2rem; font-weight: 700; text-align: right; }
+  .timer { display: flex; align-items: center; gap: 16px; padding: 10px 24px; background: #fff; border-bottom: 1px solid #d5dee2;
+    position: sticky; top: 0; z-index: 10; }
+  .timer-track { flex: 1; height: 26px; background: #e2e9ec; border-radius: 13px; overflow: hidden; }
+  .timer-fill { height: 100%; width: 100%; background: var(--ok); transition: width .25s linear, background-color .5s; }
+  .timer-fill.mid { background: var(--warn); }
+  .timer-fill.low { background: var(--bad); }
+  .timer-text { font-size: 2rem; font-weight: 800; min-width: 4.2ch; text-align: right; font-variant-numeric: tabular-nums; }
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  h1, h2, h3 { margin: 0 0 12px; }
+  .card { background: var(--card); border-radius: 18px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+  .case-big { max-width: 960px; margin: 0 auto; }
+  .case-big .complaint { font-size: 1.8rem; }
+  .patient { font-size: 1.15rem; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+  .complaint { font-size: 1.35rem; font-style: italic; margin: 8px 0 16px; border-left: 6px solid var(--teal); padding-left: 14px; }
+  .history { margin: 0; padding-left: 1.2em; font-size: 1.15rem; line-height: 1.5; }
+  .history li { margin-bottom: 6px; }
+  .side-results { margin-top: 16px; border-top: 1px solid #d5dee2; padding-top: 12px; font-size: 1rem; }
+  .side-results h3 { font-size: 1.05rem; color: var(--muted); }
+  .side-results li { margin-bottom: 6px; }
+  .layout { display: grid; grid-template-columns: minmax(300px, 1fr) 2fr; gap: 24px; align-items: start; }
+  .layout > .card:first-child { position: sticky; top: 72px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .layout > .card:first-child { position: static; } }
+  .step { font-size: 1rem; font-weight: 800; color: var(--teal); text-transform: uppercase; letter-spacing: .05em; }
+  .hint { color: var(--muted); font-size: 1.05rem; margin: 0 0 16px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 700px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  button { font: inherit; }
+  .big-btn { min-height: 72px; font-size: 1.5rem; font-weight: 800; border: 0; border-radius: 14px; padding: 12px 28px;
+    background: var(--teal); color: #fff; cursor: pointer; }
+  .big-btn:disabled { background: #9fb3b8; cursor: not-allowed; }
+  .big-btn.wide { width: 100%; }
+  .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 16px; align-items: center; }
+  .actions .msg { flex: 1; color: var(--bad); font-weight: 700; min-height: 1.4em; }
+  .toggle { min-height: 88px; font-size: 1.3rem; font-weight: 700; border: 3px solid #b8c7cc; border-radius: 14px; background: #fff;
+    color: var(--ink); padding: 12px 16px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+  .toggle .box { flex: none; width: 34px; height: 34px; border: 3px solid #b8c7cc; border-radius: 8px; display: grid; place-items: center; font-weight: 900; }
+  .toggle[aria-pressed="true"] { border-color: var(--sel); background: var(--sel-bg); }
+  .toggle[aria-pressed="true"] .box { background: var(--sel); border-color: var(--sel); color: #fff; }
+  .toggle.radio .box { border-radius: 50%; }
+  .counter { font-size: 1.2rem; font-weight: 700; }
+  /* Investigation flip cards */
+  .flip { perspective: 1000px; }
+  /* Both faces share one grid cell, so the card grows to fit the longest result (no clipping). */
+  .flip-inner { display: grid; min-height: 180px; height: 100%; transition: transform .6s; transform-style: preserve-3d; }
+  .flip.ordered .flip-inner { transform: rotateY(180deg); }
+  .face { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 14px;
+    padding: 16px; display: flex; flex-direction: column; }
+  .front { border: 3px solid #b8c7cc; background: #fff; cursor: pointer; align-items: center; justify-content: center; text-align: center;
+    font-size: 1.3rem; font-weight: 800; width: 100%; color: var(--ink); }
+  .front .sub { font-size: .95rem; font-weight: 600; color: var(--teal); margin-top: 10px; }
+  .back { transform: rotateY(180deg); background: var(--sel-bg); border: 3px solid var(--sel); }
+  .back b { font-size: 1.1rem; margin-bottom: 6px; }
+  .back span { font-size: 1.05rem; line-height: 1.4; }
+  /* Result */
+  .total { font-size: 4.5rem; font-weight: 900; color: var(--teal-dark); line-height: 1; }
+  .total small { font-size: 2rem; color: var(--muted); }
+  .breakdown { width: 100%; border-collapse: collapse; font-size: 1.3rem; margin: 16px 0; }
+  .breakdown td { padding: 10px 6px; border-bottom: 1px solid #e2e9ec; }
+  .breakdown td:last-child { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .save { font-size: 1.3rem; font-weight: 800; padding: 14px 18px; border-radius: 12px; margin: 12px 0; background: #eef2f4; }
+  .save.ok { background: var(--ok-bg); color: var(--ok); }
+  .save.warn { background: #fff4e0; color: #8a5300; }
+  .save.err { background: var(--bad-bg); color: var(--bad); }
+  .answers li { margin-bottom: 8px; font-size: 1.1rem; padding: 6px 10px; border-radius: 8px; list-style: none; }
+  .answers { padding: 0; margin: 0; }
+  .answers .good { background: var(--ok-bg); }
+  .answers .wrong { background: var(--bad-bg); }
+  .answers .missed { border: 2px dashed var(--ok); }
+  .tag { font-size: .85rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-left: 6px; white-space: nowrap; }
+  .tag.ok { background: var(--ok); color: #fff; }
+  .tag.bad { background: var(--bad); color: #fff; }
+  .tag.info { background: #dfe7ea; color: var(--ink); }
+  .teaching { background: #fffbe6; border-left: 6px solid #f2b705; padding: 14px 18px; border-radius: 8px; font-size: 1.15rem; line-height: 1.5; }
+  .timeup { background: var(--bad); color: #fff; font-weight: 900; font-size: 1.5rem; padding: 10px 18px; border-radius: 12px; display: inline-block; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div id="draftBanner" class="banner" hidden>Sample cases — not yet approved by the dentistry team</div>
+<header class="topbar">
+  <div class="brand">Clinical Diagnosis Challenge<small>Booth 06 · HealthTech Experience</small></div>
+  <div class="player" id="playerName"></div>
+</header>
+<div class="timer" aria-label="Time left">
+  <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+  <div class="timer-text" id="timerText">4:00</div>
+</div>
+<main id="app"></main>
+
+<script src="shared.js"></script>
+
+<!-- Pure game data + scoring (no DOM). tools/inject_cases.py replaces the CASES block. -->
+<script id="dx-core">
+// BEGIN CASES
+const CASES = [
+  {
+    "id": "endo-sip-01",
+    "title": "Lingering pain on cold",
+    "patient": "25-year-old male, medically fit",
+    "chiefComplaint": "My back tooth on the lower left hurts badly when I drink cold water, and the pain stays for a while after.",
+    "history": [
+      "Pain started 5 days ago; cold drinks trigger sharp pain that lingers for about a minute after the cold is gone.",
+      "Occasional spontaneous dull ache at night; no swelling and no pain on biting.",
+      "Large cavity on the lower left first molar (36) that he has ignored for months."
+    ],
+    "differentials": [
+      "Reversible pulpitis",
+      "Symptomatic irreversible pulpitis",
+      "Dentin hypersensitivity",
+      "Cracked tooth",
+      "Acute apical abscess",
+      "Symptomatic apical periodontitis"
+    ],
+    "acceptedDifferentials": [
+      "Symptomatic irreversible pulpitis",
+      "Reversible pulpitis",
+      "Cracked tooth"
+    ],
+    "investigations": [
+      {
+        "name": "Cold test",
+        "result": "36: intense pain that lingers about 40 s after the stimulus is removed. Control teeth (35, 37, 46): brief response that settles within 2 s.",
+        "essential": true
+      },
+      {
+        "name": "Percussion test",
+        "result": "36: no tenderness on vertical or lateral percussion, same as the neighbouring teeth.",
+        "essential": true
+      },
+      {
+        "name": "Periapical radiograph",
+        "result": "36: deep distal caries extending close to the pulp horn; intact lamina dura and normal periapical tissues.",
+        "essential": true
+      },
+      {
+        "name": "Bite test",
+        "result": "No pain on biting or on release over any cusp of 36. No sign of a crack; the deep caries already explains the symptoms.",
+        "essential": false
+      },
+      {
+        "name": "Blood test (CBC)",
+        "result": "All values within normal limits. A healthy patient with a local dental problem; blood tests do not change the pulpal diagnosis.",
+        "essential": false
+      },
+      {
+        "name": "CBCT scan",
+        "result": "Shows the same deep caries and normal periapical tissues already seen on the periapical radiograph: extra radiation, no new information.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Symptomatic irreversible pulpitis",
+    "teachingPoint": "Pain to cold that lingers after the stimulus is removed (plus spontaneous pain) points to symptomatic irreversible pulpitis; a short pain that stops as soon as the cold is removed suggests reversible pulpitis. Normal percussion and normal periapical tissues show the inflammation has not reached the apex yet. AAE diagnosis: symptomatic irreversible pulpitis with normal apical tissues.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "perio-abscess-01",
+    "title": "Sudden gum swelling",
+    "patient": "45-year-old male, smoker (15 cigarettes a day), otherwise healthy",
+    "chiefComplaint": "My gum next to my lower right back tooth suddenly swelled up and it hurts when I chew.",
+    "history": [
+      "Swelling appeared 2 days ago; throbbing pain, worse on chewing; bad taste in the mouth.",
+      "Was told years ago that he has 'gum disease' but never had treatment; no recent fillings or root canal treatment on that side.",
+      "No fever and no facial swelling."
+    ],
+    "differentials": [
+      "Periodontal abscess",
+      "Acute apical abscess",
+      "Endodontic-periodontal lesion",
+      "Pericoronitis",
+      "Drug-induced gingival enlargement",
+      "Necrotizing gingivitis"
+    ],
+    "acceptedDifferentials": [
+      "Periodontal abscess",
+      "Acute apical abscess",
+      "Endodontic-periodontal lesion"
+    ],
+    "investigations": [
+      {
+        "name": "Periodontal probing",
+        "result": "46: 8 mm pocket mesio-buccally with pus on probing; generalised 5-6 mm pockets elsewhere with bleeding on probing.",
+        "essential": true
+      },
+      {
+        "name": "Pulp sensibility (cold) test",
+        "result": "46: normal, brief response like the neighbouring teeth. The pulp is vital, so an endodontic cause is unlikely.",
+        "essential": true
+      },
+      {
+        "name": "Periapical radiograph",
+        "result": "46: angular bone loss along the mesial root to mid-root level; no periapical radiolucency; no deep caries or restorations.",
+        "essential": true
+      },
+      {
+        "name": "Blood test (CBC)",
+        "result": "Within normal limits. No fever or systemic involvement, so it does not change the diagnosis.",
+        "essential": false
+      },
+      {
+        "name": "Incisional biopsy",
+        "result": "Inflamed granulation tissue with acute inflammatory cells: non-specific, adds nothing to the clinical diagnosis.",
+        "essential": false
+      },
+      {
+        "name": "CBCT scan",
+        "result": "Confirms the mesial bone loss already visible on the periapical radiograph: no new information for a much higher radiation dose.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Periodontal abscess",
+    "teachingPoint": "Vital pulp + a deep pocket that drains pus + angular bone loss = periodontal abscess. Always test pulp sensibility: a non-responsive tooth with a similar swelling points to an acute apical abscess or a combined endodontic-periodontal lesion. Smoking and untreated periodontitis are common risk factors.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "om-ras-01",
+    "title": "Ulcers that keep coming back",
+    "patient": "20-year-old female university student, healthy",
+    "chiefComplaint": "I keep getting painful round ulcers inside my lips and cheeks every few months.",
+    "history": [
+      "Ulcers come every 2-3 months, often during exam periods; each one heals in about 10 days without a scar.",
+      "Currently has 2 painful ulcers on the inside of the lower lip.",
+      "Not taking any medicines."
+    ],
+    "differentials": [
+      "Recurrent aphthous stomatitis (minor)",
+      "Recurrent intraoral herpes simplex",
+      "Traumatic ulcer",
+      "Oral lichen planus",
+      "Behcet disease",
+      "Oral squamous cell carcinoma"
+    ],
+    "acceptedDifferentials": [
+      "Recurrent aphthous stomatitis (minor)",
+      "Recurrent intraoral herpes simplex",
+      "Traumatic ulcer"
+    ],
+    "investigations": [
+      {
+        "name": "Clinical examination of the ulcers",
+        "result": "Two round, shallow ulcers (3-4 mm) on the lower labial mucosa with a yellow-grey base and a red halo, on non-keratinised mucosa; no vesicles; no sharp tooth or appliance nearby.",
+        "essential": true
+      },
+      {
+        "name": "Blood test (CBC, iron, vitamin B12, folate)",
+        "result": "All within normal limits: no anaemia or deficiency that could cause recurrent ulcers.",
+        "essential": true
+      },
+      {
+        "name": "Review of systemic symptoms",
+        "result": "No genital ulcers, eye inflammation, skin lesions, joint pain or bowel symptoms: no features of Behcet disease or other systemic disease.",
+        "essential": true
+      },
+      {
+        "name": "Incisional biopsy",
+        "result": "Non-specific ulceration with inflammation. Typical small ulcers that heal within 2 weeks do not need a biopsy.",
+        "essential": false
+      },
+      {
+        "name": "Panoramic radiograph",
+        "result": "Normal teeth and jaws. Radiographs do not help with soft-tissue ulcers.",
+        "essential": false
+      },
+      {
+        "name": "Pulp sensibility test of nearby teeth",
+        "result": "Normal responses: the teeth are healthy and unrelated to the ulcers.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Recurrent aphthous stomatitis (minor)",
+    "teachingPoint": "Minor recurrent aphthous ulcers are small (under 10 mm), round, shallow ulcers with a red halo on non-keratinised mucosa that heal in 7-14 days without scarring. Recurrent intraoral herpes usually affects keratinised mucosa (hard palate, attached gingiva) and starts as clusters of vesicles. Screen for haematinic deficiency and systemic disease; biopsy any ulcer that does not heal within 2-3 weeks.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "os-pericoronitis-01",
+    "title": "Pain behind the last tooth",
+    "patient": "22-year-old female, healthy",
+    "chiefComplaint": "There's pain and swelling behind my last lower tooth, and it hurts to open my mouth and swallow.",
+    "history": [
+      "Started 3 days ago and getting worse; bad taste and bad breath.",
+      "Had similar but milder pain twice last year that settled on its own.",
+      "No recent extractions; mouth opening limited to about two fingers."
+    ],
+    "differentials": [
+      "Pericoronitis",
+      "Acute apical abscess",
+      "Periodontal abscess",
+      "Alveolar osteitis (dry socket)",
+      "Temporomandibular disorder",
+      "Peritonsillar abscess"
+    ],
+    "acceptedDifferentials": [
+      "Pericoronitis",
+      "Acute apical abscess",
+      "Periodontal abscess"
+    ],
+    "investigations": [
+      {
+        "name": "Clinical examination of the area",
+        "result": "38 partially erupted with a red, swollen, tender gum flap (operculum) over it; pus on gentle pressure; the upper molar bites on the flap. 37 looks sound.",
+        "essential": true
+      },
+      {
+        "name": "Panoramic radiograph",
+        "result": "Partially erupted mesioangular 38; no caries or periapical lesion on 37 or 38; roots clear of the mandibular canal.",
+        "essential": true
+      },
+      {
+        "name": "Temperature and lymph node check",
+        "result": "37.6 C; one tender, enlarged submandibular lymph node on the left; throat and tonsils look normal, uvula central.",
+        "essential": true
+      },
+      {
+        "name": "CBCT scan",
+        "result": "Same tooth position as the panoramic radiograph and the roots are clear of the canal: no extra information, extra radiation.",
+        "essential": false
+      },
+      {
+        "name": "Blood culture",
+        "result": "No growth. A localised infection does not need blood cultures.",
+        "essential": false
+      },
+      {
+        "name": "Biopsy of the gum flap",
+        "result": "Inflamed gingival tissue only. The cause is clear clinically, so a biopsy adds nothing.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Pericoronitis",
+    "teachingPoint": "Pericoronitis is infection of the gum flap (operculum) over a partially erupted tooth, usually a lower third molar. Typical signs: swollen tender operculum, pus, bad taste, trismus and pain on swallowing. Check temperature, lymph nodes and the throat for spreading infection. Management starts with irrigation under the flap and relieving trauma from the opposing tooth; antibiotics are added when there are systemic signs or spreading infection.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "pedo-mih-01",
+    "title": "Patchy, sensitive new molars",
+    "patient": "8-year-old boy, with his mother",
+    "chiefComplaint": "My back teeth hurt when I brush them, and they have yellow and brown patches.",
+    "history": [
+      "Mother noticed the patches soon after the first permanent molars erupted; one molar has started to chip.",
+      "Sensitive to cold air and to brushing on those molars."
+    ],
+    "differentials": [
+      "Molar-incisor hypomineralisation (MIH)",
+      "Dental fluorosis",
+      "Amelogenesis imperfecta",
+      "Dental caries",
+      "Turner hypoplasia",
+      "Dentinogenesis imperfecta"
+    ],
+    "acceptedDifferentials": [
+      "Molar-incisor hypomineralisation (MIH)",
+      "Dental fluorosis",
+      "Amelogenesis imperfecta"
+    ],
+    "investigations": [
+      {
+        "name": "Clinical examination of all teeth",
+        "result": "Sharply demarcated yellow-brown opacities on all four first permanent molars and on the upper central incisors; post-eruptive enamel breakdown on 16; primary teeth and lower incisors look normal.",
+        "essential": true
+      },
+      {
+        "name": "Early childhood medical history",
+        "result": "Repeated high fevers and ear infections with several courses of antibiotics between ages 1 and 3.",
+        "essential": true
+      },
+      {
+        "name": "Fluoride exposure and family history",
+        "result": "Normal fluoride toothpaste, low-fluoride drinking water, no fluoride supplements; no enamel problems in parents or siblings.",
+        "essential": true
+      },
+      {
+        "name": "Genetic testing",
+        "result": "No variant found in the enamel genes tested. The pattern and negative family history had already made a genetic defect unlikely.",
+        "essential": false
+      },
+      {
+        "name": "Blood test (CBC)",
+        "result": "Within normal limits. It does not explain or change the diagnosis of an enamel defect.",
+        "essential": false
+      },
+      {
+        "name": "CBCT scan",
+        "result": "Normal developing teeth. 3D imaging gives no useful information about enamel defects and exposes a child to unnecessary radiation.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Molar-incisor hypomineralisation (MIH)",
+    "teachingPoint": "MIH = demarcated (sharp-edged) opacities on one to four first permanent molars, often with the incisors, linked to illness in early childhood while these teeth mineralise. Fluorosis gives diffuse, symmetrical white flecks or lines after high fluoride intake; amelogenesis imperfecta affects all teeth in both dentitions and often runs in families. MIH molars are sensitive and break down, so early fluoride varnish, sealing or restoration helps.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "ortho-c2d1-01",
+    "title": "Upper front teeth stick out",
+    "patient": "12-year-old girl, with her father",
+    "chiefComplaint": "My top front teeth stick out and the kids at school make fun of me.",
+    "history": [
+      "Parents noticed the upper front teeth sticking out more since the permanent teeth came in.",
+      "Her lips do not close easily at rest.",
+      "Sucked her thumb when she was younger."
+    ],
+    "differentials": [
+      "Class II division 1 malocclusion",
+      "Class II division 2 malocclusion",
+      "Class III malocclusion",
+      "Bimaxillary proclination",
+      "Anterior open bite from a digit-sucking habit",
+      "Class I malocclusion with spacing"
+    ],
+    "acceptedDifferentials": [
+      "Class II division 1 malocclusion",
+      "Bimaxillary proclination",
+      "Anterior open bite from a digit-sucking habit"
+    ],
+    "investigations": [
+      {
+        "name": "Clinical occlusal examination",
+        "result": "Class II molar and canine relationship on both sides; overjet 9 mm; deep complete overbite; proclined upper incisors; convex profile; incompetent lips.",
+        "essential": true
+      },
+      {
+        "name": "Lateral cephalometric radiograph",
+        "result": "ANB 6 degrees (skeletal Class II) with a retrusive mandible; proclined upper incisors; lower incisors within the normal range.",
+        "essential": true
+      },
+      {
+        "name": "Habit history",
+        "result": "Stopped thumb sucking at age 6; no current habits; breathes through the nose.",
+        "essential": true
+      },
+      {
+        "name": "CBCT scan",
+        "result": "Nothing the cephalogram missed. No impacted teeth or airway concern, so the high radiation dose for a child is not justified.",
+        "essential": false
+      },
+      {
+        "name": "Pulp sensibility tests",
+        "result": "All incisors respond normally. Healthy teeth; this does not help classify the malocclusion.",
+        "essential": false
+      },
+      {
+        "name": "Blood test (CBC)",
+        "result": "Within normal limits; not relevant to the malocclusion.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Class II division 1 malocclusion",
+    "teachingPoint": "Class II division 1 = Class II molar relationship with an increased overjet and proclined upper incisors (division 2 has retroclined upper central incisors and a deep bite). An overjet above 6 mm raises the risk of trauma to the front teeth. Around the pubertal growth spurt, a functional appliance can help correct the skeletal pattern.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "om-denture-stomatitis-01",
+    "title": "Red, sore palate under a denture",
+    "patient": "68-year-old female, full upper denture, type 2 diabetes",
+    "chiefComplaint": "The roof of my mouth under my denture is red and feels sore and burning.",
+    "history": [
+      "Has had the same upper denture for 9 years.",
+      "Symptoms for about 2 months; no ulcers she can see; no recent change in her medicines."
+    ],
+    "differentials": [
+      "Denture stomatitis (chronic erythematous candidiasis)",
+      "Allergic contact reaction to denture acrylic",
+      "Traumatic ulcer from the denture",
+      "Erythroplakia",
+      "Burning mouth syndrome",
+      "Pemphigus vulgaris"
+    ],
+    "acceptedDifferentials": [
+      "Denture stomatitis (chronic erythematous candidiasis)",
+      "Allergic contact reaction to denture acrylic",
+      "Erythroplakia"
+    ],
+    "investigations": [
+      {
+        "name": "Clinical examination of the palate",
+        "result": "Diffuse, smooth red area that exactly matches the outline of the denture-fitting surface; no ulcers, no white plaques; rest of the mouth normal.",
+        "essential": true
+      },
+      {
+        "name": "Denture hygiene and wearing history",
+        "result": "Wears the denture day and night and only rinses it with water; visible plaque on the fitting surface.",
+        "essential": true
+      },
+      {
+        "name": "Swab and smear for Candida",
+        "result": "Candida hyphae and yeasts seen on smears from the palate and the denture-fitting surface.",
+        "essential": true
+      },
+      {
+        "name": "Incisional biopsy",
+        "result": "Non-specific chronic inflammation. Not needed when the redness matches the denture outline and settles with treatment.",
+        "essential": false
+      },
+      {
+        "name": "Patch test for acrylic allergy",
+        "result": "Negative to methyl methacrylate; true allergy to denture acrylic is rare.",
+        "essential": false
+      },
+      {
+        "name": "Panoramic radiograph",
+        "result": "Edentulous upper jaw with normal bone. Radiographs do not help with a red mucosa.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Denture stomatitis (chronic erythematous candidiasis)",
+    "teachingPoint": "Denture stomatitis is redness of the mucosa under a denture, linked to Candida, poor denture hygiene, wearing the denture at night, an old ill-fitting denture and diabetes. Treat with denture hygiene, leaving the denture out at night, an antifungal and relining or remaking the denture. A red patch that does not follow the denture outline, or does not resolve, needs a biopsy to exclude erythroplakia.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "endo-aaa-01",
+    "title": "Swollen face, tooth feels high",
+    "patient": "35-year-old female, healthy",
+    "chiefComplaint": "My face is swollen on the right side and my lower tooth feels too high when I bite.",
+    "history": [
+      "Swelling started yesterday; throbbing pain, worse on biting.",
+      "Months ago the same tooth (46) hurt a lot with hot and cold, then the pain stopped on its own.",
+      "Large old filling on 46; temperature 37.4 C; opens her mouth and swallows normally."
+    ],
+    "differentials": [
+      "Acute apical abscess",
+      "Symptomatic apical periodontitis",
+      "Periodontal abscess",
+      "Symptomatic irreversible pulpitis",
+      "Pericoronitis",
+      "Ludwig angina"
+    ],
+    "acceptedDifferentials": [
+      "Acute apical abscess",
+      "Symptomatic apical periodontitis",
+      "Periodontal abscess"
+    ],
+    "investigations": [
+      {
+        "name": "Cold test",
+        "result": "46: no response at all; neighbouring teeth respond normally. The pulp of 46 is necrotic.",
+        "essential": true
+      },
+      {
+        "name": "Periapical radiograph",
+        "result": "46: large deep restoration; widened PDL space and periapical radiolucencies at the mesial and distal root apices.",
+        "essential": true
+      },
+      {
+        "name": "Periodontal probing",
+        "result": "46: normal 2-3 mm probing depths all around, no deep pocket. A periodontal abscess is unlikely.",
+        "essential": true
+      },
+      {
+        "name": "Blood test (CBC)",
+        "result": "Mildly raised white cell count, as expected with a local abscess; it does not change the diagnosis or the treatment.",
+        "essential": false
+      },
+      {
+        "name": "MRI scan",
+        "result": "Soft-tissue swelling of the right cheek, which the clinical examination already showed. MRI is not used for a localised dental abscess.",
+        "essential": false
+      },
+      {
+        "name": "Biopsy of the swelling",
+        "result": "Acute inflammation and pus only. A tooth infection needs drainage, not a biopsy.",
+        "essential": false
+      }
+    ],
+    "finalDiagnosis": "Acute apical abscess",
+    "teachingPoint": "Acute apical abscess (AAE): necrotic pulp (no response to cold), tender tooth, rapid swelling and pus formation, sometimes with mild fever. A history of severe pain that suddenly stopped is a classic sign of pulp death. Treat by establishing drainage (root canal access or incision) and removing the cause; antibiotics only for systemic involvement or spreading infection. Difficulty swallowing or breathing, or a raised floor of the mouth, is an emergency.",
+    "reviewStatus": "DRAFT"
+  }
+];
+// END CASES
+
+const SCORING = { perAcceptedDifferential:4, maxDifferentials:12, wrongDifferential:-2,
+  investigationsTotal:10, unnecessaryInvestigation:-2, finalDiagnosis:15,
+  perMinuteLeft:1, maxSpeedBonus:3, speedBonusRequiresCorrectFinal:true,
+  timeLimitSeconds:240, finalFromSelectedOnly:true };
+
+/**
+ * Scores one round. Each step is floored at 0.
+ * picks = {differentials:[names], investigations:[names ordered], final:name|null, secondsLeft:number, timedOut:boolean}
+ * -> {differentials, investigations, final, speed, total, finalCorrect}
+ */
+function computeScore(c, picks) {
+  const diffs = picks.differentials || [];
+  const invs = picks.investigations || [];
+  const accepted = diffs.filter((d) => c.acceptedDifferentials.includes(d)).length;
+  const wrong = diffs.length - accepted;
+  const diffPts = Math.max(0, Math.min(SCORING.maxDifferentials, SCORING.perAcceptedDifferential * accepted)
+    + SCORING.wrongDifferential * wrong);
+
+  const essentials = c.investigations.filter((i) => i.essential);
+  const perEssential = essentials.length ? SCORING.investigationsTotal / essentials.length : 0;
+  let invRaw = 0;
+  for (const name of invs) {
+    const inv = c.investigations.find((i) => i.name === name);
+    if (!inv) continue;
+    invRaw += inv.essential ? perEssential : SCORING.unnecessaryInvestigation;
+  }
+  const invPts = Math.max(0, Math.round(invRaw));
+
+  const finalAllowed = !SCORING.finalFromSelectedOnly || diffs.includes(picks.final);
+  const finalCorrect = !!picks.final && finalAllowed && picks.final === c.finalDiagnosis;
+  const finalPts = finalCorrect ? SCORING.finalDiagnosis : 0;
+
+  let speed = 0;
+  if ((finalCorrect || !SCORING.speedBonusRequiresCorrectFinal) && !picks.timedOut) {
+    speed = Math.min(SCORING.maxSpeedBonus, Math.floor(Math.max(0, picks.secondsLeft || 0) / 60) * SCORING.perMinuteLeft);
+  }
+  return { differentials: diffPts, investigations: invPts, final: finalPts, speed,
+    total: diffPts + invPts + finalPts + speed, finalCorrect };
+}
+
+/** Console-callable: runScoringTests() -> {passed, failed}. Uses CASES[0]. */
+function runScoringTests() {
+  const c = CASES[0];
+  const acc = c.acceptedDifferentials;
+  const wrongDiffs = c.differentials.filter((d) => !acc.includes(d));
+  const ess = c.investigations.filter((i) => i.essential).map((i) => i.name);
+  const unnec = c.investigations.filter((i) => !i.essential).map((i) => i.name);
+  const wrongFinal = wrongDiffs[0];
+  const tests = [
+    ["perfect run = 40",
+      { differentials: acc, investigations: ess, final: c.finalDiagnosis, secondsLeft: 239, timedOut: false }, 40],
+    ["empty submission = 0",
+      { differentials: [], investigations: [], final: null, secondsLeft: 0, timedOut: true }, 0],
+    ["all wrong = 0",
+      { differentials: wrongDiffs.slice(0, 3), investigations: unnec, final: wrongFinal, secondsLeft: 200, timedOut: false }, 0],
+    ["perfect + one unnecessary test = 38",
+      { differentials: acc, investigations: ess.concat(unnec[0]), final: c.finalDiagnosis, secondsLeft: 239, timedOut: false }, 38],
+    ["timeout submit (perfect picks, no speed bonus) = 37",
+      { differentials: acc, investigations: ess, final: c.finalDiagnosis, secondsLeft: 0, timedOut: true }, 37],
+    ["final not among selected differentials earns 0 for final",
+      { differentials: acc.filter((d) => d !== c.finalDiagnosis).concat(wrongDiffs[0]), investigations: [], final: c.finalDiagnosis, secondsLeft: 100, timedOut: false },
+      Math.max(0, 4 * (acc.length - 1) - 2)],
+    ["speed bonus = floor(minutes left): 150 s left -> +2",
+      { differentials: acc, investigations: ess, final: c.finalDiagnosis, secondsLeft: 150, timedOut: false }, 39],
+    ["wrong final -> no speed bonus",
+      { differentials: acc, investigations: ess, final: acc.find((d) => d !== c.finalDiagnosis), secondsLeft: 239, timedOut: false }, 22],
+    ["2 accepted + 1 wrong differential = 6",
+      { differentials: [acc[0], acc[1], wrongDiffs[0]], investigations: [], final: null, secondsLeft: 0, timedOut: true }, 6]
+  ];
+  let passed = 0, failed = 0;
+  for (const [name, picks, expected] of tests) {
+    const got = computeScore(c, picks).total;
+    if (got === expected) { passed++; console.log("PASS  " + name + " (" + got + ")"); }
+    else { failed++; console.log("FAIL  " + name + ": expected " + expected + ", got " + got); }
+  }
+  console.log(passed + " passed, " + failed + " failed");
+  return { passed, failed };
+}
+</script>
+
+<!-- UI -->
+<script>
+(function () {
+  const app = document.getElementById("app");
+  const timerFill = document.getElementById("timerFill");
+  const timerText = document.getElementById("timerText");
+  const playerName = document.getElementById("playerName");
+  const LAST_CASE_KEY = "dx_lastCaseId";
+
+  document.getElementById("draftBanner").hidden = CASES.every((c) => c.reviewStatus === "APPROVED");
+
+  let S = null; // round state
+
+  function h(tag, attrs, ...children) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v == null) continue;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of children.flat()) {
+      if (c == null || c === false) continue;
+      el.appendChild(typeof c === "string" || typeof c === "number" ? document.createTextNode(String(c)) : c);
+    }
+    return el;
+  }
+
+  function shuffle(a) {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function pickCase() {
+    const last = localStorage.getItem(LAST_CASE_KEY);
+    const pool = CASES.length > 1 ? CASES.filter((c) => c.id !== last) : CASES;
+    const c = pool[Math.floor(Math.random() * pool.length)];
+    localStorage.setItem(LAST_CASE_KEY, c.id);
+    return c;
+  }
+
+  /* ---------------- Timer ---------------- */
+  const LIMIT = SCORING.timeLimitSeconds;
+  function fmt(sec) {
+    sec = Math.max(0, Math.ceil(sec));
+    return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+  }
+  function drawTimer(secLeft) {
+    const pct = Math.max(0, Math.min(100, (secLeft / LIMIT) * 100));
+    timerFill.style.width = pct + "%";
+    timerFill.classList.toggle("mid", secLeft <= 90 && secLeft > 30);
+    timerFill.classList.toggle("low", secLeft <= 30);
+    timerText.textContent = fmt(secLeft);
+  }
+  function secondsLeft() {
+    if (!S || !S.deadline) return LIMIT;
+    return Math.max(0, (S.deadline - performance.now()) / 1000);
+  }
+  function startTimer() {
+    S.deadline = performance.now() + LIMIT * 1000;
+    S.timerId = setInterval(() => {
+      const left = secondsLeft();
+      drawTimer(left);
+      if (left <= 0) finish(true);
+    }, 200);
+  }
+  function stopTimer() {
+    if (S && S.timerId) clearInterval(S.timerId);
+    if (S) S.timerId = null;
+  }
+
+  /* ---------------- Screens ---------------- */
+  function checkIn() {
+    stopTimer();
+    S = null;
+    drawTimer(LIMIT);
+    playerName.textContent = "";
+    app.textContent = "";
+    const box = h("div", { class: "card", style: "max-width:760px;margin:0 auto" });
+    app.appendChild(box);
+    startCheckIn(box, onReady, {
+      title: "Booth 06 — Participant check-in",
+      subtitle: "Operator: type the participant's University ID and name, then press Start.",
+      welcomePrefix: "Dr. "
+    });
+  }
+
+  function onReady(player) {
+    const c = pickCase();
+    S = {
+      player, c, attemptId: htMakeId(),
+      diffOrder: shuffle(c.differentials), invOrder: shuffle(c.investigations.map((i) => i.name)),
+      diffs: [], ordered: [], final: null, stage: "case", deadline: null, timerId: null, finished: false
+    };
+    playerName.textContent = "Dr. " + player.name;
+    showCase();
+  }
+
+  function caseCard(compact) {
+    const c = S.c;
+    const card = h("div", { class: "card" + (compact ? "" : " case-big") },
+      h("div", { class: "patient", text: c.patient }),
+      h("div", { class: "complaint", text: "“" + c.chiefComplaint + "”" }),
+      h("ul", { class: "history" }, c.history.map((l) => h("li", { text: l })))
+    );
+    if (compact && S.ordered.length) {
+      card.appendChild(h("div", { class: "side-results" },
+        h("h3", { text: "Results so far" }),
+        h("ul", { class: "history" }, S.ordered.map((n) => {
+          const inv = c.investigations.find((i) => i.name === n);
+          return h("li", {}, h("b", { text: n + ": " }), inv.result);
+        }))
+      ));
+    }
+    return card;
+  }
+
+  function showCase() {
+    S.stage = "case";
+    app.textContent = "";
+    const card = caseCard(false);
+    card.insertBefore(h("h2", { text: "New patient" }), card.firstChild);
+    card.appendChild(h("div", { class: "actions" },
+      h("div", { class: "msg", style: "color:var(--muted)", text: "You have 4 minutes once you start." }),
+      h("button", { class: "big-btn", id: "startDx", onclick: () => { startTimer(); showDiffs(); } }, "Start Diagnosis")
+    ));
+    app.appendChild(card);
+  }
+
+  function showDiffs() {
+    S.stage = "diffs";
+    app.textContent = "";
+    const msg = h("div", { class: "msg", "aria-live": "polite" });
+    const counter = h("div", { class: "counter" });
+    const next = h("button", { class: "big-btn", id: "toInv", onclick: () => showInvestigations() }, "Next: Investigations");
+    const buttons = S.diffOrder.map((d) => {
+      const b = h("button", { class: "toggle", "aria-pressed": "false", "data-name": d },
+        h("span", { class: "box", "aria-hidden": "true" }), h("span", { text: d }));
+      b.addEventListener("click", () => {
+        const i = S.diffs.indexOf(d);
+        if (i >= 0) {
+          S.diffs.splice(i, 1);
+          msg.textContent = "";
+        } else if (S.diffs.length >= 3) {
+          msg.textContent = "Maximum 3. Deselect one first.";
+          return;
+        } else {
+          S.diffs.push(d);
+          msg.textContent = "";
+        }
+        update();
+      });
+      return b;
+    });
+    function update() {
+      buttons.forEach((b) => {
+        const on = S.diffs.includes(b.dataset.name);
+        b.setAttribute("aria-pressed", String(on));
+        b.querySelector(".box").textContent = on ? "✓" : "";
+      });
+      counter.textContent = "Selected " + S.diffs.length + " of 3";
+      next.disabled = S.diffs.length < 2;
+    }
+    app.appendChild(h("div", { class: "layout" },
+      caseCard(true),
+      h("div", { class: "card" },
+        h("div", { class: "step", text: "Step 1 of 3" }),
+        h("h2", { text: "Differential diagnoses" }),
+        h("p", { class: "hint", text: "Select 2 or 3 likely diagnoses. Each correct one: +4. Each wrong one: −2." }),
+        h("div", { class: "grid2" }, buttons),
+        h("div", { class: "actions" }, counter, msg, next)
+      )
+    ));
+    update();
+  }
+
+  function showInvestigations() {
+    S.stage = "inv";
+    app.textContent = "";
+    const layout = h("div", { class: "layout" });
+    const sideSlot = h("div");
+    function drawSide() {
+      const card = caseCard(true);
+      sideSlot.replaceWith(card);
+      layoutSide = card;
+    }
+    let layoutSide = sideSlot;
+    const cards = S.invOrder.map((name) => {
+      const inv = S.c.investigations.find((i) => i.name === name);
+      const wrap = h("div", { class: "flip", "data-name": name });
+      const front = h("button", { class: "face front", "aria-label": "Order " + name },
+        h("span", { text: name }), h("span", { class: "sub", text: "Tap to order" }));
+      const back = h("div", { class: "face back", "aria-hidden": "true" }, h("b", { text: name }), h("span", { text: inv.result }));
+      wrap.appendChild(h("div", { class: "flip-inner" }, front, back));
+      front.addEventListener("click", () => {
+        if (S.ordered.includes(name) || S.finished) return;
+        S.ordered.push(name);
+        wrap.classList.add("ordered");
+        front.disabled = true;
+        back.setAttribute("aria-hidden", "false");
+        const fresh = caseCard(true);
+        layoutSide.replaceWith(fresh);
+        layoutSide = fresh;
+      });
+      return wrap;
+    });
+    layout.appendChild(sideSlot);
+    layout.appendChild(h("div", { class: "card" },
+      h("div", { class: "step", text: "Step 2 of 3" }),
+      h("h2", { text: "Order investigations" }),
+      h("p", { class: "hint", text: "Tap a test to order it and see the result. Order only what you need: essential tests earn points, unnecessary ones cost −2. Orders can't be undone." }),
+      h("div", { class: "grid3" }, cards),
+      h("div", { class: "actions" },
+        h("button", { class: "big-btn", id: "toFinal", onclick: () => showFinal() }, "Next: Final Diagnosis"))
+    ));
+    app.appendChild(layout);
+    drawSide();
+  }
+
+  function showFinal() {
+    S.stage = "final";
+    app.textContent = "";
+    const submit = h("button", { class: "big-btn", id: "submitDx", disabled: true, onclick: () => finish(false) }, "Submit Diagnosis");
+    const options = S.diffs.map((d) => {
+      const b = h("button", { class: "toggle radio", role: "radio", "aria-pressed": "false", "aria-checked": "false", "data-name": d },
+        h("span", { class: "box", "aria-hidden": "true" }), h("span", { text: d }));
+      b.addEventListener("click", () => {
+        S.final = d;
+        options.forEach((o) => {
+          const on = o.dataset.name === d;
+          o.setAttribute("aria-pressed", String(on));
+          o.setAttribute("aria-checked", String(on));
+          o.querySelector(".box").textContent = on ? "●" : "";
+        });
+        submit.disabled = false;
+      });
+      return b;
+    });
+    app.appendChild(h("div", { class: "layout" },
+      caseCard(true),
+      h("div", { class: "card" },
+        h("div", { class: "step", text: "Step 3 of 3" }),
+        h("h2", { text: "Final diagnosis" }),
+        h("p", { class: "hint", text: "Choose one of your differential diagnoses. Correct: +15, plus up to +3 speed bonus." }),
+        h("div", { class: "grid2", role: "radiogroup" }, options),
+        h("div", { class: "actions" }, submit)
+      )
+    ));
+  }
+
+  function finish(timedOut) {
+    if (!S || S.finished) return;
+    S.finished = true;
+    const left = timedOut ? 0 : secondsLeft();
+    stopTimer();
+    drawTimer(left);
+    const picks = {
+      differentials: S.diffs.slice(), investigations: S.ordered.slice(),
+      final: S.final, secondsLeft: Math.floor(left), timedOut
+    };
+    const score = computeScore(S.c, picks);
+    showResult(picks, score, timedOut);
+    save(picks, score);
+  }
+
+  function showResult(picks, score, timedOut) {
+    const c = S.c;
+    app.textContent = "";
+    const saveBox = h("div", { class: "save", id: "saveStatus", text: "Saving your score…" });
+    const diffList = h("ul", { class: "answers" }, c.differentials.map((d) => {
+      const acc = c.acceptedDifferentials.includes(d);
+      const picked = picks.differentials.includes(d);
+      const cls = picked ? (acc ? "good" : "wrong") : (acc ? "missed" : "");
+      return h("li", { class: cls }, d,
+        acc ? h("span", { class: "tag ok", text: "accepted" }) : null,
+        d === c.finalDiagnosis ? h("span", { class: "tag ok", text: "final diagnosis" }) : null,
+        picked ? h("span", { class: "tag " + (acc ? "info" : "bad"), text: "your pick" }) : null);
+    }));
+    const invList = h("ul", { class: "answers" }, c.investigations.map((i) => {
+      const ordered = picks.investigations.includes(i.name);
+      const cls = ordered ? (i.essential ? "good" : "wrong") : (i.essential ? "missed" : "");
+      return h("li", { class: cls }, i.name,
+        h("span", { class: "tag " + (i.essential ? "ok" : "info"), text: i.essential ? "essential" : "not needed" }),
+        ordered ? h("span", { class: "tag " + (i.essential ? "info" : "bad"), text: "ordered" }) : null);
+    }));
+    app.appendChild(h("div", { class: "layout" },
+      h("div", { class: "card" },
+        timedOut ? h("div", { class: "timeup", text: "Time's up!" }) : null,
+        h("div", { class: "step", text: "Your score" }),
+        h("div", { class: "total", id: "totalScore" }, String(score.total), h("small", { text: " / 40" })),
+        h("table", { class: "breakdown" }, h("tbody", {},
+          h("tr", {}, h("td", { text: "Differential diagnoses" }), h("td", { text: score.differentials + " / 12" })),
+          h("tr", {}, h("td", { text: "Investigations" }), h("td", { text: score.investigations + " / 10" })),
+          h("tr", {}, h("td", { text: "Final diagnosis" }), h("td", { text: score.final + " / 15" })),
+          h("tr", {}, h("td", { text: "Speed bonus" }), h("td", { text: score.speed + " / 3" }))
+        )),
+        saveBox,
+        h("div", { class: "actions" },
+          h("button", { class: "big-btn wide", id: "newParticipant", onclick: checkIn }, "New Participant"))
+      ),
+      h("div", { class: "card" },
+        h("h2", { text: "Correct answer: " + c.finalDiagnosis }),
+        h("p", { class: "hint", text: "Your final diagnosis: " + (picks.final || "none") }),
+        h("h3", { text: "Differentials" }), diffList,
+        h("h3", { style: "margin-top:16px", text: "Investigations" }), invList,
+        h("h3", { style: "margin-top:16px", text: "Teaching point" }),
+        h("div", { class: "teaching", text: c.teachingPoint })
+      )
+    ));
+  }
+
+  async function save(picks, score) {
+    const snapshot = S;
+    const set = (cls, text) => {
+      if (S !== snapshot) return; // operator already moved on
+      const el = document.getElementById("saveStatus");
+      if (!el) return;
+      el.className = "save " + cls;
+      el.textContent = text;
+    };
+    try {
+      const r = await saveScore(S.player.studentId, "booth06", score.total, {
+        caseId: S.c.id, picks, attemptId: S.attemptId
+      });
+      if (r.queued) set("warn", "No connection right now: your score is stored on this device and will be sent automatically.");
+      else if (r.counted) set("ok", "Your points were added to the leaderboard");
+      else set("warn", "Practice attempt — not counted (only your first attempt counts)");
+    } catch (err) {
+      set("err", "Could not save the score: " + err.message);
+    }
+  }
+
+  window.addEventListener("beforeunload", (e) => {
+    if (S && S.deadline && !S.finished) { e.preventDefault(); e.returnValue = ""; }
+  });
+
+  checkIn();
+})();
+</script>
+</body>
+</html>

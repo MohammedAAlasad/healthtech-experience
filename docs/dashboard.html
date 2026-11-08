@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaderboard — HealthTech Experience</title>
+<style>
+  :root { --bg: #0b1418; --panel: #13232a; --row: #172b33; --ink: #f2f7f9; --muted: #8fa7b0; --teal: #2ec4d6;
+    --gold: #ffcf3f; --silver: #d4dde2; --bronze: #e0955a; --bad: #ff5c6c; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; overflow: hidden; }
+  .wrap { display: grid; grid-template-rows: auto 1fr; height: 100vh; padding: 2vh 2.5vw; gap: 2vh; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; }
+  h1 { margin: 0; font-size: 6vh; line-height: 1; letter-spacing: .02em; }
+  .event { font-size: 2.6vh; color: var(--teal); font-weight: 700; margin-top: .6vh; }
+  .status { text-align: right; font-size: 2.1vh; color: var(--muted); }
+  .status.bad { color: var(--bad); font-weight: 700; }
+  .grid { display: grid; grid-template-columns: 2.3fr 1fr; gap: 2vw; min-height: 0; }
+  .board { position: relative; display: flex; flex-direction: column; gap: 1vh; min-height: 0; }
+  .row { display: grid; grid-template-columns: 9vh 1fr auto; align-items: center; gap: 2vw; background: var(--row);
+    border-radius: 1.4vh; padding: 0 2vw; height: 7.4vh; will-change: transform; border: .3vh solid transparent; }
+  .rank { font-size: 4.2vh; font-weight: 900; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .who { min-width: 0; }
+  .name { font-size: 3.8vh; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta { font-size: 1.9vh; color: var(--muted); margin-top: .3vh; white-space: nowrap; }
+  .total { font-size: 5vh; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--teal); }
+  .row.r1 { border-color: var(--gold); background: linear-gradient(90deg, rgba(255,207,63,.22), var(--row) 60%); }
+  .row.r2 { border-color: var(--silver); background: linear-gradient(90deg, rgba(212,221,226,.18), var(--row) 60%); }
+  .row.r3 { border-color: var(--bronze); background: linear-gradient(90deg, rgba(224,149,90,.2), var(--row) 60%); }
+  .row.r1 .rank { color: var(--gold); } .row.r2 .rank { color: var(--silver); } .row.r3 .rank { color: var(--bronze); }
+  .row.r1 .total { color: var(--gold); }
+  .row.flash { animation: flash 3s ease-out; }
+  @keyframes flash {
+    0%, 30%, 60% { box-shadow: 0 0 0 .6vh var(--teal), 0 0 4vh var(--teal); background: #1f5560; }
+    15%, 45%, 75% { box-shadow: 0 0 0 0 transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  .empty { font-size: 4vh; color: var(--muted); text-align: center; margin-top: 20vh; }
+  aside { display: flex; flex-direction: column; gap: 2vh; min-height: 0; }
+  .panel { background: var(--panel); border-radius: 1.6vh; padding: 2vh 1.6vw; }
+  .panel h2 { margin: 0 0 1.2vh; font-size: 2.8vh; color: var(--teal); }
+  .mini { list-style: none; margin: 0; padding: 0; }
+  .mini li { display: grid; grid-template-columns: 4vh 1fr auto; gap: 1vw; font-size: 2.6vh; padding: .7vh 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .mini li:last-child { border-bottom: 0; }
+  .mini .n { font-weight: 900; color: var(--muted); }
+  .mini .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+  .mini .p { font-weight: 900; font-variant-numeric: tabular-nums; }
+  .mini .none { color: var(--muted); display: block; }
+  .count { font-size: 9vh; font-weight: 900; line-height: 1; color: var(--ink); }
+  .count-label { font-size: 2.4vh; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Leaderboard</h1>
+      <div class="event">HealthTech Experience</div>
+    </div>
+    <div class="status" id="status">Loading…</div>
+  </header>
+  <div class="grid">
+    <section class="board" id="board" aria-label="Top 10"></section>
+    <aside>
+      <div class="panel"><h2>Read the Scan — Top 3</h2><ul class="mini" id="b03"></ul></div>
+      <div class="panel"><h2>Diagnosis Challenge — Top 3</h2><ul class="mini" id="b06"></ul></div>
+      <div class="panel"><div class="count" id="count">–</div><div class="count-label">participants</div></div>
+    </aside>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+(function () {
+  const POLL_MS = 5000;
+  const board = document.getElementById("board");
+  const statusEl = document.getElementById("status");
+  const rows = new Map(); // key -> {el, total}
+  let firstRender = true;
+  let lastOkAt = null;
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  const keyOf = (p) => p.idLast4 + "|" + p.name;
+  const timeStr = (d) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+  function renderTop(top) {
+    top = (top || []).slice(0, 10);
+    // FLIP step 1: remember where each row was.
+    const before = new Map();
+    rows.forEach((r, k) => before.set(k, r.el.getBoundingClientRect().top));
+
+    const seen = new Set();
+    top.forEach((p) => {
+      const k = keyOf(p);
+      seen.add(k);
+      let r = rows.get(k);
+      const isNew = !r;
+      if (!r) {
+        const row = el("div", "row");
+        row.append(el("div", "rank"), Object.assign(el("div", "who"), {}), el("div", "total"));
+        row.children[1].append(el("div", "name"), el("div", "meta"));
+        r = { el: row, total: null };
+        rows.set(k, r);
+      }
+      const row = r.el;
+      row.className = "row" + (p.rank <= 3 ? " r" + p.rank : "");
+      row.querySelector(".rank").textContent = p.rank;
+      row.querySelector(".name").textContent = p.name;
+      const pb = p.perBooth || {};
+      row.querySelector(".meta").textContent =
+        "ID •••" + p.idLast4 + "   ·   Read the Scan " + (pb.booth03 || 0) + "   ·   Diagnosis Challenge " + (pb.booth06 || 0);
+      row.querySelector(".total").textContent = p.total;
+      if (!firstRender && (isNew || r.total !== p.total)) {
+        row.classList.remove("flash");
+        void row.offsetWidth; // restart animation
+        row.classList.add("flash");
+        setTimeout(() => row.classList.remove("flash"), 3000);
+      }
+      r.total = p.total;
+      board.appendChild(row); // moves it into the new order
+    });
+    rows.forEach((r, k) => { if (!seen.has(k)) { r.el.remove(); rows.delete(k); } });
+
+    const empty = board.querySelector(".empty");
+    if (!top.length && !empty) board.appendChild(el("div", "empty", "No scores yet — be the first!"));
+    if (top.length && empty) empty.remove();
+
+    // FLIP steps 2-4: slide rows from their old position to the new one.
+    rows.forEach((r, k) => {
+      if (!before.has(k)) return;
+      const dy = before.get(k) - r.el.getBoundingClientRect().top;
+      if (!dy) return;
+      r.el.style.transition = "none";
+      r.el.style.transform = "translateY(" + dy + "px)";
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        r.el.style.transition = "transform 800ms cubic-bezier(.2,.8,.2,1)";
+        r.el.style.transform = "";
+      }));
+    });
+    firstRender = false;
+  }
+
+  function renderMini(id, list) {
+    const ul = document.getElementById(id);
+    ul.textContent = "";
+    (list || []).slice(0, 3).forEach((e) => {
+      const li = el("li");
+      li.append(el("span", "n", e.rank + "."), el("span", "nm", e.name), el("span", "p", String(e.points)));
+      ul.appendChild(li);
+    });
+    if (!ul.children.length) ul.appendChild(el("li", "none", "No scores yet"));
+  }
+
+  async function tick() {
+    try {
+      const data = await getLeaderboard();
+      renderTop(data.top);
+      renderMini("b03", data.perBooth && data.perBooth.booth03);
+      renderMini("b06", data.perBooth && data.perBooth.booth06);
+      document.getElementById("count").textContent = data.totalParticipants;
+      lastOkAt = new Date();
+      statusEl.className = "status";
+      statusEl.textContent = "Last updated " + timeStr(lastOkAt);
+    } catch (err) {
+      // Never blank the screen: keep the last data, just show the problem.
+      statusEl.className = "status bad";
+      statusEl.textContent = "Connection problem — showing data from " + (lastOkAt ? timeStr(lastOkAt) : "—");
+      console.warn(err);
+    } finally {
+      setTimeout(tick, POLL_MS);
+    }
+  }
+  tick();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+[
+  {
+    "id": "endo-sip-01",
+    "title": "Lingering pain on cold",
+    "patient": "25-year-old male, medically fit",
+    "chiefComplaint": "My back tooth on the lower left hurts badly when I drink cold water, and the pain stays for a while after.",
+    "history": [
+      "Pain started 5 days ago; cold drinks trigger sharp pain that lingers for about a minute after the cold is gone.",
+      "Occasional spontaneous dull ache at night; no swelling and no pain on biting.",
+      "Large cavity on the lower left first molar (36) that he has ignored for months."
+    ],
+    "differentials": [
+      "Reversible pulpitis",
+      "Symptomatic irreversible pulpitis",
+      "Dentin hypersensitivity",
+      "Cracked tooth",
+      "Acute apical abscess",
+      "Symptomatic apical periodontitis"
+    ],
+    "acceptedDifferentials": [
+      "Symptomatic irreversible pulpitis",
+      "Reversible pulpitis",
+      "Cracked tooth"
+    ],
+    "investigations": [
+      {"name": "Cold test", "result": "36: intense pain that lingers about 40 s after the stimulus is removed. Control teeth (35, 37, 46): brief response that settles within 2 s.", "essential": true},
+      {"name": "Percussion test", "result": "36: no tenderness on vertical or lateral percussion, same as the neighbouring teeth.", "essential": true},
+      {"name": "Periapical radiograph", "result": "36: deep distal caries extending close to the pulp horn; intact lamina dura and normal periapical tissues.", "essential": true},
+      {"name": "Bite test", "result": "No pain on biting or on release over any cusp of 36. No sign of a crack; the deep caries already explains the symptoms.", "essential": false},
+      {"name": "Blood test (CBC)", "result": "All values within normal limits. A healthy patient with a local dental problem; blood tests do not change the pulpal diagnosis.", "essential": false},
+      {"name": "CBCT scan", "result": "Shows the same deep caries and normal periapical tissues already seen on the periapical radiograph: extra radiation, no new information.", "essential": false}
+    ],
+    "finalDiagnosis": "Symptomatic irreversible pulpitis",
+    "teachingPoint": "Pain to cold that lingers after the stimulus is removed (plus spontaneous pain) points to symptomatic irreversible pulpitis; a short pain that stops as soon as the cold is removed suggests reversible pulpitis. Normal percussion and normal periapical tissues show the inflammation has not reached the apex yet. AAE diagnosis: symptomatic irreversible pulpitis with normal apical tissues.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "perio-abscess-01",
+    "title": "Sudden gum swelling",
+    "patient": "45-year-old male, smoker (15 cigarettes a day), otherwise healthy",
+    "chiefComplaint": "My gum next to my lower right back tooth suddenly swelled up and it hurts when I chew.",
+    "history": [
+      "Swelling appeared 2 days ago; throbbing pain, worse on chewing; bad taste in the mouth.",
+      "Was told years ago that he has 'gum disease' but never had treatment; no recent fillings or root canal treatment on that side.",
+      "No fever and no facial swelling."
+    ],
+    "differentials": [
+      "Periodontal abscess",
+      "Acute apical abscess",
+      "Endodontic-periodontal lesion",
+      "Pericoronitis",
+      "Drug-induced gingival enlargement",
+      "Necrotizing gingivitis"
+    ],
+    "acceptedDifferentials": [
+      "Periodontal abscess",
+      "Acute apical abscess",
+      "Endodontic-periodontal lesion"
+    ],
+    "investigations": [
+      {"name": "Periodontal probing", "result": "46: 8 mm pocket mesio-buccally with pus on probing; generalised 5-6 mm pockets elsewhere with bleeding on probing.", "essential": true},
+      {"name": "Pulp sensibility (cold) test", "result": "46: normal, brief response like the neighbouring teeth. The pulp is vital, so an endodontic cause is unlikely.", "essential": true},
+      {"name": "Periapical radiograph", "result": "46: angular bone loss along the mesial root to mid-root level; no periapical radiolucency; no deep caries or restorations.", "essential": true},
+      {"name": "Blood test (CBC)", "result": "Within normal limits. No fever or systemic involvement, so it does not change the diagnosis.", "essential": false},
+      {"name": "Incisional biopsy", "result": "Inflamed granulation tissue with acute inflammatory cells: non-specific, adds nothing to the clinical diagnosis.", "essential": false},
+      {"name": "CBCT scan", "result": "Confirms the mesial bone loss already visible on the periapical radiograph: no new information for a much higher radiation dose.", "essential": false}
+    ],
+    "finalDiagnosis": "Periodontal abscess",
+    "teachingPoint": "Vital pulp + a deep pocket that drains pus + angular bone loss = periodontal abscess. Always test pulp sensibility: a non-responsive tooth with a similar swelling points to an acute apical abscess or a combined endodontic-periodontal lesion. Smoking and untreated periodontitis are common risk factors.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "om-ras-01",
+    "title": "Ulcers that keep coming back",
+    "patient": "20-year-old female university student, healthy",
+    "chiefComplaint": "I keep getting painful round ulcers inside my lips and cheeks every few months.",
+    "history": [
+      "Ulcers come every 2-3 months, often during exam periods; each one heals in about 10 days without a scar.",
+      "Currently has 2 painful ulcers on the inside of the lower lip.",
+      "Not taking any medicines."
+    ],
+    "differentials": [
+      "Recurrent aphthous stomatitis (minor)",
+      "Recurrent intraoral herpes simplex",
+      "Traumatic ulcer",
+      "Oral lichen planus",
+      "Behcet disease",
+      "Oral squamous cell carcinoma"
+    ],
+    "acceptedDifferentials": [
+      "Recurrent aphthous stomatitis (minor)",
+      "Recurrent intraoral herpes simplex",
+      "Traumatic ulcer"
+    ],
+    "investigations": [
+      {"name": "Clinical examination of the ulcers", "result": "Two round, shallow ulcers (3-4 mm) on the lower labial mucosa with a yellow-grey base and a red halo, on non-keratinised mucosa; no vesicles; no sharp tooth or appliance nearby.", "essential": true},
+      {"name": "Blood test (CBC, iron, vitamin B12, folate)", "result": "All within normal limits: no anaemia or deficiency that could cause recurrent ulcers.", "essential": true},
+      {"name": "Review of systemic symptoms", "result": "No genital ulcers, eye inflammation, skin lesions, joint pain or bowel symptoms: no features of Behcet disease or other systemic disease.", "essential": true},
+      {"name": "Incisional biopsy", "result": "Non-specific ulceration with inflammation. Typical small ulcers that heal within 2 weeks do not need a biopsy.", "essential": false},
+      {"name": "Panoramic radiograph", "result": "Normal teeth and jaws. Radiographs do not help with soft-tissue ulcers.", "essential": false},
+      {"name": "Pulp sensibility test of nearby teeth", "result": "Normal responses: the teeth are healthy and unrelated to the ulcers.", "essential": false}
+    ],
+    "finalDiagnosis": "Recurrent aphthous stomatitis (minor)",
+    "teachingPoint": "Minor recurrent aphthous ulcers are small (under 10 mm), round, shallow ulcers with a red halo on non-keratinised mucosa that heal in 7-14 days without scarring. Recurrent intraoral herpes usually affects keratinised mucosa (hard palate, attached gingiva) and starts as clusters of vesicles. Screen for haematinic deficiency and systemic disease; biopsy any ulcer that does not heal within 2-3 weeks.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "os-pericoronitis-01",
+    "title": "Pain behind the last tooth",
+    "patient": "22-year-old female, healthy",
+    "chiefComplaint": "There's pain and swelling behind my last lower tooth, and it hurts to open my mouth and swallow.",
+    "history": [
+      "Started 3 days ago and getting worse; bad taste and bad breath.",
+      "Had similar but milder pain twice last year that settled on its own.",
+      "No recent extractions; mouth opening limited to about two fingers."
+    ],
+    "differentials": [
+      "Pericoronitis",
+      "Acute apical abscess",
+      "Periodontal abscess",
+      "Alveolar osteitis (dry socket)",
+      "Temporomandibular disorder",
+      "Peritonsillar abscess"
+    ],
+    "acceptedDifferentials": [
+      "Pericoronitis",
+      "Acute apical abscess",
+      "Periodontal abscess"
+    ],
+    "investigations": [
+      {"name": "Clinical examination of the area", "result": "38 partially erupted with a red, swollen, tender gum flap (operculum) over it; pus on gentle pressure; the upper molar bites on the flap. 37 looks sound.", "essential": true},
+      {"name": "Panoramic radiograph", "result": "Partially erupted mesioangular 38; no caries or periapical lesion on 37 or 38; roots clear of the mandibular canal.", "essential": true},
+      {"name": "Temperature and lymph node check", "result": "37.6 C; one tender, enlarged submandibular lymph node on the left; throat and tonsils look normal, uvula central.", "essential": true},
+      {"name": "CBCT scan", "result": "Same tooth position as the panoramic radiograph and the roots are clear of the canal: no extra information, extra radiation.", "essential": false},
+      {"name": "Blood culture", "result": "No growth. A localised infection does not need blood cultures.", "essential": false},
+      {"name": "Biopsy of the gum flap", "result": "Inflamed gingival tissue only. The cause is clear clinically, so a biopsy adds nothing.", "essential": false}
+    ],
+    "finalDiagnosis": "Pericoronitis",
+    "teachingPoint": "Pericoronitis is infection of the gum flap (operculum) over a partially erupted tooth, usually a lower third molar. Typical signs: swollen tender operculum, pus, bad taste, trismus and pain on swallowing. Check temperature, lymph nodes and the throat for spreading infection. Management starts with irrigation under the flap and relieving trauma from the opposing tooth; antibiotics are added when there are systemic signs or spreading infection.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "pedo-mih-01",
+    "title": "Patchy, sensitive new molars",
+    "patient": "8-year-old boy, with his mother",
+    "chiefComplaint": "My back teeth hurt when I brush them, and they have yellow and brown patches.",
+    "history": [
+      "Mother noticed the patches soon after the first permanent molars erupted; one molar has started to chip.",
+      "Sensitive to cold air and to brushing on those molars."
+    ],
+    "differentials": [
+      "Molar-incisor hypomineralisation (MIH)",
+      "Dental fluorosis",
+      "Amelogenesis imperfecta",
+      "Dental caries",
+      "Turner hypoplasia",
+      "Dentinogenesis imperfecta"
+    ],
+    "acceptedDifferentials": [
+      "Molar-incisor hypomineralisation (MIH)",
+      "Dental fluorosis",
+      "Amelogenesis imperfecta"
+    ],
+    "investigations": [
+      {"name": "Clinical examination of all teeth", "result": "Sharply demarcated yellow-brown opacities on all four first permanent molars and on the upper central incisors; post-eruptive enamel breakdown on 16; primary teeth and lower incisors look normal.", "essential": true},
+      {"name": "Early childhood medical history", "result": "Repeated high fevers and ear infections with several courses of antibiotics between ages 1 and 3.", "essential": true},
+      {"name": "Fluoride exposure and family history", "result": "Normal fluoride toothpaste, low-fluoride drinking water, no fluoride supplements; no enamel problems in parents or siblings.", "essential": true},
+      {"name": "Genetic testing", "result": "No variant found in the enamel genes tested. The pattern and negative family history had already made a genetic defect unlikely.", "essential": false},
+      {"name": "Blood test (CBC)", "result": "Within normal limits. It does not explain or change the diagnosis of an enamel defect.", "essential": false},
+      {"name": "CBCT scan", "result": "Normal developing teeth. 3D imaging gives no useful information about enamel defects and exposes a child to unnecessary radiation.", "essential": false}
+    ],
+    "finalDiagnosis": "Molar-incisor hypomineralisation (MIH)",
+    "teachingPoint": "MIH = demarcated (sharp-edged) opacities on one to four first permanent molars, often with the incisors, linked to illness in early childhood while these teeth mineralise. Fluorosis gives diffuse, symmetrical white flecks or lines after high fluoride intake; amelogenesis imperfecta affects all teeth in both dentitions and often runs in families. MIH molars are sensitive and break down, so early fluoride varnish, sealing or restoration helps.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "ortho-c2d1-01",
+    "title": "Upper front teeth stick out",
+    "patient": "12-year-old girl, with her father",
+    "chiefComplaint": "My top front teeth stick out and the kids at school make fun of me.",
+    "history": [
+      "Parents noticed the upper front teeth sticking out more since the permanent teeth came in.",
+      "Her lips do not close easily at rest.",
+      "Sucked her thumb when she was younger."
+    ],
+    "differentials": [
+      "Class II division 1 malocclusion",
+      "Class II division 2 malocclusion",
+      "Class III malocclusion",
+      "Bimaxillary proclination",
+      "Anterior open bite from a digit-sucking habit",
+      "Class I malocclusion with spacing"
+    ],
+    "acceptedDifferentials": [
+      "Class II division 1 malocclusion",
+      "Bimaxillary proclination",
+      "Anterior open bite from a digit-sucking habit"
+    ],
+    "investigations": [
+      {"name": "Clinical occlusal examination", "result": "Class II molar and canine relationship on both sides; overjet 9 mm; deep complete overbite; proclined upper incisors; convex profile; incompetent lips.", "essential": true},
+      {"name": "Lateral cephalometric radiograph", "result": "ANB 6 degrees (skeletal Class II) with a retrusive mandible; proclined upper incisors; lower incisors within the normal range.", "essential": true},
+      {"name": "Habit history", "result": "Stopped thumb sucking at age 6; no current habits; breathes through the nose.", "essential": true},
+      {"name": "CBCT scan", "result": "Nothing the cephalogram missed. No impacted teeth or airway concern, so the high radiation dose for a child is not justified.", "essential": false},
+      {"name": "Pulp sensibility tests", "result": "All incisors respond normally. Healthy teeth; this does not help classify the malocclusion.", "essential": false},
+      {"name": "Blood test (CBC)", "result": "Within normal limits; not relevant to the malocclusion.", "essential": false}
+    ],
+    "finalDiagnosis": "Class II division 1 malocclusion",
+    "teachingPoint": "Class II division 1 = Class II molar relationship with an increased overjet and proclined upper incisors (division 2 has retroclined upper central incisors and a deep bite). An overjet above 6 mm raises the risk of trauma to the front teeth. Around the pubertal growth spurt, a functional appliance can help correct the skeletal pattern.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "om-denture-stomatitis-01",
+    "title": "Red, sore palate under a denture",
+    "patient": "68-year-old female, full upper denture, type 2 diabetes",
+    "chiefComplaint": "The roof of my mouth under my denture is red and feels sore and burning.",
+    "history": [
+      "Has had the same upper denture for 9 years.",
+      "Symptoms for about 2 months; no ulcers she can see; no recent change in her medicines."
+    ],
+    "differentials": [
+      "Denture stomatitis (chronic erythematous candidiasis)",
+      "Allergic contact reaction to denture acrylic",
+      "Traumatic ulcer from the denture",
+      "Erythroplakia",
+      "Burning mouth syndrome",
+      "Pemphigus vulgaris"
+    ],
+    "acceptedDifferentials": [
+      "Denture stomatitis (chronic erythematous candidiasis)",
+      "Allergic contact reaction to denture acrylic",
+      "Erythroplakia"
+    ],
+    "investigations": [
+      {"name": "Clinical examination of the palate", "result": "Diffuse, smooth red area that exactly matches the outline of the denture-fitting surface; no ulcers, no white plaques; rest of the mouth normal.", "essential": true},
+      {"name": "Denture hygiene and wearing history", "result": "Wears the denture day and night and only rinses it with water; visible plaque on the fitting surface.", "essential": true},
+      {"name": "Swab and smear for Candida", "result": "Candida hyphae and yeasts seen on smears from the palate and the denture-fitting surface.", "essential": true},
+      {"name": "Incisional biopsy", "result": "Non-specific chronic inflammation. Not needed when the redness matches the denture outline and settles with treatment.", "essential": false},
+      {"name": "Patch test for acrylic allergy", "result": "Negative to methyl methacrylate; true allergy to denture acrylic is rare.", "essential": false},
+      {"name": "Panoramic radiograph", "result": "Edentulous upper jaw with normal bone. Radiographs do not help with a red mucosa.", "essential": false}
+    ],
+    "finalDiagnosis": "Denture stomatitis (chronic erythematous candidiasis)",
+    "teachingPoint": "Denture stomatitis is redness of the mucosa under a denture, linked to Candida, poor denture hygiene, wearing the denture at night, an old ill-fitting denture and diabetes. Treat with denture hygiene, leaving the denture out at night, an antifungal and relining or remaking the denture. A red patch that does not follow the denture outline, or does not resolve, needs a biopsy to exclude erythroplakia.",
+    "reviewStatus": "DRAFT"
+  },
+  {
+    "id": "endo-aaa-01",
+    "title": "Swollen face, tooth feels high",
+    "patient": "35-year-old female, healthy",
+    "chiefComplaint": "My face is swollen on the right side and my lower tooth feels too high when I bite.",
+    "history": [
+      "Swelling started yesterday; throbbing pain, worse on biting.",
+      "Months ago the same tooth (46) hurt a lot with hot and cold, then the pain stopped on its own.",
+      "Large old filling on 46; temperature 37.4 C; opens her mouth and swallows normally."
+    ],
+    "differentials": [
+      "Acute apical abscess",
+      "Symptomatic apical periodontitis",
+      "Periodontal abscess",
+      "Symptomatic irreversible pulpitis",
+      "Pericoronitis",
+      "Ludwig angina"
+    ],
+    "acceptedDifferentials": [
+      "Acute apical abscess",
+      "Symptomatic apical periodontitis",
+      "Periodontal abscess"
+    ],
+    "investigations": [
+      {"name": "Cold test", "result": "46: no response at all; neighbouring teeth respond normally. The pulp of 46 is necrotic.", "essential": true},
+      {"name": "Periapical radiograph", "result": "46: large deep restoration; widened PDL space and periapical radiolucencies at the mesial and distal root apices.", "essential": true},
+      {"name": "Periodontal probing", "result": "46: normal 2-3 mm probing depths all around, no deep pocket. A periodontal abscess is unlikely.", "essential": true},
+      {"name": "Blood test (CBC)", "result": "Mildly raised white cell count, as expected with a local abscess; it does not change the diagnosis or the treatment.", "essential": false},
+      {"name": "MRI scan", "result": "Soft-tissue swelling of the right cheek, which the clinical examination already showed. MRI is not used for a localised dental abscess.", "essential": false},
+      {"name": "Biopsy of the swelling", "result": "Acute inflammation and pus only. A tooth infection needs drainage, not a biopsy.", "essential": false}
+    ],
+    "finalDiagnosis": "Acute apical abscess",
+    "teachingPoint": "Acute apical abscess (AAE): necrotic pulp (no response to cold), tender tooth, rapid swelling and pus formation, sometimes with mild fever. A history of severe pain that suddenly stopped is a classic sign of pulp death. Treat by establishing drainage (root canal access or incision) and removing the cause; antibiotics only for systemic involvement or spreading infection. Difficulty swallowing or breathing, or a raised floor of the mouth, is an emergency.",
+    "reviewStatus": "DRAFT"
+  }
+]

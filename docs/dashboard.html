@@ -10,21 +10,33 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; overflow: hidden; }
-  .wrap { display: grid; grid-template-rows: auto 1fr; height: 100vh; padding: 2vh 2.5vw; gap: 2vh; }
-  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; }
-  h1 { margin: 0; font-size: 6vh; line-height: 1; letter-spacing: .02em; }
-  .event { font-size: 2.6vh; color: var(--teal); font-weight: 700; margin-top: .6vh; }
-  .status { text-align: right; font-size: 2.1vh; color: var(--muted); }
+  .wrap { display: grid; grid-template-rows: auto 1fr; height: 100vh; padding: 1.6vh 2vw; gap: 1.6vh; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 2vw; line-height: 1.2; }
+  .titles { display: flex; align-items: baseline; gap: 1.6vw; min-width: 0; }
+  h1 { margin: 0; font-size: 5vh; line-height: 1.1; letter-spacing: .02em; }
+  .event { font-size: 2.8vh; color: var(--teal); font-weight: 700; white-space: nowrap; }
+  .status { text-align: right; font-size: 2.1vh; color: var(--muted); white-space: nowrap; }
   .status.bad { color: var(--bad); font-weight: 700; }
-  .grid { display: grid; grid-template-columns: 2.3fr 1fr; gap: 2vw; min-height: 0; }
-  .board { position: relative; display: flex; flex-direction: column; gap: 1vh; min-height: 0; }
-  .row { display: grid; grid-template-columns: 9vh 1fr auto; align-items: center; gap: 2vw; background: var(--row);
-    border-radius: 1.4vh; padding: 0 2vw; height: 7.4vh; will-change: transform; border: .3vh solid transparent; }
-  .rank { font-size: 4.2vh; font-weight: 900; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .who { min-width: 0; }
-  .name { font-size: 3.8vh; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .meta { font-size: 1.9vh; color: var(--muted); margin-top: .3vh; white-space: nowrap; }
-  .total { font-size: 5vh; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--teal); }
+  /* minmax(0, …) stops long names from widening the columns and pushing content off-screen. */
+  .grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: 1.6vw; min-height: 0; }
+  .board { position: relative; display: flex; flex-direction: column; gap: .8vh; min-height: 0; min-width: 0; }
+  /* One row = one line: rank | name (ellipsis) | two score chips | total. Fixed min-height, never shrinks. */
+  .row { display: flex; align-items: center; gap: 1.2vw; flex: none; box-sizing: border-box;
+    min-height: 8vh; height: 8vh; padding: 0 1.4vw; line-height: 1.2; background: var(--row);
+    border-radius: 1.4vh; border: .3vh solid transparent; will-change: transform; }
+  .rank { flex: none; width: 6vh; font-size: 4.4vh; line-height: 1.2; font-weight: 900; text-align: center;
+    color: var(--muted); font-variant-numeric: tabular-nums; }
+  .name { flex: 1 1 auto; min-width: 0; font-size: 3.6vh; line-height: 1.25; font-weight: 800;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chips { flex: none; display: flex; align-items: center; gap: .7vw; }
+  .chip { display: inline-flex; align-items: baseline; gap: .5em; white-space: nowrap;
+    font-size: max(28px, 2.6vh); line-height: 1.2; padding: .5vh 1vw; border-radius: 999px;
+    font-weight: 600; color: #08161b; font-variant-numeric: tabular-nums; }
+  .chip b { font-weight: 900; min-width: 2ch; text-align: right; } /* fixed width: chips line up in columns */
+  .chip.b03 { background: #d9ccff; }
+  .chip.b06 { background: #b8eef5; }
+  .total { flex: none; min-width: 2.6ch; text-align: right; font-size: 5vh; line-height: 1.2; font-weight: 900;
+    font-variant-numeric: tabular-nums; color: var(--teal); }
   .row.r1 { border-color: var(--gold); background: linear-gradient(90deg, rgba(255,207,63,.22), var(--row) 60%); }
   .row.r2 { border-color: var(--silver); background: linear-gradient(90deg, rgba(212,221,226,.18), var(--row) 60%); }
   .row.r3 { border-color: var(--bronze); background: linear-gradient(90deg, rgba(224,149,90,.2), var(--row) 60%); }
@@ -38,8 +50,8 @@
   }
   .empty { font-size: 4vh; color: var(--muted); text-align: center; margin-top: 20vh; }
   aside { display: flex; flex-direction: column; gap: 2vh; min-height: 0; }
-  .panel { background: var(--panel); border-radius: 1.6vh; padding: 2vh 1.6vw; }
-  .panel h2 { margin: 0 0 1.2vh; font-size: 2.8vh; color: var(--teal); }
+  .panel { background: var(--panel); border-radius: 1.6vh; padding: 2vh 1.2vw; }
+  .panel h2 { margin: 0 0 1.2vh; font-size: 2.3vh; line-height: 1.25; color: var(--teal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mini { list-style: none; margin: 0; padding: 0; }
   .mini li { display: grid; grid-template-columns: 4vh 1fr auto; gap: 1vw; font-size: 2.6vh; padding: .7vh 0; border-bottom: 1px solid rgba(255,255,255,.07); }
   .mini li:last-child { border-bottom: 0; }
@@ -54,7 +66,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div>
+    <div class="titles">
       <h1>Leaderboard</h1>
       <div class="event">HealthTech Experience</div>
     </div>
@@ -103,8 +115,13 @@
       const isNew = !r;
       if (!r) {
         const row = el("div", "row");
-        row.append(el("div", "rank"), Object.assign(el("div", "who"), {}), el("div", "total"));
-        row.children[1].append(el("div", "name"), el("div", "meta"));
+        const chips = el("div", "chips");
+        for (const [cls, label] of [["b03", "Read the Scan"], ["b06", "Diagnosis Challenge"]]) {
+          const chip = el("span", "chip " + cls);
+          chip.append(el("span", null, label), el("b"));
+          chips.appendChild(chip);
+        }
+        row.append(el("div", "rank"), el("div", "name"), chips, el("div", "total"));
         r = { el: row, total: null };
         rows.set(k, r);
       }
@@ -113,8 +130,8 @@
       row.querySelector(".rank").textContent = p.rank;
       row.querySelector(".name").textContent = p.name;
       const pb = p.perBooth || {};
-      row.querySelector(".meta").textContent =
-        "ID •••" + p.idLast4 + "   ·   Read the Scan " + (pb.booth03 || 0) + "   ·   Diagnosis Challenge " + (pb.booth06 || 0);
+      row.querySelector(".chip.b03 b").textContent = pb.booth03 || 0;
+      row.querySelector(".chip.b06 b").textContent = pb.booth06 || 0;
       row.querySelector(".total").textContent = p.total;
       if (!firstRender && (isNew || r.total !== p.total)) {
         row.classList.remove("flash");

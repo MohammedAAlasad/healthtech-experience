@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Validate data/cases.json for Booth 06.
+"""Validate booth06/data/cases.json for Booth 06.
 
-Usage: python3 tools/validate_cases.py [data/cases.json]
+Usage: python3 booth06/tools/validate_cases.py [booth06/data/cases.json]
 Exit code 0 = valid, 1 = errors (printed one per line).
 """
 import json

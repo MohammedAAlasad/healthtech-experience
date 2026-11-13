@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Booth 03: uncomment if the X-ray images may NOT be published (GitHub Pages serves the whole repo):
+# booth03/images/

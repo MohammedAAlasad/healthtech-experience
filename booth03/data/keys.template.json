@@ -1,0 +1,18 @@
+[
+  {
+    "id": "case03",
+    "image": "images/case03.jpg",
+    "question": "What do you see on this radiograph? What is your diagnosis?",
+    "key": {
+      "keyFindings": [
+        { "finding": "DUMMY finding 1 (replace)", "points": 3, "keywords": ["dummy one", "مثال ١"] },
+        { "finding": "DUMMY finding 2 (replace)", "points": 3, "keywords": ["dummy two", "مثال ٢"] }
+      ],
+      "diagnosis": "DUMMY diagnosis (replace)",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": ["dummy diagnosis", "accepted equivalent here", "تشخيص مثال"]
+    },
+    "expertExplanation": "Line 1 from the dentistry team.\nLine 2 from the dentistry team.",
+    "placeholder": false
+  }
+]

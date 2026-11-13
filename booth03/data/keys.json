@@ -1,0 +1,49 @@
+[
+  {
+    "id": "case01",
+    "image": "images/case01.svg",
+    "question": "What do you see on this radiograph? What is your diagnosis?",
+    "key": {
+      "keyFindings": [
+        { "finding": "Placeholder finding A", "points": 3, "keywords": ["finding a", "placeholder a", "النتيجة أ"] },
+        { "finding": "Placeholder finding B", "points": 3, "keywords": ["finding b", "placeholder b", "النتيجة ب"] }
+      ],
+      "diagnosis": "Placeholder diagnosis X",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": ["diagnosis x", "placeholder x", "التشخيص س"]
+    },
+    "expertExplanation": "Placeholder explanation line 1 (not clinical content).\nPlaceholder explanation line 2 — replace after the dentistry team provides the key.",
+    "placeholder": true,
+    "aiReading": {
+      "findings": ["Placeholder finding A", "Placeholder AI-only finding Q"],
+      "impression": "Placeholder diagnosis Y",
+      "confidence": "low",
+      "limitation": "Placeholder reading — no real image was analysed."
+    },
+    "aiScore": 3
+  },
+  {
+    "id": "case02",
+    "image": "images/case02.svg",
+    "question": "What do you see on this radiograph? What is your diagnosis?",
+    "key": {
+      "keyFindings": [
+        { "finding": "Placeholder finding C", "points": 2, "keywords": ["finding c", "placeholder c", "النتيجة ج"] },
+        { "finding": "Placeholder finding D", "points": 2, "keywords": ["finding d", "placeholder d", "النتيجة د"] },
+        { "finding": "Placeholder finding E", "points": 2, "keywords": ["finding e", "placeholder e", "النتيجة هـ"] }
+      ],
+      "diagnosis": "Placeholder diagnosis Z",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": ["diagnosis z", "placeholder z", "التشخيص ص"]
+    },
+    "expertExplanation": "Placeholder explanation line 1 (not clinical content).\nPlaceholder explanation line 2 — replace after the dentistry team provides the key.",
+    "placeholder": true,
+    "aiReading": {
+      "findings": ["Placeholder finding C", "Placeholder finding D"],
+      "impression": "Placeholder diagnosis Z",
+      "confidence": "medium",
+      "limitation": "Placeholder reading — no real image was analysed."
+    },
+    "aiScore": 8
+  }
+]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Copy data/cases.json into docs/dx.html (between // BEGIN CASES and // END CASES).
+"""Copy booth06/data/cases.json into booth06/index.html (between // BEGIN CASES and // END CASES).
 
-Usage: python3 tools/inject_cases.py [data/cases.json] [docs/dx.html]
+Usage: python3 booth06/tools/inject_cases.py [booth06/data/cases.json] [booth06/index.html]
 Refuses to run if the cases do not pass validate_cases.py.
 """
 import json
@@ -14,7 +14,7 @@ from validate_cases import validate, load  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CASES_PATH = ROOT / "data" / "cases.json"
-HTML_PATH = ROOT / "docs" / "dx.html"
+HTML_PATH = ROOT / "index.html"  # booth06/index.html
 BLOCK = re.compile(r"(// BEGIN CASES\n)(.*?)(// END CASES)", re.S)
 
 

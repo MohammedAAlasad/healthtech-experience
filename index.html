@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HealthTech Experience</title>
+<style>
+  :root { --bg: #0b1418; --card: #13232a; --ink: #f2f7f9; --muted: #8fa7b0; --teal: #2ec4d6; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 6vh 24px; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); margin: 0; line-height: 1.1; }
+  .sub { font-size: clamp(1.2rem, 2.4vw, 1.8rem); color: var(--teal); font-weight: 700; margin: 12px 0 5vh; }
+  nav { display: grid; gap: 20px; }
+  a.tile { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 120px;
+    padding: 24px 32px; border-radius: 20px; background: var(--card); color: var(--ink); text-decoration: none;
+    border: 3px solid transparent; transition: border-color .15s, transform .15s; }
+  a.tile:hover, a.tile:focus-visible { border-color: var(--teal); outline: none; transform: translateY(-2px); }
+  .name { font-size: clamp(1.6rem, 3.6vw, 2.6rem); font-weight: 800; line-height: 1.2; }
+  .desc { font-size: clamp(1rem, 1.8vw, 1.35rem); color: var(--muted); margin-top: 6px; }
+  .go { font-size: clamp(2rem, 4vw, 3rem); color: var(--teal); font-weight: 900; flex: none; }
+  .mock { margin-top: 4vh; font-size: 1.1rem; color: #ffd600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>HealthTech Experience</h1>
+  <div class="sub">Programming Club · College of Dentistry, IAU</div>
+  <nav>
+    <a class="tile" href="booth06/"><div><div class="name">Booth 06 — Clinical Diagnosis Challenge</div><div class="desc">Diagnose the patient in 4 minutes · max 40 points</div></div><span class="go" aria-hidden="true">→</span></a>
+    <a class="tile" href="booth03/"><div><div class="name">Booth 03 — Read the Scan</div><div class="desc">Read the X-rays and beat the AI · max 30 points</div></div><span class="go" aria-hidden="true">→</span></a>
+    <a class="tile" href="dashboard/"><div><div class="name">Leaderboard</div><div class="desc">TV screen · live ranking of all booths</div></div><span class="go" aria-hidden="true">→</span></a>
+  </nav>
+  <p class="mock" id="mockNote" hidden>Mock mode: links open the booths with ?mock=1 (test data in this browser only).</p>
+</main>
+<script>
+  // Opened with ?mock=1? Pass it on to every booth link.
+  if (new URLSearchParams(location.search).get("mock") === "1") {
+    document.querySelectorAll("a.tile").forEach((a) => { a.href = a.getAttribute("href") + "?mock=1"; });
+    document.getElementById("mockNote").hidden = false;
+  }
+</script>
+</body>
+</html>

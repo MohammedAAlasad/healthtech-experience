@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Regenerate review/cases_for_review.md from data/cases.json (printable doc for the dentistry team).
+"""Regenerate booth06/review/cases_for_review.md from booth06/data/cases.json (printable doc for the dentistry team).
 
-Usage: python3 tools/export_review.py
+Usage: python3 booth06/tools/export_review.py
 """
 import sys
 from pathlib import Path

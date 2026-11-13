@@ -4,20 +4,20 @@ Your booth saves points to the same Google Sheet as Booth 06 through one shared 
 
 ## 1. Include shared.js
 
-Put your page in the same `docs/` folder (same GitHub Pages site), then add the following before your own script:
+Put your page in its own folder at the repo root, e.g. `boothNN/index.html` (same GitHub Pages site), then add the following before your own script:
 
 ```html
-<script src="shared.js"></script>
-<script src="booth03.js"></script>  <!-- your code -->
+<script src="../shared/shared.js"></script>
+<script src="game.js"></script>  <!-- your code, inside boothNN/ -->
 ```
 
-`shared.js` already contains the shared **API_URL** (the Apps Script Web App URL ending in `/exec`, which the Booth 06 owner gives you). Don't copy it into your own code. If you host your page elsewhere, copy `shared.js` next to it unchanged.
+`shared.js` already contains the shared **API_URL** (the Apps Script Web App URL ending in `/exec`, which the Booth 06 owner gives you). Don't copy it into your own code. Never copy `shared.js` into a booth folder: there is exactly one copy, `shared/shared.js`.
 
 ## 2. Check-in, then save the score
 
 ```html
 <div id="app"></div>
-<script src="shared.js"></script>
+<script src="../shared/shared.js"></script>
 <script>
   startCheckIn(document.getElementById("app"), ({ studentId, name }) => {
     // ...play your game here, then when it ends:
@@ -60,4 +60,4 @@ The backend calls Gemini with the key stored in Apps Script Script Properties; t
 
 ## 5. Test without the real backend
 
-Open your page with `?mock=1`, e.g. `http://localhost:8000/booth03.html?mock=1` (run `python3 -m http.server 8000` in `docs/`). Everything is then stored in the browser, and `dashboard.html?mock=1` in the same browser shows your scores. A yellow MOCK MODE badge reminds you. `htMockOffline(true)` in the console simulates a Wi-Fi drop.
+Run `python3 -m http.server 8000` in the repo root and open your page with `?mock=1`, e.g. `http://localhost:8000/booth03/?mock=1`. Everything is then stored in the browser, and `http://localhost:8000/dashboard/?mock=1` in the same browser shows your scores. A yellow MOCK MODE badge reminds you. `htMockOffline(true)` in the console simulates a Wi-Fi drop.

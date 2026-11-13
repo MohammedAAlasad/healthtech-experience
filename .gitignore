@@ -8,3 +8,8 @@ booth03/source/
 booth03/review/booth03_review.html
 booth03/review/booth03_review.pdf
 booth03/images/_originals/
+
+# Booth 05: generated review pack (rebuild with booth05/tools/build_review.py)
+booth05/review/booth05_review.html
+booth05/review/booth05_review.pdf
+booth05/review/.chrome-profile/

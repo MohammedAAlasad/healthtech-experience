@@ -1,6 +1,6 @@
 /*
  * HealthTech Experience — shared.js (used by every booth and the dashboard).
- * Global functions: startCheckIn, getParticipant, register, saveScore, getLeaderboard, grade, htMakeId.
+ * Global functions: startCheckIn, getParticipant, register, saveScore, getLeaderboard, grade, patientTurn, patientGrade, htMakeId.
  * Vanilla JS, no dependencies.
  */
 
@@ -14,8 +14,9 @@ const HT_RETRY_MS = 15000;
 const HT_QUEUE_KEY = "pendingScores";
 const HT_MOCK_DB_KEY = "htMockDb";
 const HT_BOOTHS = ["booth01", "booth02", "booth03", "booth04", "booth05", "booth06"];
-const HT_MAX_POINTS = { booth01: 100, booth02: 100, booth03: 30, booth04: 100, booth05: 100, booth06: 40 };
-const HT_LEADERBOARD_BOOTHS = ["booth03", "booth06"];
+const HT_MAX_POINTS = { booth01: 100, booth02: 100, booth03: 30, booth04: 100, booth05: 10, booth06: 40 };
+const HT_LEADERBOARD_BOOTHS = ["booth03", "booth06", "booth05"];
+const HT_LEADERBOARD_INFO = { booth05: ["caseId", "outcomeTier", "durationS"] }; // extra fields in perBooth entries
 const HT_NAME_MAX = 60;
 
 const HT_MOCK = (function () {
@@ -190,6 +191,20 @@ async function grade(prompt, imageBase64, mimeType) {
     body.mimeType = mimeType;
   }
   const r = await _htRequest("POST", null, body, HT_GRADE_TIMEOUT_MS);
+  return r.result;
+}
+
+/**
+ * Booth 05: one virtual-patient reply. body: {caseId, lang, prompt, leakTerms}. -> {ok, reply, leaked, model}
+ * Waits at most 15 s (the page then answers from its scripted patient). Rejects in mock mode.
+ */
+async function patientTurn(body) {
+  return _htRequest("POST", null, Object.assign({}, body, { action: "patientTurn" }), HT_TIMEOUT_MS);
+}
+
+/** Booth 05: grading. body: {caseId, prompt}. Resolves with the model's parsed JSON. Waits up to 45 s. */
+async function patientGrade(body) {
+  const r = await _htRequest("POST", null, Object.assign({}, body, { action: "patientGrade" }), HT_GRADE_TIMEOUT_MS);
   return r.result;
 }
 
@@ -445,10 +460,14 @@ function _htMockDb() {
       ["999000107", "Reem Aldossary", 15, 22], ["999000108", "Khalid Alghamdi", 20, 18]
     ];
     const t0 = Date.now() - 3600 * 1000;
+    const demo5 = { "999000101": [8.5, "case01", "healed", 262], "999000103": [6, "case02", "improved", 291], "999000106": [4.5, "case03", "worse", 300] };
     demo.forEach(([id, name, b3, b6], i) => {
       db.participants[id] = { name, registeredAt: new Date(t0 + i * 60000).toISOString() };
       if (b3 != null) db.scores.push({ time: t0 + i * 60000 + 1000, studentId: id, name, booth: "booth03", points: b3, counted: true, details: { attemptId: "demo-3-" + id } });
       if (b6 != null) db.scores.push({ time: t0 + i * 60000 + 2000, studentId: id, name, booth: "booth06", points: b6, counted: true, details: { attemptId: "demo-6-" + id } });
+      const d5 = demo5[id];
+      if (d5) db.scores.push({ time: t0 + i * 60000 + 3000, studentId: id, name, booth: "booth05", points: d5[0], counted: true,
+        details: { attemptId: "demo-5-" + id, caseId: d5[1], outcomeTier: d5[2], durationS: d5[3] } });
     });
     localStorage.setItem(HT_MOCK_DB_KEY, JSON.stringify(db));
   }
@@ -507,6 +526,10 @@ async function _htMockHandle(req) {
     case "grade":
       if (!String(req.prompt || "").trim()) fail("prompt is required.");
       return { ok: true, result: { mock: true, score: 7, maxScore: 10, feedback: "Mock grading: connect API_URL for real Gemini grading." } };
+    case "patientTurn":
+    case "patientGrade":
+      fail("AI is not available in mock mode.");
+      break;
     default:
       fail("Unknown action.");
   }
@@ -523,7 +546,18 @@ function _htBuildLeaderboard(db) {
     p.total += s.points;
     p.perBooth[s.booth] = (p.perBooth[s.booth] || 0) + s.points;
     p.last = Math.max(p.last, s.time);
-    if (boothEntries[s.booth]) boothEntries[s.booth].push({ id: s.studentId, name, points: s.points, t: s.time });
+    if (boothEntries[s.booth]) {
+      const e = { id: s.studentId, name, points: s.points, t: s.time };
+      const keys = HT_LEADERBOARD_INFO[s.booth];
+      if (keys) {
+        e.info = {};
+        for (const k of keys) {
+          const v = s.details && s.details[k];
+          if ((typeof v === "number" && isFinite(v)) || (typeof v === "string" && v.length <= 24)) e.info[k] = v;
+        }
+      }
+      boothEntries[s.booth].push(e);
+    }
   }
   const top = Object.values(players)
     .sort((a, b) => b.total - a.total || a.last - b.last)
@@ -537,7 +571,7 @@ function _htBuildLeaderboard(db) {
     perBooth[b] = boothEntries[b]
       .sort((x, y) => y.points - x.points || x.t - y.t)
       .slice(0, 10)
-      .map((e, i) => ({ rank: i + 1, name: e.name, idLast4: e.id.slice(-4), points: e.points }));
+      .map((e, i) => Object.assign({ rank: i + 1, name: e.name, idLast4: e.id.slice(-4), points: e.points }, e.info ? { info: e.info } : {}));
   });
   return { updatedAt: new Date().toISOString(), totalParticipants: Object.keys(db.participants).length, top, perBooth, mock: true };
 }

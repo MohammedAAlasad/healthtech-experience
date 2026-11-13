@@ -58,6 +58,8 @@ const result = await grade(
 
 The backend calls Gemini with the key stored in Apps Script Script Properties; there is no key in the browser. It forces a JSON answer (`responseMimeType: application/json`), so describe the JSON shape you want in the prompt. Expect 2–10 s per call. `grade()` waits up to **45 s** before giving up (all other calls time out after 15 s), so show a "Grading…" message while it runs. On a timeout it rejects with a friendly error; it is **not** queued or retried, so offer a "Try again" button. Images: png/jpeg/webp/heic, about 5 MB max. In mock mode `grade()` returns a fixed fake answer.
 
+Booth 05 also uses `patientTurn({caseId, lang, prompt, leakTerms})` → `{reply}` (15 s timeout, chat model `CONFIG.GEMINI_CHAT_MODEL`, leak check + 35-word cap on the server) and `patientGrade({caseId, prompt})` → parsed JSON (45 s, `CONFIG.GEMINI_MODEL`). Both retry once on 429/5xx, then try `CONFIG.GEMINI_FALLBACK_MODELS`; if everything fails they reject and the page uses its scripted patient / keyword grading. Both reject in mock mode.
+
 ## 5. Test without the real backend
 
 Run `python3 -m http.server 8000` in the repo root and open your page with `?mock=1`, e.g. `http://localhost:8000/booth03/?mock=1`. Everything is then stored in the browser, and `http://localhost:8000/dashboard/?mock=1` in the same browser shows your scores. A yellow MOCK MODE badge reminds you. `htMockOffline(true)` in the console simulates a Wi-Fi drop.

@@ -10,6 +10,12 @@
  *      {action:"register", studentId, name}
  *      {action:"score", studentId, booth, points, details, name?}
  *      {action:"grade", prompt, imageBase64?, mimeType?}
+ *      {action:"patientTurn", caseId, lang, prompt, leakTerms}   (Booth 05: one virtual-patient reply)
+ *      {action:"patientGrade", caseId, prompt}                   (Booth 05: grading JSON)
+ *
+ * Gemini models: CONFIG.GEMINI_MODEL (strongest; Booth 03 "grade" and Booth 05 "patientGrade"),
+ * CONFIG.GEMINI_CHAT_MODEL (fast and cheap; Booth 05 "patientTurn"). The Booth 05 actions retry once on
+ * 429/5xx, then try CONFIG.GEMINI_FALLBACK_MODELS in order; if all fail the page uses its scripted patient.
  *
  * Secrets: the Gemini key lives ONLY in Project Settings > Script Properties > GEMINI_API_KEY.
  * Manual-only maintenance: run clearTestData() from the editor (not reachable from the web).
@@ -18,9 +24,19 @@
 const CONFIG = {
   // Copy the current Flash model name from aistudio.google.com (e.g. the model id shown in AI Studio).
   GEMINI_MODEL: "gemini-3.8-flash",
+  // Booth 05. Leave a "REPLACE_..." value to skip that slot. See booth05/DEPLOY.md.
+  GEMINI_CHAT_MODEL: "REPLACE_WITH_FAST_CHAT_MODEL_FROM_AI_STUDIO",
+  GEMINI_FALLBACK_MODELS: ["REPLACE_WITH_FALLBACK_MODEL_1", "REPLACE_WITH_FALLBACK_MODEL_2"],
+  CHAT_BUDGET_MS: 10000,    // stop trying new models after this (the page waits 15 s, then answers from its script)
+  GRADE_BUDGET_MS: 35000,   // the page waits 45 s for patientGrade
+  RETRY_SLEEP_MS: 800,
+  PATIENT_PROMPT_MAX_CHARS: 24000,
+  PATIENT_MAX_WORDS: 35,
   BOOTHS: ["booth01", "booth02", "booth03", "booth04", "booth05", "booth06"],
-  MAX_POINTS: { booth01: 100, booth02: 100, booth03: 30, booth04: 100, booth05: 100, booth06: 40 },
-  LEADERBOARD_BOOTHS: ["booth03", "booth06"],
+  MAX_POINTS: { booth01: 100, booth02: 100, booth03: 30, booth04: 100, booth05: 10, booth06: 40 },
+  LEADERBOARD_BOOTHS: ["booth03", "booth06", "booth05"],
+  // Extra fields copied from the score details into the per-booth top list (short strings / numbers only).
+  LEADERBOARD_INFO: { booth05: ["caseId", "outcomeTier", "durationS"] },
   TOP_N: 20,
   PER_BOOTH_N: 10,
   NAME_MAX: 60,
@@ -77,6 +93,10 @@ function doPost(e) {
         return withLock_(function () { return score_(body); });
       case "grade":
         return grade_(body);
+      case "patientTurn":
+        return patientTurn_(body);
+      case "patientGrade":
+        return patientGrade_(body);
       default:
         throw userError_("Unknown action.");
     }
@@ -234,7 +254,12 @@ function leaderboard_() {
     p.total += pts;
     p.perBooth[booth] = (p.perBooth[booth] || 0) + pts;
     if (t > p.last) p.last = t;
-    if (boothEntries[booth]) boothEntries[booth].push({ id: id, name: name, points: pts, t: t });
+    if (boothEntries[booth]) {
+      const entry = { id: id, name: name, points: pts, t: t };
+      const infoKeys = CONFIG.LEADERBOARD_INFO[booth];
+      if (infoKeys) entry.info = pickInfo_(parseJson_(r[S.DETAILS]), infoKeys);
+      boothEntries[booth].push(entry);
+    }
   });
 
   const sorted = Object.keys(players).map(function (k) { return players[k]; });
@@ -252,7 +277,11 @@ function leaderboard_() {
     perBooth[bt] = boothEntries[bt]
       .sort(function (a, b) { return b.points - a.points || a.t - b.t; })
       .slice(0, CONFIG.PER_BOOTH_N)
-      .map(function (e, i) { return { rank: i + 1, name: e.name, idLast4: last4_(e.id), points: e.points }; });
+      .map(function (e, i) {
+        const o = { rank: i + 1, name: e.name, idLast4: last4_(e.id), points: e.points };
+        if (e.info) o.info = e.info;
+        return o;
+      });
   });
 
   const uniqueParticipants = {};
@@ -322,6 +351,189 @@ function grade_(b) {
   } catch (err) {
     throw userError_("AI answer was not valid JSON. Please try again.");
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Booth 05 — Virtual Patient                                          */
+/* The page builds the prompts (case content stays in the page, as     */
+/* with Booth 03); the server picks the model, retries, falls back,    */
+/* and guards the patient reply (leak check + word cap).               */
+/* ------------------------------------------------------------------ */
+
+function patientTurn_(b) {
+  const prompt = patientPrompt_(b.prompt);
+  const lang = b.lang === "en" ? "en" : "ar";
+  const caseId = /^[A-Za-z0-9_-]{1,32}$/.test(String(b.caseId || "")) ? String(b.caseId) : "?";
+  const terms = (Array.isArray(b.leakTerms) ? b.leakTerms : []).slice(0, 80)
+    .map(function (t) { return String(t === undefined || t === null ? "" : t).slice(0, 120); })
+    .filter(function (t) { return t.trim() !== ""; });
+  const out = geminiChain_(modelChain_(CONFIG.GEMINI_CHAT_MODEL), {
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.8, maxOutputTokens: 1024 }
+  }, CONFIG.CHAT_BUDGET_MS, function (text) {
+    const t = String(text).replace(/\s+/g, " ").trim();
+    if (!t) throw new Error("empty reply");
+    return t;
+  });
+  let reply = out.value;
+  let leaked = false;
+  if (leaks_(reply, terms)) {
+    console.warn("patientTurn " + caseId + ": reply blocked by the leak check: " + reply.slice(0, 200));
+    reply = lang === "en" ? "I don't know, doctor, you're the doctor!" : "ما أدري يا دكتور، أنت الدكتور!";
+    leaked = true;
+  }
+  return { ok: true, reply: capWords_(reply, CONFIG.PATIENT_MAX_WORDS), leaked: leaked, model: out.model };
+}
+
+function patientGrade_(b) {
+  const prompt = patientPrompt_(b.prompt);
+  const out = geminiChain_(modelChain_(CONFIG.GEMINI_MODEL), {
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0, responseMimeType: "application/json" }
+  }, CONFIG.GRADE_BUDGET_MS, function (text) {
+    const v = JSON.parse(text);
+    if (!v || typeof v !== "object" || Array.isArray(v)) throw new Error("not a JSON object");
+    return v;
+  });
+  return { ok: true, result: out.value, model: out.model };
+}
+
+function patientPrompt_(v) {
+  const prompt = String(v === undefined || v === null ? "" : v).trim();
+  if (!prompt) throw userError_("prompt is required.");
+  if (prompt.length > CONFIG.PATIENT_PROMPT_MAX_CHARS) throw userError_("prompt is too long.");
+  return prompt;
+}
+
+/** [primary, ...CONFIG.GEMINI_FALLBACK_MODELS] without placeholders and duplicates. */
+function modelChain_(primary) {
+  const out = [];
+  [primary].concat(CONFIG.GEMINI_FALLBACK_MODELS || []).forEach(function (m) {
+    m = String(m === undefined || m === null ? "" : m).replace(/^models\//, "").trim();
+    if (m && m.indexOf("REPLACE_") !== 0 && out.indexOf(m) === -1) out.push(m);
+  });
+  return out;
+}
+
+/**
+ * Tries each model in order: one retry on 429/500/503/504 or a network error, then the next model.
+ * accept(text) parses/validates the answer (throw = treat as a failure of that model).
+ * Gives up when budgetMs has passed. -> {value, model}
+ */
+function geminiChain_(models, payload, budgetMs, accept) {
+  if (!models.length) throw userError_("No Gemini model is configured on the server (CONFIG in Code.gs).");
+  const key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
+  if (!key) throw userError_("Gemini API key is missing on the server (Script Properties > GEMINI_API_KEY).");
+  const start = Date.now();
+  const tried = [];
+  for (let i = 0; i < models.length; i++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (Date.now() - start > budgetMs) {
+        tried.push("time budget used up");
+        throw userError_("AI is unavailable right now (" + tried.join(", ") + ").");
+      }
+      const r = geminiCall_(models[i], key, payload);
+      if (r.ok) {
+        try {
+          return { value: accept(r.text), model: models[i] };
+        } catch (err) {
+          r.retry = false;
+          r.code = "bad answer";
+        }
+      }
+      tried.push(models[i] + " " + r.code);
+      console.warn("Gemini " + models[i] + " failed (" + r.code + "): " + String(r.error || "").slice(0, 300));
+      if (!r.retry) break;
+      if (attempt === 0) Utilities.sleep(CONFIG.RETRY_SLEEP_MS);
+    }
+  }
+  throw userError_("AI is unavailable right now (" + tried.join(", ") + ").");
+}
+
+/** One generateContent call. -> {ok, text} or {ok:false, retry, code, error} */
+function geminiCall_(model, key, payload) {
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent";
+  let res;
+  try {
+    res = UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      headers: { "x-goog-api-key": key },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+  } catch (err) {
+    return { ok: false, retry: true, code: "network", error: String(err) };
+  }
+  const code = res.getResponseCode();
+  if (code !== 200) {
+    return { ok: false, retry: code === 429 || code === 500 || code === 503 || code === 504, code: code, error: res.getContentText() };
+  }
+  try {
+    const json = JSON.parse(res.getContentText());
+    const cand = (json.candidates || [])[0] || {};
+    const parts = (cand.content && cand.content.parts) || [];
+    const text = parts.filter(function (p) { return p.thought !== true; }).map(function (p) { return p.text || ""; }).join("");
+    if (!text.trim()) return { ok: false, retry: false, code: "empty", error: cand.finishReason || "" };
+    return { ok: true, text: text };
+  } catch (err) {
+    return { ok: false, retry: false, code: "unreadable", error: String(err) };
+  }
+}
+
+/** Same normalisation as the page: lower case, no tashkeel, unified alef/yaa/taa marbuta, punctuation -> space. */
+function normAr_(text) {
+  let out = "";
+  const s = String(text === undefined || text === null ? "" : text);
+  for (let i = 0; i < s.length; i++) {
+    let ch = s[i];
+    const o = ch.charCodeAt(0);
+    if ((o >= 0x064B && o <= 0x065F) || o === 0x0670 || o === 0x0640) continue;
+    if ("أإآٱ".indexOf(ch) !== -1) ch = "ا";
+    else if (ch === "ة") ch = "ه";
+    else if (ch === "ى") ch = "ي";
+    else if (ch === "ؤ") ch = "و";
+    else if (ch === "ئ") ch = "ي";
+    else if (o >= 0x0660 && o <= 0x0669) ch = String(o - 0x0660);
+    else if (o >= 0x06F0 && o <= 0x06F9) ch = String(o - 0x06F0);
+    else if (!/[\p{L}\p{M}\p{N}\s]/u.test(ch)) ch = " ";
+    out += ch.toLowerCase();
+  }
+  return out.replace(/\s+/g, " ").trim();
+}
+
+/** true if any leak term occurs in the reply (Latin terms only at a word start). */
+function leaks_(reply, terms) {
+  const n = normAr_(reply);
+  return terms.some(function (t) {
+    const kw = normAr_(t);
+    if (!kw) return false;
+    const latin = /^[a-z0-9]/.test(kw);
+    let from = 0;
+    while (true) {
+      const i = n.indexOf(kw, from);
+      if (i < 0) return false;
+      if (!latin || i === 0 || !/[\p{L}\p{N}]/u.test(n[i - 1])) return true;
+      from = i + 1;
+    }
+  });
+}
+
+function capWords_(s, n) {
+  const w = String(s).split(/\s+/).filter(function (x) { return x; });
+  return w.length <= n ? w.join(" ") : w.slice(0, n).join(" ") + "…";
+}
+
+/** Short strings / finite numbers only, from a parsed details object. */
+function pickInfo_(d, keys) {
+  const out = {};
+  if (!d || typeof d !== "object") return out;
+  keys.forEach(function (k) {
+    const v = d[k];
+    if (typeof v === "number" && isFinite(v)) out[k] = v;
+    else if (typeof v === "string" && v.length <= 24) out[k] = v;
+  });
+  return out;
 }
 
 /* ------------------------------------------------------------------ */

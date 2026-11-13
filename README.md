@@ -7,7 +7,8 @@ Programming Club, College of Dentistry, IAU. One repo, one folder per booth. Git
 | `index.html` | Landing page with links to every booth and the leaderboard |
 | `booth06/` | **Booth 06 – Clinical Diagnosis Challenge** (max 40): `index.html`, `data/`, `review/`, `tools/` |
 | `booth03/` | **Booth 03 – Read the Scan** (max 30): `index.html`, `images/`, `data/`, `review/`, `tools/` (details: `booth03/README.md`) |
-| `booth02/` | Placeholder, not built yet |
+| `booth05/` | **Booth 05 – Virtual Patient** (max 10): voice consultation with an AI patient; `index.html`, `data/`, `tools/` (details: `booth05/README.md`, backend update: `booth05/DEPLOY.md`) |
+| `booth02/` | Booth 02 takeaway page |
 | `dashboard/` | TV leaderboard |
 | `shared/shared.js` | The single shared client for all booths: check-in form, API calls, offline queue, mock mode |
 | `apps-script/Code.gs` | Backend (Google Sheet + Apps Script): storage, rules, leaderboard, Gemini grading |
@@ -30,6 +31,7 @@ Run every command below from the **repo root**. On macOS use `python3`; on Windo
    - http://localhost:8000/?mock=1 (landing page; its links keep `?mock=1`)
    - http://localhost:8000/booth06/?mock=1 (Booth 06)
    - http://localhost:8000/booth03/?mock=1 (Booth 03)
+   - http://localhost:8000/booth05/?mock=1 (Booth 05; voice needs Chrome or Edge)
    - http://localhost:8000/dashboard/?mock=1 (TV leaderboard)
 3. Mock mode stores everything in the browser's `localStorage` and shows a yellow **MOCK MODE** badge. All pages are on one origin, so scores from both booths show up on the dashboard in the same browser.
 4. Optional console helpers (DevTools > Console): `htMockOffline(true)` simulates a Wi-Fi drop, `htMockOffline(false)` restores it, `htMockReset()` clears mock data, `runScoringTests()` (on Booth 06) runs the scoring tests.
@@ -77,6 +79,7 @@ Mock mode is also used automatically while `API_URL` in `shared/shared.js` is em
 4. Event laptops:
    - Booth 06 laptop: `https://<you>.github.io/<repo>/booth06/`
    - Booth 03 laptop: `https://<you>.github.io/<repo>/booth03/`
+   - Booth 05 laptop (Chrome or Edge, headset): `https://<you>.github.io/<repo>/booth05/`
    - TV: `https://<you>.github.io/<repo>/dashboard/` (press F11 for full screen)
 
 The empty `.nojekyll` file tells GitHub Pages to serve the files as they are (no Jekyll processing).
@@ -92,6 +95,7 @@ The empty `.nojekyll` file tells GitHub Pages to serve the files as they are (no
 - [ ] Run `clearTestData()` in the Apps Script editor to remove all `999…` test rows.
 - [ ] Wi-Fi drop: turn Wi-Fi off on a booth laptop and finish a round. You should see "No connection…" plus an orange "1 unsent score" badge. Turn Wi-Fi back on: within 15 s the badge disappears and the score is on the dashboard. A reload while offline keeps the queue.
 - [ ] Booth 03 extras (keyboard, grader test): `booth03/README.md` § 4–5.
+- [ ] Booth 05 extras (headset, voice test, model names): `booth05/README.md` § 4 and `booth05/DEPLOY.md`.
 - [ ] After prizes are given: delete all rows except the header in both tabs, or delete the Sheet.
 
 ## g. Known limits
@@ -109,7 +113,7 @@ The empty `.nojekyll` file tells GitHub Pages to serve the files as they are (no
 4. `python3 booth06/tools/export_review.py` (regenerates the printable review document)
 5. Only set `"reviewStatus": "APPROVED"` on a case after the dentistry team has approved it. The red banner disappears only when **every** case is APPROVED.
 
-Booth 03 cases: `booth03/README.md` § 2.
+Booth 03 cases: `booth03/README.md` § 2. Booth 05 cases: `booth05/README.md` § 6.
 
 ## Tests
 
@@ -120,6 +124,11 @@ python3 booth03/tools/validate_cases.py booth03/data/cases.json
 python3 booth03/tools/inject_cases.py
 node booth03/tools/test_guard.js
 python3 booth03/tools/prepare_ai_readings.py --self-test
+python3 booth05/tools/validate_cases.py
+node booth05/tools/test_guard.js
+python3 booth05/tools/patient_guard.py --self-test
+node booth05/tools/test_backend.js               # Code.gs with fake Apps Script services
+node booth05/tools/e2e_mock.mjs                  # needs python3 -m http.server 8000 running + Chrome
 python3 tools/smoke_test.py "<WEB_APP_URL>"      # needs the deployed backend
 ```
 Booth 06 scoring tests: open `booth06/?mock=1`, then run `runScoringTests()` in the console.

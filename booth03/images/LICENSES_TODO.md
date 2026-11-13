@@ -2,7 +2,7 @@
 
 Rule: **PMC/Wikimedia figures need licence check before public posting; 08/09/10 sources incomplete.**
 
-Until every row is checked, `booth03/images/*.jpg` (and the source PDF and review files that contain the images) stay out of git via `.gitignore`. Copy the images to the booth laptops by hand.
+The images are committed to the (public) repo and served on GitHub Pages; each one shows its source under the image on the result screen. Finish the licence check before the event. The source PDF and the review files stay out of git.
 
 | Case | Source | Licence checked |
 |---|---|---|

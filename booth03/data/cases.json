@@ -148,7 +148,7 @@
       "limitation": "Cropped field of view excludes the tooth apices and most of the mandibular alveolar bone, and low image resolution limits detection of subtle demineralization."
     },
     "imageSha256": "9defb4d47200b80a66859c577d02f13b411a888f432226bc8a8053537e36fede",
-    "aiScore": 0.0,
+    "aiScore": 7.5,
     "aiScoreMode": "ai",
     "keyHash": "440e5afcb0af25fa"
   },
@@ -530,7 +530,7 @@
       "limitation": "Single two-dimensional periapical view limits buccal-palatal localization and obscures the underlying central incisor apices without additional angulated views or CBCT."
     },
     "imageSha256": "df51024d32642d7ab50299cca0131dfdc3657881547f104fb6f6f89b10301fd5",
-    "aiScore": 9.0,
+    "aiScore": 8.0,
     "aiScoreMode": "ai",
     "keyHash": "fc8f95f89c970b6b"
   },

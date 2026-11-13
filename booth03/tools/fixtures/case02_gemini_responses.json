@@ -1,0 +1,139 @@
+{
+ "_about": "Real Gemini grading responses for case02 (2026-11-13), old string format. With the old exact-string guard they scored 2, 7.5 and 0 for the same answer. Used by test_guard.js and prepare_ai_readings.py --self-test.",
+ "key": {
+  "keyFindings": [
+   {
+    "finding": "Triangular radiolucency at the proximal surface",
+    "points": 3,
+    "keywords": [
+     "triangular radiolucency",
+     "triangular radiolucent",
+     "proximal radiolucency",
+     "interproximal radiolucency",
+     "radiolucency between the teeth",
+     "dark triangle"
+    ]
+   },
+   {
+    "finding": "Lesion extending into the tooth structure",
+    "points": 2,
+    "keywords": [
+     "into dentin",
+     "into the dentin",
+     "reaches dentin",
+     "dentin involvement",
+     "through the enamel",
+     "extends into the tooth"
+    ]
+   },
+   {
+    "finding": "Location beneath the contact area",
+    "points": 1,
+    "keywords": [
+     "contact area",
+     "contact point",
+     "below the contact",
+     "under the contact",
+     "beneath the contact",
+     "gingival to the contact"
+    ]
+   }
+  ],
+  "diagnosis": "Proximal dental caries",
+  "diagnosisPoints": 4,
+  "diagnosisKeywords": [
+   "proximal caries",
+   "interproximal caries",
+   "approximal caries",
+   "dental caries",
+   "carious lesion",
+   "interproximal decay",
+   "تسوس بين الأسنان",
+   "تسوس"
+  ]
+ },
+ "answer": "Findings: Bitewing radiograph showing posterior maxillary and mandibular teeth on one side.; Small radiolucency confined to the outer enamel on the mesial surface of the mandibular second premolar, indicated by the arrow labeled D1.; Radiopaque occlusal restoration on the maxillary molar.; Bright radiopaque mesio-occlusal restoration on the mandibular first molar.; Minimal interproximal calculus or bone loss visible within the maxillary crestal region.. Impression: Incipient interproximal enamel caries (D1 lesion) on the mesial surface of the mandibular second premolar, with existing posterior restorations..",
+ "responses": [
+  {
+   "name": "sample 1",
+   "old_guard_score": 2,
+   "expected_score": 7.5,
+   "result": {
+    "score": 7.5,
+    "matched": [
+     "Radiolucency at the proximal surface (partial: triangular shape not mentioned)",
+     "Lesion extending into the tooth structure",
+     "Diagnosis: Proximal dental caries"
+    ],
+    "missed": [
+     "Triangular shape of the radiolucency",
+     "Location beneath the contact area"
+    ],
+    "wrong": [],
+    "feedback": "Great job identifying the proximal enamel caries accurately—just remember to note the triangular shape and its position beneath the contact area."
+   }
+  },
+  {
+   "name": "sample 2",
+   "old_guard_score": 7.5,
+   "expected_score": 7.5,
+   "result": {
+    "score": 7.5,
+    "matched": [
+     "Lesion extending into the tooth structure",
+     "Proximal dental caries",
+     "Radiolucency at the proximal surface (partial: shape not specified as triangular)"
+    ],
+    "missed": [
+     "Triangular shape of the radiolucency",
+     "Location beneath the contact area"
+    ],
+    "wrong": [],
+    "feedback": "Great job identifying the incipient interproximal caries and its enamel involvement; remember to also note the triangular shape and location beneath the contact area."
+   }
+  },
+  {
+   "name": "sample 3",
+   "old_guard_score": 0,
+   "expected_score": 7.5,
+   "result": {
+    "score": 7.5,
+    "matched": [
+     "Radiolucency at the proximal/mesial surface (partial: triangular shape not mentioned)",
+     "Lesion extending into the tooth structure (outer enamel)",
+     "Diagnosis: Proximal dental caries (incipient interproximal enamel caries)"
+    ],
+    "missed": [
+     "Triangular shape of the radiolucency",
+     "Location specifically beneath the contact area"
+    ],
+    "wrong": [],
+    "feedback": "Great job accurately diagnosing the interproximal caries and describing its extent into the outer enamel; try to also note the triangular shape and its position beneath the contact area."
+   }
+  },
+  {
+   "name": "same judgement in the new id format",
+   "old_guard_score": null,
+   "expected_score": 7.5,
+   "result": {
+    "score": 7.5,
+    "matched": [
+     {
+      "id": "F1",
+      "credit": 0.5
+     },
+     {
+      "id": "F2",
+      "credit": 1
+     },
+     {
+      "id": "DX",
+      "credit": 1
+     }
+    ],
+    "wrong": [],
+    "feedback": "Good reading."
+   }
+  }
+ ]
+}

@@ -2,9 +2,8 @@ __pycache__/
 *.pyc
 .DS_Store
 
-# Booth 03 radiographs: the repo is public and image licences are not checked yet (see booth03/images/LICENSES_TODO.md).
-# Keep every file that contains the images out of git; copy them to the booth laptops by hand.
-booth03/images/*.jpg
+# Booth 03: the radiographs (booth03/images/*.jpg) ARE committed; licence check still open (booth03/images/LICENSES_TODO.md).
+# The source PDF and the generated review files stay out of git.
 booth03/source/
 booth03/review/booth03_review.html
 booth03/review/booth03_review.pdf

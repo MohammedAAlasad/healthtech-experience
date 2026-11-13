@@ -113,7 +113,7 @@ The empty `.nojekyll` file tells GitHub Pages to serve the files as they are (no
 4. `python3 booth06/tools/export_review.py` (regenerates the printable review document)
 5. Only set `"reviewStatus": "APPROVED"` on a case after the dentistry team has approved it. The red banner disappears only when **every** case is APPROVED.
 
-Booth 03 cases: `booth03/README.md` § 2. Booth 05 cases: `booth05/README.md` § 6.
+Booth 03 cases: `booth03/README.md` § 2. Booth 05 cases: `booth05/README.md` § 7.
 
 ## Tests
 

@@ -10,8 +10,9 @@
  *      {action:"register", studentId, name}
  *      {action:"score", studentId, booth, points, details, name?}
  *      {action:"grade", prompt, imageBase64?, mimeType?}
- *      {action:"patientTurn", caseId, lang, prompt, leakTerms}   (Booth 05: one virtual-patient reply)
- *      {action:"patientGrade", caseId, prompt}                   (Booth 05: grading JSON)
+ *      {action:"patientTurn", caseId, lang, system, turns, text, leakTerms}   (Booth 05: one virtual-patient reply)
+ *      {action:"patientGrade", caseId, prompt}                               (Booth 05: grading JSON)
+ *      {action:"ttsSpeak", text, lang}                                        (Booth 05 premium voice, off by default)
  *
  * Gemini models: CONFIG.GEMINI_MODEL (strongest; Booth 03 "grade" and Booth 05 "patientGrade"),
  * CONFIG.GEMINI_CHAT_MODEL (fast and cheap; Booth 05 "patientTurn"). The Booth 05 actions retry once on
@@ -27,6 +28,20 @@ const CONFIG = {
   // Booth 05. Leave a "REPLACE_..." value to skip that slot. See booth05/DEPLOY.md.
   GEMINI_CHAT_MODEL: "REPLACE_WITH_FAST_CHAT_MODEL_FROM_AI_STUDIO",
   GEMINI_FALLBACK_MODELS: ["REPLACE_WITH_FALLBACK_MODEL_1", "REPLACE_WITH_FALLBACK_MODEL_2"],
+  // Booth 05 premium voice (only used when the page runs with ?tts=gemini). Placeholder = off.
+  GEMINI_TTS_MODEL: "REPLACE_WITH_TTS_MODEL_FROM_AI_STUDIO",
+  GEMINI_TTS_VOICE: "Kore",
+  TTS_STYLE: "Say it like a patient talking to a dentist, natural Saudi Arabic accent: ",
+  TTS_BUDGET_MS: 12000,
+  // patientTurn speed settings
+  CHAT_TEMPERATURE: 0.7,
+  CHAT_MAX_OUTPUT_TOKENS: 120,            // replies are at most 35 words
+  CHAT_MAX_OUTPUT_TOKENS_THINKING: 1024,  // used only for a model that rejects every thinking setting (thinking tokens count too)
+  // Lowest thinking settings to try, in order; a 400 moves to the next one, then to "no thinkingConfig".
+  // The one that works is remembered per model for 6 h (CacheService). Gemini 3 models: add { thinkingLevel: "minimal" }.
+  CHAT_THINKING_OPTIONS: [{ thinkingBudget: 0 }],
+  CHAT_MAX_TURNS: 8,        // only the last 8 conversation turns go to the model
+  TURN_MAX_CHARS: 300,
   CHAT_BUDGET_MS: 10000,    // stop trying new models after this (the page waits 15 s, then answers from its script)
   GRADE_BUDGET_MS: 35000,   // the page waits 45 s for patientGrade
   RETRY_SLEEP_MS: 800,
@@ -97,6 +112,8 @@ function doPost(e) {
         return patientTurn_(body);
       case "patientGrade":
         return patientGrade_(body);
+      case "ttsSpeak":
+        return ttsSpeak_(body);
       default:
         throw userError_("Unknown action.");
     }
@@ -361,20 +378,26 @@ function grade_(b) {
 /* ------------------------------------------------------------------ */
 
 function patientTurn_(b) {
-  const prompt = patientPrompt_(b.prompt);
   const lang = b.lang === "en" ? "en" : "ar";
   const caseId = /^[A-Za-z0-9_-]{1,32}$/.test(String(b.caseId || "")) ? String(b.caseId) : "?";
   const terms = (Array.isArray(b.leakTerms) ? b.leakTerms : []).slice(0, 80)
     .map(function (t) { return String(t === undefined || t === null ? "" : t).slice(0, 120); })
     .filter(function (t) { return t.trim() !== ""; });
-  const out = geminiChain_(modelChain_(CONFIG.GEMINI_CHAT_MODEL), {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.8, maxOutputTokens: 1024 }
-  }, CONFIG.CHAT_BUDGET_MS, function (text) {
+  let payload;
+  if (b.system !== undefined && b.system !== null) {
+    const text = cleanTurn_(b.text);
+    if (!text) throw userError_("text is required.");
+    payload = { systemInstruction: { parts: [{ text: patientPrompt_(b.system) }] }, contents: chatContents_(b.turns, text) };
+  } else {
+    // Older page version: one prompt with everything in it.
+    payload = { contents: [{ role: "user", parts: [{ text: patientPrompt_(b.prompt) }] }] };
+  }
+  payload.generationConfig = { temperature: CONFIG.CHAT_TEMPERATURE, maxOutputTokens: CONFIG.CHAT_MAX_OUTPUT_TOKENS };
+  const out = geminiChain_(modelChain_(CONFIG.GEMINI_CHAT_MODEL), payload, CONFIG.CHAT_BUDGET_MS, function (text) {
     const t = String(text).replace(/\s+/g, " ").trim();
     if (!t) throw new Error("empty reply");
     return t;
-  });
+  }, chatCall_);
   let reply = out.value;
   let leaked = false;
   if (leaks_(reply, terms)) {
@@ -382,7 +405,59 @@ function patientTurn_(b) {
     reply = lang === "en" ? "I don't know, doctor, you're the doctor!" : "ما أدري يا دكتور، أنت الدكتور!";
     leaked = true;
   }
-  return { ok: true, reply: capWords_(reply, CONFIG.PATIENT_MAX_WORDS), leaked: leaked, model: out.model };
+  return { ok: true, reply: capWords_(reply, CONFIG.PATIENT_MAX_WORDS), leaked: leaked, model: out.model, thinking: out.thinking };
+}
+
+function cleanTurn_(v) {
+  return String(v === undefined || v === null ? "" : v).replace(/\s+/g, " ").trim().slice(0, CONFIG.TURN_MAX_CHARS);
+}
+
+/**
+ * Gemini chat contents: the last CONFIG.CHAT_MAX_TURNS turns (dentist -> user, patient -> model) + the new text.
+ * Same-role neighbours are merged and the list starts with a user turn, as the API expects.
+ */
+function chatContents_(turns, text) {
+  const list = (Array.isArray(turns) ? turns : [])
+    .filter(function (t) { return t && (t.role === "dentist" || t.role === "patient"); })
+    .map(function (t) { return { role: t.role === "dentist" ? "user" : "model", text: cleanTurn_(t.text) }; })
+    .filter(function (t) { return t.text; })
+    .slice(-CONFIG.CHAT_MAX_TURNS);
+  list.push({ role: "user", text: text });
+  const merged = [];
+  list.forEach(function (t) {
+    const last = merged[merged.length - 1];
+    if (last && last.role === t.role) last.text += "\n" + t.text;
+    else merged.push({ role: t.role, text: t.text });
+  });
+  while (merged.length && merged[0].role !== "user") merged.shift();
+  return merged.map(function (t) { return { role: t.role, parts: [{ text: t.text }] }; });
+}
+
+/**
+ * patientTurn call with the lowest thinking setting the model accepts: tries CONFIG.CHAT_THINKING_OPTIONS in order,
+ * then no thinkingConfig. Only an HTTP 400 moves to the next option. The option that worked is cached per model (6 h).
+ */
+function chatCall_(model, key, payload) {
+  const opts = (CONFIG.CHAT_THINKING_OPTIONS || []).concat([null]);
+  const cache = CacheService.getScriptCache();
+  const ck = "b05think:" + model;
+  let i = parseInt(cache.get(ck), 10);
+  if (!(i >= 0 && i < opts.length)) i = 0;
+  const first = i;
+  while (true) {
+    const p = JSON.parse(JSON.stringify(payload));
+    if (opts[i]) p.generationConfig.thinkingConfig = opts[i];
+    else p.generationConfig.maxOutputTokens = CONFIG.CHAT_MAX_OUTPUT_TOKENS_THINKING;
+    const r = geminiCall_(model, key, p);
+    if (!r.ok && r.code === 400 && i < opts.length - 1) {
+      console.warn("Gemini " + model + " rejected thinkingConfig " + JSON.stringify(opts[i]) + "; retrying with the next setting.");
+      i++;
+      continue;
+    }
+    if (r.ok && i !== first) cache.put(ck, String(i), 21600);
+    r.thinking = opts[i] ? JSON.stringify(opts[i]) : "model default";
+    return r;
+  }
 }
 
 function patientGrade_(b) {
@@ -398,6 +473,40 @@ function patientGrade_(b) {
   return { ok: true, result: out.value, model: out.model };
 }
 
+/** Premium voice: one sentence -> base64 audio (WAV). The page falls back to the browser voice on any error. */
+function ttsSpeak_(b) {
+  const text = cleanTurn_(b.text);
+  if (!text) throw userError_("text is required.");
+  const models = modelChain_(CONFIG.GEMINI_TTS_MODEL, true);
+  if (!models.length) throw userError_("No TTS model is configured on the server (CONFIG.GEMINI_TTS_MODEL).");
+  const out = geminiChain_(models, {
+    contents: [{ role: "user", parts: [{ text: (b.lang === "en" ? "Say it like a patient talking to a dentist: " : CONFIG.TTS_STYLE) + text }] }],
+    generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: CONFIG.GEMINI_TTS_VOICE } } } }
+  }, CONFIG.TTS_BUDGET_MS, function (t, parts) {
+    const part = (parts || []).filter(function (p) { return p.inlineData || p.inline_data; })[0];
+    if (!part) throw new Error("no audio in the answer");
+    const d = part.inlineData || part.inline_data;
+    return audioToWav_(d.data, d.mimeType || d.mime_type || "");
+  });
+  return { ok: true, audio: out.value.audio, mimeType: out.value.mimeType, model: out.model };
+}
+
+/** Gemini TTS returns raw 16-bit PCM (audio/L16;rate=24000): wrap it in a WAV header so an <audio> element can play it. */
+function audioToWav_(b64, mime) {
+  if (/wav|mpeg|mp3|ogg|webm/i.test(mime)) return { audio: b64, mimeType: mime };
+  const m = /rate=(\d+)/i.exec(mime);
+  const rate = m ? parseInt(m[1], 10) : 24000;
+  const pcm = Utilities.base64Decode(b64);
+  const n = pcm.length;
+  const header = [];
+  const str = function (s) { for (let i = 0; i < s.length; i++) header.push(s.charCodeAt(i)); };
+  const u32 = function (v) { header.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); };
+  const u16 = function (v) { header.push(v & 255, (v >>> 8) & 255); };
+  str("RIFF"); u32(36 + n); str("WAVE"); str("fmt "); u32(16); u16(1); u16(1); u32(rate); u32(rate * 2); u16(2); u16(16); str("data"); u32(n);
+  const bytes = header.map(function (x) { return x > 127 ? x - 256 : x; }).concat(Array.prototype.slice.call(pcm));
+  return { audio: Utilities.base64Encode(bytes), mimeType: "audio/wav" };
+}
+
 function patientPrompt_(v) {
   const prompt = String(v === undefined || v === null ? "" : v).trim();
   if (!prompt) throw userError_("prompt is required.");
@@ -405,10 +514,10 @@ function patientPrompt_(v) {
   return prompt;
 }
 
-/** [primary, ...CONFIG.GEMINI_FALLBACK_MODELS] without placeholders and duplicates. */
-function modelChain_(primary) {
+/** [primary, ...CONFIG.GEMINI_FALLBACK_MODELS] without placeholders and duplicates (noFallback: primary only). */
+function modelChain_(primary, noFallback) {
   const out = [];
-  [primary].concat(CONFIG.GEMINI_FALLBACK_MODELS || []).forEach(function (m) {
+  [primary].concat(noFallback ? [] : CONFIG.GEMINI_FALLBACK_MODELS || []).forEach(function (m) {
     m = String(m === undefined || m === null ? "" : m).replace(/^models\//, "").trim();
     if (m && m.indexOf("REPLACE_") !== 0 && out.indexOf(m) === -1) out.push(m);
   });
@@ -417,13 +526,14 @@ function modelChain_(primary) {
 
 /**
  * Tries each model in order: one retry on 429/500/503/504 or a network error, then the next model.
- * accept(text) parses/validates the answer (throw = treat as a failure of that model).
- * Gives up when budgetMs has passed. -> {value, model}
+ * accept(text, parts) parses/validates the answer (throw = treat as a failure of that model).
+ * caller(model, key, payload) makes one call (default geminiCall_). Gives up when budgetMs has passed. -> {value, model, thinking}
  */
-function geminiChain_(models, payload, budgetMs, accept) {
+function geminiChain_(models, payload, budgetMs, accept, caller) {
   if (!models.length) throw userError_("No Gemini model is configured on the server (CONFIG in Code.gs).");
   const key = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
   if (!key) throw userError_("Gemini API key is missing on the server (Script Properties > GEMINI_API_KEY).");
+  caller = caller || geminiCall_;
   const start = Date.now();
   const tried = [];
   for (let i = 0; i < models.length; i++) {
@@ -432,10 +542,10 @@ function geminiChain_(models, payload, budgetMs, accept) {
         tried.push("time budget used up");
         throw userError_("AI is unavailable right now (" + tried.join(", ") + ").");
       }
-      const r = geminiCall_(models[i], key, payload);
+      const r = caller(models[i], key, payload);
       if (r.ok) {
         try {
-          return { value: accept(r.text), model: models[i] };
+          return { value: accept(r.text, r.parts), model: models[i], thinking: r.thinking };
         } catch (err) {
           r.retry = false;
           r.code = "bad answer";
@@ -450,7 +560,7 @@ function geminiChain_(models, payload, budgetMs, accept) {
   throw userError_("AI is unavailable right now (" + tried.join(", ") + ").");
 }
 
-/** One generateContent call. -> {ok, text} or {ok:false, retry, code, error} */
+/** One generateContent call. -> {ok, text, parts} or {ok:false, retry, code, error} */
 function geminiCall_(model, key, payload) {
   const url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent";
   let res;
@@ -472,10 +582,11 @@ function geminiCall_(model, key, payload) {
   try {
     const json = JSON.parse(res.getContentText());
     const cand = (json.candidates || [])[0] || {};
-    const parts = (cand.content && cand.content.parts) || [];
-    const text = parts.filter(function (p) { return p.thought !== true; }).map(function (p) { return p.text || ""; }).join("");
-    if (!text.trim()) return { ok: false, retry: false, code: "empty", error: cand.finishReason || "" };
-    return { ok: true, text: text };
+    const parts = ((cand.content && cand.content.parts) || []).filter(function (p) { return p.thought !== true; });
+    const text = parts.map(function (p) { return p.text || ""; }).join("");
+    const audio = parts.some(function (p) { return p.inlineData || p.inline_data; });
+    if (!text.trim() && !audio) return { ok: false, retry: false, code: "empty", error: cand.finishReason || "" };
+    return { ok: true, text: text, parts: parts };
   } catch (err) {
     return { ok: false, retry: false, code: "unreadable", error: String(err) };
   }

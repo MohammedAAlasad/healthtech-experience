@@ -13,3 +13,5 @@ booth03/images/_originals/
 booth05/review/booth05_review.html
 booth05/review/booth05_review.pdf
 booth05/review/.chrome-profile/
+# Test-only placeholder portraits (real portraits: booth05/images/avatar/README.md)
+booth05/images/avatar/**/placeholder_*

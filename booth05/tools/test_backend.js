@@ -52,9 +52,11 @@ function makeEnv() {
   const fetches = [];
   const sleeps = [];
   const logs = [];
+  const cache = {};
+  const cachePuts = [];
   let responder = () => ({ code: 200, body: "{}" });
   const env = {
-    sheets, fetches, sleeps, logs,
+    sheets, fetches, sleeps, logs, cache, cachePuts,
     setResponder(f) { responder = f; },
     SpreadsheetApp: {
       getActiveSpreadsheet: () => ({ getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = fakeSheet()) }),
@@ -72,7 +74,13 @@ function makeEnv() {
         return { getResponseCode: () => r.code, getContentText: () => r.body };
       }
     },
-    Utilities: { sleep: (ms) => sleeps.push(ms) },
+    Utilities: {
+      sleep: (ms) => sleeps.push(ms),
+      // Apps Script bytes are signed (-128..127)
+      base64Decode: (b) => Array.from(Buffer.from(b, "base64")).map((x) => (x > 127 ? x - 256 : x)),
+      base64Encode: (arr) => Buffer.from(arr.map((x) => (x < 0 ? x + 256 : x))).toString("base64")
+    },
+    CacheService: { getScriptCache: () => ({ get: (k) => (k in cache ? cache[k] : null), put: (k, v, ttl) => { cache[k] = v; cachePuts.push([k, v, ttl]); } }) },
     ContentService: { MimeType: { JSON: "json" }, createTextOutput: (s) => ({ setMimeType: () => ({ text: s }) }) },
     Logger: { log: (s) => logs.push(String(s)) },
     console: { error: (s) => logs.push("E " + s), warn: (s) => logs.push("W " + s), log: (s) => logs.push(String(s)) }
@@ -186,6 +194,74 @@ const gem = (text, extraParts) => ({ code: 200, body: JSON.stringify({ candidate
   E.fetches.length = 0;
   E.CONFIG.CHAT_BUDGET_MS = -1;
   eq("time budget used up -> stop trying", [/time budget/.test(E.post({ action: "patientTurn", prompt: "p" }).error), E.fetches.length], [true, 0]);
+}
+
+/* ---------------- Booth 05 v2: speed settings, 8-turn trimming, thinking 400 fallback, TTS ---------------- */
+{
+  const E = makeEnv();
+  E.CONFIG.GEMINI_CHAT_MODEL = "lite-a";
+  E.CONFIG.GEMINI_FALLBACK_MODELS = ["fb-1"];
+  E.setResponder(() => gem("من ثلاث أيام."));
+  const turns = Array.from({ length: 20 }, (_, i) => ({ role: i % 2 ? "patient" : "dentist", text: "turn " + i + "   x" }));
+  let r = E.post({ action: "patientTurn", caseId: "case01", lang: "ar", system: "SYSTEM RULES", turns, text: " متى بدأ؟ ", leakTerms: [] });
+  const pl = E.fetches[0].payload;
+  eq("v2 patientTurn: reply ok", [r.ok, r.reply, r.model], [true, "من ثلاث أيام.", "lite-a"]);
+  eq("v2: system prompt sent as systemInstruction", pl.systemInstruction, { parts: [{ text: "SYSTEM RULES" }] });
+  eq("v2: only the last 8 turns + the new text are sent", pl.contents.length, 9);
+  eq("v2: roles mapped (dentist->user, patient->model), oldest kept turn is 12", [pl.contents[0].role, pl.contents[0].parts[0].text, pl.contents[1].role],
+    ["user", "turn 12 x", "model"]);
+  eq("v2: contents start with a user turn and end with the new text", [pl.contents[0].role, pl.contents[8].parts[0].text], ["user", "متى بدأ؟"]);
+  eq("v2: speed settings (temperature 0.7, 120 tokens, thinkingBudget 0)", pl.generationConfig, { temperature: 0.7, maxOutputTokens: 120, thinkingConfig: { thinkingBudget: 0 } });
+  eq("v2: thinking setting reported", r.thinking, '{"thinkingBudget":0}');
+
+  E.fetches.length = 0;
+  E.post({ action: "patientTurn", system: "S", turns: [{ role: "patient", text: "opener" }, { role: "dentist", text: "a" }, { role: "dentist", text: "b" }, { role: "x", text: "bad" }], text: "c" });
+  eq("v2: leading patient turn dropped, same-role turns merged", E.fetches[0].payload.contents.map((x) => [x.role, x.parts[0].text]), [["user", "a\nb\nc"]]);
+  eq("v2: text required", E.post({ action: "patientTurn", system: "S", turns: [], text: "  " }).error, "text is required.");
+
+  // A model that rejects thinkingConfig with HTTP 400: retry once without it, then remember (CacheService) to skip it.
+  E.fetches.length = 0;
+  E.setResponder((m, p) => (p.generationConfig.thinkingConfig ? { code: 400, body: "thinking_budget is not supported" } : gem("ok")));
+  E.CONFIG.GEMINI_CHAT_MODEL = "no-think";
+  r = E.post({ action: "patientTurn", system: "S", turns: [], text: "q" });
+  eq("v2 400: retried without thinkingConfig on the same model", [r.ok, r.model, E.fetches.map((f) => [f.model, !!f.payload.generationConfig.thinkingConfig])],
+    [true, "no-think", [["no-think", true], ["no-think", false]]]);
+  eq("v2 400: no retry sleep for this path", E.sleeps.length, 0);
+  eq("v2 400: without thinkingConfig the token limit allows default thinking", E.fetches[1].payload.generationConfig.maxOutputTokens, 1024);
+  eq("v2 400: choice cached for 6 h", E.cachePuts, [["b05think:no-think", "1", 21600]]);
+  E.fetches.length = 0;
+  r = E.post({ action: "patientTurn", system: "S", turns: [], text: "q" });
+  eq("v2 400: next call skips thinkingConfig straight away (1 request)", [r.ok, E.fetches.length, !!E.fetches[0].payload.generationConfig.thinkingConfig, r.thinking], [true, 1, false, "model default"]);
+  E.fetches.length = 0;
+  E.setResponder(() => ({ code: 400, body: "bad request" }));
+  E.CONFIG.GEMINI_CHAT_MODEL = "always-400";
+  E.CONFIG.GEMINI_FALLBACK_MODELS = [];
+  eq("v2 400: a 400 not caused by thinking -> error after 2 requests, nothing cached", [/AI is unavailable/.test(E.post({ action: "patientTurn", system: "S", turns: [], text: "q" }).error),
+    E.fetches.length, "b05think:always-400" in E.cache], [true, 2, false]);
+  E.fetches.length = 0;
+  E.setResponder((m, p) => (p.generationConfig.thinkingConfig ? { code: 503, body: "busy" } : gem("ok")));
+  E.CONFIG.GEMINI_CHAT_MODEL = "busy";
+  eq("v2: a 503 with thinkingConfig is NOT treated as a thinking problem", [/AI is unavailable/.test(E.post({ action: "patientTurn", system: "S", turns: [], text: "q" }).error), E.fetches.length], [true, 2]);
+  E.CONFIG.GEMINI_CHAT_MODEL = "lite-a";
+  E.setResponder(() => gem("ok"));
+  eq("v2: older page (prompt field) still works", E.post({ action: "patientTurn", prompt: "old style prompt" }).reply, "ok");
+
+  // ttsSpeak: placeholder -> clear error; PCM -> WAV
+  eq("ttsSpeak: model placeholder -> error (page uses the browser voice)", E.post({ action: "ttsSpeak", text: "مرحبا" }).error, "No TTS model is configured on the server (CONFIG.GEMINI_TTS_MODEL).");
+  E.CONFIG.GEMINI_TTS_MODEL = "tts-1";
+  E.fetches.length = 0;
+  const pcm = Buffer.from([0, 0, 255, 127, 1, 128]).toString("base64");
+  E.setResponder(() => ({ code: 200, body: JSON.stringify({ candidates: [{ content: { parts: [{ inlineData: { mimeType: "audio/L16;codec=pcm;rate=24000", data: pcm } }] } }] }) }));
+  r = E.post({ action: "ttsSpeak", text: "من ثلاث أيام", lang: "ar" });
+  const wav = Buffer.from(r.audio, "base64");
+  eq("ttsSpeak: WAV header (RIFF/WAVE, PCM mono 16-bit, 24 kHz, 6 data bytes)", [r.mimeType, wav.toString("ascii", 0, 4), wav.toString("ascii", 8, 12), wav.readUInt16LE(20),
+    wav.readUInt16LE(22), wav.readUInt32LE(24), wav.readUInt16LE(34), wav.readUInt32LE(40), wav.length], ["audio/wav", "RIFF", "WAVE", 1, 1, 24000, 16, 6, 50]);
+  eq("ttsSpeak: PCM bytes copied unchanged", Array.from(wav.subarray(44)), [0, 0, 255, 127, 1, 128]);
+  eq("ttsSpeak: asks for AUDIO with the configured voice, no chat fallbacks", [E.fetches[0].model, E.fetches[0].payload.generationConfig.responseModalities,
+    E.fetches[0].payload.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName], ["tts-1", ["AUDIO"], "Kore"]);
+  E.setResponder(() => gem("text instead of audio"));
+  eq("ttsSpeak: no audio in the answer -> error", /AI is unavailable/.test(E.post({ action: "ttsSpeak", text: "x" }).error), true);
+  eq("ping still works (warm-up)", E.get({ action: "ping" }).ok, true);
 }
 
 console.log("\n" + passed + " passed, " + failed + " failed");

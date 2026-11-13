@@ -98,8 +98,19 @@ def validate(data):
             errs.append(p + ".profile.age must be an integer")
         if pr.get("sex") not in ("male", "female"):
             errs.append(p + ".profile.sex must be male or female")
-        if pr.get("avatar") not in AVATARS:
-            errs.append(p + ".profile.avatar must be one of " + ", ".join(sorted(AVATARS)))
+        av = pr.get("avatar")
+        if isinstance(av, dict):
+            if av.get("type") != "photo":
+                errs.append(p + ".profile.avatar.type must be 'photo'")
+            if not isinstance(av.get("dir"), str) or not re.fullmatch(r"images/avatar/[A-Za-z0-9_-]+", av.get("dir") or ""):
+                errs.append(p + ".profile.avatar.dir must look like images/avatar/case01")
+            st = av.get("states")
+            if not isinstance(st, list) or not st or not set(st) <= STATES or "neutral" not in st:
+                errs.append(p + ".profile.avatar.states must be a subset of " + ", ".join(sorted(STATES)) + " and include neutral")
+            if av.get("svg") not in AVATARS:
+                errs.append(p + ".profile.avatar.svg (fallback) must be one of " + ", ".join(sorted(AVATARS)))
+        elif av not in AVATARS:
+            errs.append(p + ".profile.avatar must be one of " + ", ".join(sorted(AVATARS)) + " or a photo avatar object")
         if pr.get("baseState", "neutral") not in STATES:
             errs.append(p + ".profile.baseState must be one of " + ", ".join(sorted(STATES)))
 

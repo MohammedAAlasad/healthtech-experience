@@ -1,6 +1,6 @@
 /*
  * HealthTech Experience — shared.js (used by every booth and the dashboard).
- * Global functions: startCheckIn, getParticipant, register, saveScore, getLeaderboard, grade, patientTurn, patientGrade, htMakeId.
+ * Global functions: startCheckIn, getParticipant, register, saveScore, getLeaderboard, grade, patientTurn, patientGrade, ttsSpeak, htPing, htMakeId.
  * Vanilla JS, no dependencies.
  */
 
@@ -195,7 +195,8 @@ async function grade(prompt, imageBase64, mimeType) {
 }
 
 /**
- * Booth 05: one virtual-patient reply. body: {caseId, lang, prompt, leakTerms}. -> {ok, reply, leaked, model}
+ * Booth 05: one virtual-patient reply. body: {caseId, lang, system, turns:[{role, text}], text, leakTerms}
+ * (the server keeps only the last 8 turns). -> {ok, reply, leaked, model}
  * Waits at most 15 s (the page then answers from its scripted patient). Rejects in mock mode.
  */
 async function patientTurn(body) {
@@ -206,6 +207,16 @@ async function patientTurn(body) {
 async function patientGrade(body) {
   const r = await _htRequest("POST", null, Object.assign({}, body, { action: "patientGrade" }), HT_GRADE_TIMEOUT_MS);
   return r.result;
+}
+
+/** Booth 05 premium voice (off by default): one sentence -> {audio: base64, mimeType}. Rejects in mock mode. */
+async function ttsSpeak(text, lang) {
+  return _htRequest("POST", null, { action: "ttsSpeak", text: String(text), lang: lang === "en" ? "en" : "ar" }, HT_TIMEOUT_MS);
+}
+
+/** Tiny request that keeps the Apps Script backend warm (Booth 05 calls it on load and every 4 minutes). */
+async function htPing() {
+  return _htRequest("GET", { action: "ping" });
 }
 
 function _htSendScore(item) {
@@ -528,6 +539,7 @@ async function _htMockHandle(req) {
       return { ok: true, result: { mock: true, score: 7, maxScore: 10, feedback: "Mock grading: connect API_URL for real Gemini grading." } };
     case "patientTurn":
     case "patientGrade":
+    case "ttsSpeak":
       fail("AI is not available in mock mode.");
       break;
     default:

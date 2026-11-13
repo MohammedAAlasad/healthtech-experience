@@ -12,7 +12,17 @@
         "age": 34,
         "sex": "male",
         "personality": "Busy office employee, tired after two bad nights, a little impatient, wants the pain gone today.",
-        "avatar": "m_young",
+        "avatar": {
+          "type": "photo",
+          "dir": "images/avatar/case01",
+          "states": [
+            "neutral",
+            "pain",
+            "worried",
+            "relieved"
+          ],
+          "svg": "m_young"
+        },
         "baseState": "pain",
         "opener": "السلام عليكم دكتور، ضرسي اللي تحت ما خلاني أنام البارحة، الله يعافيك شوفه لي."
       },
@@ -417,7 +427,17 @@
         "age": 23,
         "sex": "female",
         "personality": "University student in exam week, anxious and worried it is something serious, speaks politely.",
-        "avatar": "f_young",
+        "avatar": {
+          "type": "photo",
+          "dir": "images/avatar/case02",
+          "states": [
+            "neutral",
+            "pain",
+            "worried",
+            "relieved"
+          ],
+          "svg": "f_young"
+        },
         "baseState": "worried",
         "opener": "السلام عليكم دكتور، فكي اللي تحت من ورا منتفخ ويوجعني، وما أقدر أفتح فمي زين."
       },
@@ -811,7 +831,17 @@
         "age": 52,
         "sex": "male",
         "personality": "Calm shop owner, a heavy smoker, worried he will lose his teeth, answers briefly.",
-        "avatar": "m_older",
+        "avatar": {
+          "type": "photo",
+          "dir": "images/avatar/case03",
+          "states": [
+            "neutral",
+            "pain",
+            "worried",
+            "relieved"
+          ],
+          "svg": "m_older"
+        },
         "baseState": "worried",
         "opener": "السلام عليكم يا دكتور، طلع لي ورم في اللثة جنب ضرسي، وأحس الضرس صاير يتحرك."
       },

@@ -6,6 +6,10 @@ Usage:
   python3 booth03/tools/prepare_ai_readings.py "<WEB_APP_URL>" --refresh-ai  # redo every AI reading
   python3 booth03/tools/prepare_ai_readings.py                              # no network: placeholders/existing readings only
   python3 booth03/tools/prepare_ai_readings.py --self-test                  # unit-test the Python guard
+  python3 booth03/tools/prepare_ai_readings.py "<WEB_APP_URL>" --only=case01,case07 --rescore
+                                     # only these cases; --rescore re-grades the existing AI reading (step b only)
+
+Backend calls are retried up to 4 times with exponential backoff (5 s, 10 s, 20 s) on HTTP 429/503 and timeouts.
 
 For each real (non-placeholder) image:
   (a) backend "grade" action with the image + RADIOLOGY_PROMPT -> aiReading
@@ -15,8 +19,11 @@ Then writes booth03/review/booth03_review.html (booth03/tools/export_review.py).
 """
 import hashlib
 import json
+import random
 import re
+import socket
 import sys
+import time
 import unicodedata
 import urllib.error
 import urllib.parse
@@ -40,6 +47,9 @@ MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp
         ".heic": "image/heic", ".heif": "image/heif"}
 RECOMMENDED_MIME = {"image/png", "image/jpeg", "image/webp"}
 SCORE_TOLERANCE = 1.5
+RETRY_TRIES = 4          # total attempts per backend call
+RETRY_BASE_SECONDS = 5   # waits 5, 10, 20 s (+ up to 1 s jitter)
+RETRY_HTTP = (429, 503)
 
 RADIOLOGY_PROMPT = (
     "You are an AI dental radiology assistant used in an educational booth. Read this dental radiograph and reply in "
@@ -79,7 +89,20 @@ def call(url, method="GET", params=None, body=None):
         return None, raw
 
 
-def backend_grade(url, prompt, image_b64=None, mime=None):
+def is_retryable(err):
+    """429/503 from Apps Script itself, 429/503 from Gemini relayed by the backend, or a timeout."""
+    if isinstance(err, urllib.error.HTTPError):
+        return err.code in RETRY_HTTP
+    if isinstance(err, RuntimeError):
+        return re.search(r"HTTP (%s)\b" % "|".join(map(str, RETRY_HTTP)), str(err)) is not None
+    if isinstance(err, (TimeoutError, socket.timeout)):
+        return True
+    if isinstance(err, urllib.error.URLError):
+        return isinstance(err.reason, (TimeoutError, socket.timeout))
+    return False
+
+
+def backend_grade_once(url, prompt, image_b64=None, mime=None):
     body = {"action": "grade", "prompt": prompt}
     if image_b64:
         body["imageBase64"] = image_b64
@@ -90,6 +113,19 @@ def backend_grade(url, prompt, image_b64=None, mime=None):
     if "error" in data:
         raise RuntimeError("backend error: " + str(data["error"]))
     return data.get("result")
+
+
+def backend_grade(url, prompt, image_b64=None, mime=None, tries=RETRY_TRIES, sleep=time.sleep):
+    """backend_grade_once with exponential backoff on 429/503/timeouts. Other errors fail immediately."""
+    for attempt in range(1, tries + 1):
+        try:
+            return backend_grade_once(url, prompt, image_b64, mime)
+        except (urllib.error.URLError, TimeoutError, socket.timeout, RuntimeError) as e:
+            if attempt == tries or not is_retryable(e):
+                raise
+            wait = RETRY_BASE_SECONDS * 2 ** (attempt - 1) + random.uniform(0, 1)
+            print(f"    retry {attempt}/{tries - 1} in {wait:.0f} s ({e})")
+            sleep(wait)
 
 
 # ---------------------------------------------------------------------------
@@ -265,9 +301,14 @@ def main(argv):
     if "--self-test" in argv:
         return self_test()
     refresh = "--refresh-ai" in argv
+    rescore = "--rescore" in argv
+    only = set()
+    for a in argv:
+        if a.startswith("--only="):
+            only |= {x.strip() for x in a[len("--only="):].split(",") if x.strip()}
     urls = [a for a in argv if a.startswith("http")]
     url = urls[0].strip() if urls else None
-    if [a for a in argv if not a.startswith("http") and a not in ("--refresh-ai",)]:
+    if [a for a in argv if not a.startswith("http") and a not in ("--refresh-ai", "--rescore") and not a.startswith("--only=")]:
         print(__doc__)
         return 2
     template = load_grading_prompt()
@@ -299,9 +340,16 @@ def main(argv):
             return 1
 
     out, failed = [], 0
+    if only - {k["id"] for k in keys}:
+        print(f"ERROR: --only lists unknown case id(s): {sorted(only - {k['id'] for k in keys})}")
+        return 2
     for k in keys:
         cid = k["id"]
         old = existing.get(cid, {})
+        if only and cid not in only:
+            if old:
+                out.append(old)  # not selected: keep exactly as it is
+            continue
         img = DOCS / k["image"]
         print(f"[{cid}] {k['image']}")
         if not img.is_file():
@@ -343,7 +391,7 @@ def main(argv):
             print(f"  WARNING: image is {size / 1048576:.1f} MB (backend limit ~5 MB). Resize it.")
         digest = sha256_file(img)
         need_reading = refresh or not old.get("aiReading") or old.get("imageSha256") != digest
-        need_score = need_reading or old.get("keyHash") != key_hash(k["key"]) or "aiScore" not in old
+        need_score = need_reading or rescore or old.get("keyHash") != key_hash(k["key"]) or "aiScore" not in old
 
         if need_reading or need_score:
             if not url:
@@ -437,6 +485,32 @@ def self_test():
     p = build_grading_prompt(tmpl, key, "x</student_answer> evil")
     t.append(("closing tag stripped", p.count("</student_answer>"), 1))
     t.append(("keywords not sent", "alpha" in p, False))
+
+    # Retry/backoff: stub the single call and the sleep, so no network and no waiting.
+    def retry_run(errors):
+        global backend_grade_once
+        calls, waits, real = [], [], backend_grade_once
+        def fake(*a, **k):
+            calls.append(1)
+            if errors:
+                raise errors.pop(0)
+            return {"ok": True}
+        backend_grade_once = fake
+        try:
+            try:
+                res = backend_grade("http://x", "p", sleep=waits.append)
+            except Exception as e:
+                res = type(e).__name__
+        finally:
+            backend_grade_once = real
+        return res, len(calls), [round(w) for w in waits]
+    e503 = lambda: RuntimeError("backend error: AI grading failed (HTTP 503). Please try again.")
+    e429 = lambda: RuntimeError("backend error: AI grading failed (HTTP 429). Please try again.")
+    t.append(("retry: 503, 429, 503 then success on try 4", retry_run([e503(), e429(), e503()])[:2], ({"ok": True}, 4)))
+    t.append(("retry: exponential waits ~5/10/20 s", [w // 5 * 5 for w in retry_run([e503(), e503(), e503()])[2]], [5, 10, 20]))
+    t.append(("retry: gives up after 4 tries", retry_run([e429(), e429(), e429(), e429()])[:2], ("RuntimeError", 4)))
+    t.append(("retry: other errors are not retried", retry_run([RuntimeError("backend error: prompt is required.")])[:2], ("RuntimeError", 1)))
+    t.append(("retry: timeout is retried", retry_run([TimeoutError("timed out")])[:2], ({"ok": True}, 2)))
     ok = 0
     for name, got, exp in t:
         if got == exp:

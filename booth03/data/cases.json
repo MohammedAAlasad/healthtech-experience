@@ -71,8 +71,8 @@
       "limitation": "The coronal occlusal surfaces are obscured by the radiographic holder, and lack of clinical pulp vitality testing limits differentiation between specific periapical lesion types."
     },
     "imageSha256": "bb97550134b1d815294cb3bb2569fef516fb87edc52b3b05e54cb99985a7f030",
-    "aiScore": 4.0,
-    "aiScoreMode": "local",
+    "aiScore": 7.5,
+    "aiScoreMode": "ai",
     "keyHash": "a81e607e046ee3b8"
   },
   {
@@ -530,8 +530,8 @@
       "limitation": "Single two-dimensional periapical view limits buccal-palatal localization and obscures the underlying central incisor apices without additional angulated views or CBCT."
     },
     "imageSha256": "df51024d32642d7ab50299cca0131dfdc3657881547f104fb6f6f89b10301fd5",
-    "aiScore": 7.0,
-    "aiScoreMode": "local",
+    "aiScore": 9.0,
+    "aiScoreMode": "ai",
     "keyHash": "fc8f95f89c970b6b"
   },
   {
@@ -605,8 +605,8 @@
       "limitation": "A single two-dimensional periapical radiograph cannot definitively distinguish internal from external root resorption or evaluate buccolingual lesion extent without angled views or CBCT."
     },
     "imageSha256": "5a5f86b30d12a5553e1754816ee8c0ffb84543694d5dc98423ea013db246b09b",
-    "aiScore": 6.0,
-    "aiScoreMode": "local",
+    "aiScore": 5.5,
+    "aiScoreMode": "ai",
     "keyHash": "e8457b3a3a2bf5c0"
   },
   {
@@ -756,7 +756,7 @@
     },
     "imageSha256": "cc04f335ddb58595fb2c7be1f87f4df1f7e38fb426afeff5c476f47ac83df0f3",
     "aiScore": 0.0,
-    "aiScoreMode": "local",
+    "aiScoreMode": "ai",
     "keyHash": "88821193d3011abb"
   }
 ]

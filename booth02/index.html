@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Smarter with Claude — Take-home</title>
+<style>
+  :root { --bg:#16233B; --card:#213557; --line:#34507D; --text:#C3CFE3; --head:#F1F4FA; --accent:#5FD6C8; --warn:#FFB38A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:18px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:28px 18px 48px; }
+  .eyebrow { color:var(--accent); font-size:14px; font-weight:700; letter-spacing:.08em; margin:0 0 6px; }
+  h1 { color:var(--head); font-size:30px; line-height:1.2; margin:0 0 8px; }
+  h2 { color:var(--head); font-size:21px; margin:32px 0 12px; }
+  p { margin:0 0 12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; margin-bottom:12px; }
+  .card h3 { color:var(--head); font-size:19px; margin:0 0 4px; }
+  .card .do { margin:0 0 8px; }
+  .meta { font-size:15px; margin:0 0 3px; }
+  .meta b { color:var(--head); }
+  a.btn { display:inline-block; margin-top:6px; padding:10px 16px; border-radius:10px; background:var(--accent); color:var(--bg); font-weight:700; text-decoration:none; }
+  .warn { border-color:var(--warn); }
+  .warn h3 { color:var(--warn); }
+  ol { padding-left:22px; margin:0; }
+  li { margin-bottom:6px; }
+  code { background:#16233B; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:15px; }
+  footer { margin-top:28px; font-size:14px; opacity:.85; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">BOOTH 02 · HEALTHTECH EXPERIENCE</p>
+  <h1>Research Smarter with Claude</h1>
+  <p>Your take-home sheet: five free tools to map the literature, and how to check what AI tells you.</p>
+
+  <h2>Five tools</h2>
+
+  <div class="card">
+    <h3>1. Connected Papers</h3>
+    <p class="do">Turns one paper into a visual map of related work.</p>
+    <p class="meta"><b>Best for:</b> finding the main papers around a topic fast.</p>
+    <a class="btn" href="https://www.connectedpapers.com" target="_blank" rel="noopener">connectedpapers.com</a>
+  </div>
+
+  <div class="card">
+    <h3>2. ResearchRabbit</h3>
+    <p class="do">Builds collections of papers and suggests similar ones and authors.</p>
+    <p class="meta"><b>Best for:</b> keeping a reading list that grows with you.</p>
+    <a class="btn" href="https://www.researchrabbit.ai" target="_blank" rel="noopener">researchrabbit.ai</a>
+  </div>
+
+  <div class="card">
+    <h3>3. Litmaps</h3>
+    <p class="do">Maps how papers cite each other over time and tracks new ones.</p>
+    <p class="meta"><b>Best for:</b> following a topic as new papers appear.</p>
+    <a class="btn" href="https://www.litmaps.com" target="_blank" rel="noopener">litmaps.com</a>
+  </div>
+
+  <div class="card">
+    <h3>4. Citation Gecko</h3>
+    <p class="do">Starts from a few seed papers and finds the ones they cite and are cited by.</p>
+    <p class="meta"><b>Best for:</b> snowballing from papers you already trust.</p>
+    <a class="btn" href="https://www.citationgecko.com" target="_blank" rel="noopener">citationgecko.com</a>
+  </div>
+
+  <div class="card">
+    <h3>5. Inciteful</h3>
+    <p class="do">Analyzes a citation network to surface key and recent papers.</p>
+    <p class="meta"><b>Best for:</b> spotting the most influential papers in a field.</p>
+    <a class="btn" href="https://inciteful.xyz" target="_blank" rel="noopener">inciteful.xyz</a>
+  </div>
+
+  <p class="meta">Free-tier limits change. Check each site for current terms.</p>
+
+  <h2>Try it in 4 steps</h2>
+  <div class="card">
+    <ol>
+      <li>Pick one paper from your course.</li>
+      <li>Ask Claude to summarize it and list its key references.</li>
+      <li>Paste the paper title into Connected Papers or ResearchRabbit.</li>
+      <li>Compare: does the map match what Claude told you?</li>
+    </ol>
+  </div>
+
+  <div class="card warn">
+    <h3>Always verify</h3>
+    <p class="do">AI can invent references. Look up each DOI and open the paper to confirm it says what Claude says. Install skills and connectors only from sources you trust.</p>
+  </div>
+
+  <footer>A study aid, not clinical advice. Programming Club × Student Life Club, College of Dentistry, IAU.</footer>
+</main>
+</body>
+</html>

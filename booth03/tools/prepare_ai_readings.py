@@ -19,6 +19,7 @@ import re
 import sys
 import unicodedata
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -64,7 +65,6 @@ def load_grading_prompt():
 def call(url, method="GET", params=None, body=None):
     """Returns (parsed_json_or_None, raw_text)."""
     if method == "GET":
-        import urllib.parse
         full = url + ("&" if "?" in url else "?") + urllib.parse.urlencode(params or {})
         req = urllib.request.Request(full)
     else:
@@ -319,7 +319,9 @@ def main(argv):
             print("  WARNING: the key changed for an APPROVED case. reviewStatus is kept; ask the dentistry team to re-review.")
         case["key"] = k["key"]
         case["expertExplanation"] = old.get("expertExplanation") or k.get("expertExplanation") or "TODO: expert explanation (2 lines)."
-        case["reviewStatus"] = old.get("reviewStatus") or "DRAFT"
+        case["reviewStatus"] = old.get("reviewStatus") or k.get("reviewStatus") or "DRAFT"
+        if k.get("source"):
+            case["source"] = k["source"]  # image source / licence reference, shown in the review file
         case["placeholder"] = placeholder
 
         if placeholder:

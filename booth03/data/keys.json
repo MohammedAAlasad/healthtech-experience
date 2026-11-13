@@ -1,49 +1,627 @@
 [
   {
     "id": "case01",
-    "image": "images/case01.svg",
-    "question": "What do you see on this radiograph? What is your diagnosis?",
+    "image": "images/case01.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
     "key": {
       "keyFindings": [
-        { "finding": "Placeholder finding A", "points": 3, "keywords": ["finding a", "placeholder a", "النتيجة أ"] },
-        { "finding": "Placeholder finding B", "points": 3, "keywords": ["finding b", "placeholder b", "النتيجة ب"] }
+        {
+          "finding": "Periapical radiolucency around the roots",
+          "points": 3,
+          "keywords": [
+            "periapical radiolucency",
+            "periapical radiolucent",
+            "apical radiolucency",
+            "radiolucency at the apex",
+            "radiolucent area at the apex",
+            "dark area at the apex"
+          ]
+        },
+        {
+          "finding": "Loss of normal periapical trabecular pattern",
+          "points": 2,
+          "keywords": [
+            "trabecular pattern",
+            "loss of trabeculation",
+            "trabeculae",
+            "loss of trabecular",
+            "bone pattern is lost",
+            "trabecular bone pattern"
+          ]
+        },
+        {
+          "finding": "Apical bone destruction",
+          "points": 1,
+          "keywords": [
+            "bone destruction",
+            "apical bone loss",
+            "bone loss at the apex",
+            "destruction of bone",
+            "osteolysis",
+            "apical bone resorption"
+          ]
+        }
       ],
-      "diagnosis": "Placeholder diagnosis X",
+      "diagnosis": "Periapical inflammatory lesion; acute apical abscess only if supported by symptoms and examination",
       "diagnosisPoints": 4,
-      "diagnosisKeywords": ["diagnosis x", "placeholder x", "التشخيص س"]
+      "diagnosisKeywords": [
+        "periapical lesion",
+        "periapical inflammatory lesion",
+        "apical periodontitis",
+        "periapical granuloma",
+        "apical abscess",
+        "periapical abscess",
+        "آفة حول الذروة",
+        "خراج ذروي"
+      ]
     },
-    "expertExplanation": "Placeholder explanation line 1 (not clinical content).\nPlaceholder explanation line 2 — replace after the dentistry team provides the key.",
-    "placeholder": true,
-    "aiReading": {
-      "findings": ["Placeholder finding A", "Placeholder AI-only finding Q"],
-      "impression": "Placeholder diagnosis Y",
-      "confidence": "low",
-      "limitation": "Placeholder reading — no real image was analysed."
-    },
-    "aiScore": 3
+    "expertExplanation": "The image shows periapical radiolucency associated with a restored mandibular molar. Distinguishing an abscess from other apical inflammatory lesions requires clinical findings.",
+    "source": "https://commons.wikimedia.org/wiki/File:Abscessed_tooth_periapical_radiograph.jpg",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
   },
   {
     "id": "case02",
-    "image": "images/case02.svg",
-    "question": "What do you see on this radiograph? What is your diagnosis?",
+    "image": "images/case02.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
     "key": {
       "keyFindings": [
-        { "finding": "Placeholder finding C", "points": 2, "keywords": ["finding c", "placeholder c", "النتيجة ج"] },
-        { "finding": "Placeholder finding D", "points": 2, "keywords": ["finding d", "placeholder d", "النتيجة د"] },
-        { "finding": "Placeholder finding E", "points": 2, "keywords": ["finding e", "placeholder e", "النتيجة هـ"] }
+        {
+          "finding": "Triangular radiolucency at the proximal surface",
+          "points": 3,
+          "keywords": [
+            "triangular radiolucency",
+            "triangular radiolucent",
+            "proximal radiolucency",
+            "interproximal radiolucency",
+            "radiolucency between the teeth",
+            "dark triangle"
+          ]
+        },
+        {
+          "finding": "Lesion extending into the tooth structure",
+          "points": 2,
+          "keywords": [
+            "into dentin",
+            "into the dentin",
+            "reaches dentin",
+            "dentin involvement",
+            "through the enamel",
+            "extends into the tooth"
+          ]
+        },
+        {
+          "finding": "Location beneath the contact area",
+          "points": 1,
+          "keywords": [
+            "contact area",
+            "contact point",
+            "below the contact",
+            "under the contact",
+            "beneath the contact",
+            "gingival to the contact"
+          ]
+        }
       ],
-      "diagnosis": "Placeholder diagnosis Z",
+      "diagnosis": "Proximal dental caries",
       "diagnosisPoints": 4,
-      "diagnosisKeywords": ["diagnosis z", "placeholder z", "التشخيص ص"]
+      "diagnosisKeywords": [
+        "proximal caries",
+        "interproximal caries",
+        "approximal caries",
+        "dental caries",
+        "carious lesion",
+        "interproximal decay",
+        "تسوس بين الأسنان",
+        "تسوس"
+      ]
     },
-    "expertExplanation": "Placeholder explanation line 1 (not clinical content).\nPlaceholder explanation line 2 — replace after the dentistry team provides the key.",
-    "placeholder": true,
-    "aiReading": {
-      "findings": ["Placeholder finding C", "Placeholder finding D"],
-      "impression": "Placeholder diagnosis Z",
-      "confidence": "medium",
-      "limitation": "Placeholder reading — no real image was analysed."
+    "expertExplanation": "A proximal radiolucency is visible on the bitewing radiograph. Clinical assessment is needed to determine cavitation and treatment.",
+    "source": "https://commons.wikimedia.org/wiki/File:Dental_Caries_.jpg",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case03",
+    "image": "images/case03.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Extensive radiolucent bone defect",
+          "points": 3,
+          "keywords": [
+            "radiolucent bone defect",
+            "bone defect",
+            "large radiolucency",
+            "extensive radiolucency",
+            "radiolucent defect",
+            "osseous defect"
+          ]
+        },
+        {
+          "finding": "Marked loss of supporting alveolar bone",
+          "points": 2,
+          "keywords": [
+            "alveolar bone loss",
+            "loss of supporting bone",
+            "supporting bone loss",
+            "loss of alveolar bone",
+            "periodontal bone loss",
+            "severe bone loss"
+          ]
+        },
+        {
+          "finding": "Involvement extending toward the root/apical region",
+          "points": 1,
+          "keywords": [
+            "toward the apex",
+            "to the apex",
+            "apical region",
+            "reaching the apex",
+            "near the apex",
+            "around the root apex"
+          ]
+        }
+      ],
+      "diagnosis": "Extensive periodontal-endodontic lesion, provisional",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "perio-endo lesion",
+        "perio endo lesion",
+        "endo-perio lesion",
+        "endo perio lesion",
+        "periodontal-endodontic lesion",
+        "endodontic-periodontal lesion",
+        "combined endo-perio"
+      ]
     },
-    "aiScore": 8
+    "expertExplanation": "The radiograph shows extensive destruction of supporting bone adjacent to a compromised tooth. Pulp sensibility and periodontal probing are necessary to classify the lesion.",
+    "source": "https://commons.wikimedia.org/wiki/File:Perio-endo_lesion.JPG",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case04",
+    "image": "images/case04.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Well-defined unilocular radiolucency",
+          "points": 2,
+          "keywords": [
+            "unilocular",
+            "well-defined radiolucency",
+            "well defined radiolucency",
+            "well-circumscribed",
+            "well circumscribed",
+            "corticated"
+          ]
+        },
+        {
+          "finding": "Association with the crown of an unerupted tooth",
+          "points": 2,
+          "keywords": [
+            "around the crown",
+            "surrounding the crown",
+            "pericoronal",
+            "attached to the crown",
+            "crown of the unerupted",
+            "crown of an unerupted"
+          ]
+        },
+        {
+          "finding": "Displacement of the unerupted tooth",
+          "points": 2,
+          "keywords": [
+            "displaced",
+            "displacement",
+            "displacing",
+            "pushed the tooth",
+            "pushed down",
+            "tooth moved"
+          ]
+        }
+      ],
+      "diagnosis": "Dentigerous cyst, reported case diagnosis",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "dentigerous cyst",
+        "dentigerous",
+        "follicular cyst",
+        "كيس مسنن",
+        "كيس جريبي"
+      ]
+    },
+    "expertExplanation": "The lesion surrounds an unerupted mandibular premolar and displaces it. The published case identifies it as a dentigerous cyst; histopathology is needed for definitive cyst typing.",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6970100/ (Figure 1A)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case05",
+    "image": "images/case05.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Unerupted upper third molar",
+          "points": 3,
+          "keywords": [
+            "unerupted",
+            "not erupted",
+            "unerupted third molar",
+            "unerupted wisdom tooth",
+            "unerupted upper third molar",
+            "unerupted maxillary third molar"
+          ]
+        },
+        {
+          "finding": "Abnormal tooth orientation",
+          "points": 2,
+          "keywords": [
+            "abnormal orientation",
+            "abnormal angulation",
+            "malpositioned",
+            "mesioangular",
+            "distoangular",
+            "inverted",
+            "tilted",
+            "rotated"
+          ]
+        },
+        {
+          "finding": "Ectopic high position relative to the dental arch",
+          "points": 1,
+          "keywords": [
+            "ectopic",
+            "high position",
+            "high in the maxilla",
+            "near the sinus",
+            "maxillary sinus",
+            "above the arch"
+          ]
+        }
+      ],
+      "diagnosis": "Impacted maxillary third molar",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "impacted third molar",
+        "impacted maxillary third molar",
+        "impacted upper third molar",
+        "impacted wisdom tooth",
+        "impaction",
+        "ضرس العقل المطمور",
+        "ضرس عقل مطمور"
+      ]
+    },
+    "expertExplanation": "The panoramic radiograph shows an abnormally positioned, unerupted maxillary third molar. Further imaging may be needed when surgical planning requires detailed anatomy.",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10520373/ (Figure 1)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case06",
+    "image": "images/case06.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Multiple unerupted teeth beyond expected positions",
+          "points": 3,
+          "keywords": [
+            "multiple unerupted",
+            "several unerupted",
+            "many unerupted",
+            "unerupted teeth",
+            "retained teeth",
+            "multiple embedded"
+          ]
+        },
+        {
+          "finding": "Abnormal eruption pathways",
+          "points": 2,
+          "keywords": [
+            "eruption path",
+            "eruption pathway",
+            "abnormal eruption",
+            "ectopic eruption",
+            "path of eruption",
+            "erupting abnormally"
+          ]
+        },
+        {
+          "finding": "Displaced anterior tooth position",
+          "points": 1,
+          "keywords": [
+            "displaced anterior",
+            "displaced incisor",
+            "displaced canine",
+            "anterior displacement",
+            "malpositioned anterior",
+            "displaced front"
+          ]
+        }
+      ],
+      "diagnosis": "Multiple impacted teeth",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "multiple impacted teeth",
+        "multiple impactions",
+        "multiple impacted",
+        "several impacted",
+        "many impacted",
+        "impacted teeth",
+        "أسنان مطمورة متعددة",
+        "أسنان مطمورة"
+      ]
+    },
+    "expertExplanation": "The pretreatment radiographs demonstrate multiple unerupted and displaced teeth. Clinical age and eruption history help distinguish impaction from normal developmental delay.",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4109248/ (Figure 2)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case07",
+    "image": "images/case07.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Additional tooth-like structures",
+          "points": 3,
+          "keywords": [
+            "extra tooth",
+            "extra teeth",
+            "additional tooth",
+            "additional teeth",
+            "tooth-like",
+            "tooth like structure",
+            "extra radiopaque"
+          ]
+        },
+        {
+          "finding": "Location superior to permanent maxillary incisors",
+          "points": 2,
+          "keywords": [
+            "above the incisors",
+            "above the central incisors",
+            "superior to the incisors",
+            "near the incisor roots",
+            "between the incisor roots",
+            "apical to the incisors",
+            "anterior maxilla"
+          ]
+        },
+        {
+          "finding": "Altered eruption path / crowding potential",
+          "points": 1,
+          "keywords": [
+            "crowding",
+            "eruption path",
+            "delayed eruption",
+            "eruption disturbance",
+            "prevent eruption",
+            "diastema"
+          ]
+        }
+      ],
+      "diagnosis": "Impacted supernumerary teeth",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "supernumerary teeth",
+        "supernumerary tooth",
+        "supernumerary",
+        "mesiodens",
+        "hyperdontia",
+        "أسنان زائدة",
+        "سن زائد"
+      ]
+    },
+    "expertExplanation": "The arrows identify tooth-like radiopaque structures near the roots of maxillary incisors. These are consistent with impacted supernumerary teeth in the published case.",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12397893/ (Figure 3)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case08",
+    "image": "images/case08.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Well-defined radiolucent enlargement within the root canal space",
+          "points": 3,
+          "keywords": [
+            "enlarged canal",
+            "widened canal",
+            "canal enlargement",
+            "widening of the canal",
+            "dilated canal",
+            "radiolucency in the canal",
+            "radiolucent enlargement"
+          ]
+        },
+        {
+          "finding": "Balloon-like outline of the canal",
+          "points": 2,
+          "keywords": [
+            "balloon",
+            "ballooning",
+            "oval radiolucency",
+            "round radiolucency",
+            "rounded outline",
+            "smooth outline"
+          ]
+        },
+        {
+          "finding": "Apparent continuity with the canal",
+          "points": 1,
+          "keywords": [
+            "continuous with the canal",
+            "continuity with the canal",
+            "continuous with the root canal",
+            "connected to the canal",
+            "follows the canal",
+            "part of the canal"
+          ]
+        }
+      ],
+      "diagnosis": "Internal root resorption, suspected",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "internal resorption",
+        "internal root resorption",
+        "internal inflammatory resorption",
+        "intracanal resorption",
+        "امتصاص داخلي",
+        "ارتشاف داخلي"
+      ]
+    },
+    "expertExplanation": "The root canal appears expanded by an intraradicular radiolucency. Angled radiographs or CBCT may help distinguish internal from external resorption.",
+    "source": "https://n-clinic-dc.com/ (incomplete — exact URL missing)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case09",
+    "image": "images/case09.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Reduced interdental crestal bone height",
+          "points": 3,
+          "keywords": [
+            "reduced bone height",
+            "crestal bone loss",
+            "reduced crestal bone",
+            "bone level is reduced",
+            "interdental bone loss",
+            "alveolar crest is reduced"
+          ]
+        },
+        {
+          "finding": "Relatively even bone level across adjacent teeth",
+          "points": 2,
+          "keywords": [
+            "even bone level",
+            "uniform bone loss",
+            "uniform bone level",
+            "equal bone level",
+            "same bone level",
+            "evenly"
+          ]
+        },
+        {
+          "finding": "Alveolar crest approximately parallel to CEJ line",
+          "points": 1,
+          "keywords": [
+            "parallel to the cej",
+            "parallel to cej",
+            "parallel to the cementoenamel",
+            "parallel to the cemento-enamel",
+            "crest parallel",
+            "parallel"
+          ]
+        }
+      ],
+      "diagnosis": "Horizontal periodontal bone loss",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "horizontal bone loss",
+        "horizontal periodontal bone loss",
+        "horizontal alveolar bone loss",
+        "horizontal bone resorption",
+        "horizontal pattern",
+        "فقدان عظم أفقي",
+        "فقدان العظم الأفقي"
+      ]
+    },
+    "expertExplanation": "The alveolar crest is reduced in height with a broadly horizontal pattern. Clinical periodontal measurements are needed to diagnose and stage periodontitis.",
+    "source": "https://www.slideshare.net/ (incomplete — exact URL missing)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
+  },
+  {
+    "id": "case10",
+    "image": "images/case10.jpg",
+    "question": "Describe the radiographic findings and give your diagnosis.",
+    "key": {
+      "keyFindings": [
+        {
+          "finding": "Angular interdental bone defect",
+          "points": 3,
+          "keywords": [
+            "angular defect",
+            "angular bone defect",
+            "infrabony defect",
+            "intrabony defect",
+            "vertical defect",
+            "angular interdental"
+          ]
+        },
+        {
+          "finding": "Unequal bone heights around adjacent roots",
+          "points": 2,
+          "keywords": [
+            "unequal bone",
+            "uneven bone",
+            "different bone levels",
+            "bone levels differ",
+            "unequal height",
+            "uneven level"
+          ]
+        },
+        {
+          "finding": "Oblique rather than horizontal bone-loss pattern",
+          "points": 1,
+          "keywords": [
+            "oblique",
+            "slanted",
+            "diagonal",
+            "not parallel",
+            "not horizontal",
+            "inclined"
+          ]
+        }
+      ],
+      "diagnosis": "Vertical/angular periodontal bone loss",
+      "diagnosisPoints": 4,
+      "diagnosisKeywords": [
+        "vertical bone loss",
+        "angular bone loss",
+        "vertical periodontal bone loss",
+        "angular periodontal bone loss",
+        "vertical alveolar bone loss",
+        "فقدان عظم عمودي",
+        "فقدان العظم العمودي"
+      ]
+    },
+    "expertExplanation": "The radiograph demonstrates an angular defect alongside the tooth root. Probing depth, attachment loss and full-mouth findings are required for periodontal diagnosis.",
+    "source": "https://www.slideshare.net/ (incomplete — exact URL missing)",
+    "reviewStatus": "PENDING_REVIEW",
+    "placeholder": false,
+    "aiReading": "",
+    "aiScore": null
   }
 ]

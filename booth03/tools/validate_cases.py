@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT  # booth03/: the page and images/ live here
 DEFAULT_PATH = ROOT / "data" / "cases.json"
-REVIEW_STATUSES = {"DRAFT", "APPROVED", "REJECTED"}
+REVIEW_STATUSES = {"DRAFT", "PENDING_REVIEW", "APPROVED", "REJECTED"}  # PENDING_REVIEW behaves like DRAFT in the page
 CONFIDENCE = {"low", "medium", "high"}
 REQUIRED = ["id", "image", "question", "key", "aiReading", "aiScore", "expertExplanation", "reviewStatus"]
 TOTAL = 10

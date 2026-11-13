@@ -69,7 +69,7 @@ def case_html(c):
   <h2>{esc(c['id'])} — <span class=status>status: {esc(c['reviewStatus'])}</span></h2>
   {ph}
   <div class=grid>
-    <div>{img_tag(c)}<p class=kw>File: booth03/{esc(c['image'])}</p><p><b>Question shown:</b> {esc(c['question'])}</p></div>
+    <div>{img_tag(c)}<p class=kw>File: booth03/{esc(c['image'])}</p><p class=kw style="overflow-wrap:anywhere"><b>Source:</b> {esc(c.get('source') or 'not given')}</p><p><b>Question shown:</b> {esc(c['question'])}</p></div>
     <div>
       <h3>Answer key (points)</h3><table>{rows}</table>
       <h3>Expert explanation</h3><p style="white-space:pre-line">{esc(c['expertExplanation'])}</p>

@@ -2,5 +2,9 @@ __pycache__/
 *.pyc
 .DS_Store
 
-# Booth 03: uncomment if the X-ray images may NOT be published (GitHub Pages serves the whole repo):
-# booth03/images/
+# Booth 03 radiographs: the repo is public and image licences are not checked yet (see booth03/images/LICENSES_TODO.md).
+# Keep every file that contains the images out of git; copy them to the booth laptops by hand.
+booth03/images/*.jpg
+booth03/source/
+booth03/review/booth03_review.html
+booth03/review/booth03_review.pdf

@@ -24,10 +24,10 @@
 
 const CONFIG = {
   // Copy the current Flash model name from aistudio.google.com (e.g. the model id shown in AI Studio).
-  GEMINI_MODEL: "gemini-3.8-flash",
+  GEMINI_MODEL: "gemini-3.5-flash-lite",
   // Booth 05. Leave a "REPLACE_..." value to skip that slot. See booth05/DEPLOY.md.
-  GEMINI_CHAT_MODEL: "REPLACE_WITH_FAST_CHAT_MODEL_FROM_AI_STUDIO",
-  GEMINI_FALLBACK_MODELS: ["REPLACE_WITH_FALLBACK_MODEL_1", "REPLACE_WITH_FALLBACK_MODEL_2"],
+  GEMINI_CHAT_MODEL: "gemini-3.5-flash-lite",
+  GEMINI_FALLBACK_MODELS: ["gemini-3.1-flash-lite", "gemini-3.8-flash"],
   // Booth 05 premium voice (only used when the page runs with ?tts=gemini). Placeholder = off.
   GEMINI_TTS_MODEL: "REPLACE_WITH_TTS_MODEL_FROM_AI_STUDIO",
   GEMINI_TTS_VOICE: "Kore",

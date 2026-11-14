@@ -168,7 +168,7 @@ const gem = (text, extraParts) => ({ code: 200, body: JSON.stringify({ candidate
 
   E.setResponder(() => gem("يمكن عندي التِهاب العَصَب يا دكتور"));
   r = E.post({ action: "patientTurn", lang: "ar", prompt: "p", leakTerms: ["pulpitis", "التهاب العصب"] });
-  eq("leak check (server): Arabic diagnosis -> safe line", [r.reply, r.leaked], ["ما أدري يا دكتور، أنت الدكتور!", true]);
+  eq("leak check (server): Arabic diagnosis -> safe line (MSA, same as the page)", [r.reply, r.leaked], ["لا أعلم يا دكتور، أنت الطبيب هنا!", true]);
   eq("leak check (server): logged", E.logs.some((l) => /leak check/.test(l)), true);
   E.setResponder(() => gem("I think it is Pulpitis."));
   eq("leak check (server): English, case-insensitive, lang en", E.post({ action: "patientTurn", lang: "en", prompt: "p", leakTerms: ["pulpitis"] }).reply, "I don't know, doctor, you're the doctor!");
@@ -248,6 +248,7 @@ const gem = (text, extraParts) => ({ code: 200, body: JSON.stringify({ candidate
 
   // ttsSpeak: placeholder -> clear error; PCM -> WAV
   eq("ttsSpeak: model placeholder -> error (page uses the browser voice)", E.post({ action: "ttsSpeak", text: "مرحبا" }).error, "No TTS model is configured on the server (CONFIG.GEMINI_TTS_MODEL).");
+  eq("ttsSpeak style: natural clear Arabic (no Saudi accent instruction)", /natural, clear Arabic/.test(E.CONFIG.TTS_STYLE) && !/Saudi/.test(E.CONFIG.TTS_STYLE), true);
   E.CONFIG.GEMINI_TTS_MODEL = "tts-1";
   E.fetches.length = 0;
   const pcm = Buffer.from([0, 0, 255, 127, 1, 128]).toString("base64");

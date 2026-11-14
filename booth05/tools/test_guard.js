@@ -92,7 +92,9 @@ eq("keyword: 'الحرارة' matches keyword 'حرارة'", C.termScore("عند
 eq("keyword: 'أدوية' matches keyword 'ادويه'", C.termScore("تاخذ أدوية؟", ["ادويه"]) > 0, true);
 
 // --- Scripted fallback: >= 2 natural Arabic phrasings per key question ---------------------------
-for (const [key, lang] of [["phrasings", "ar"], ["phrasingsEn", "en"]]) {
+for (const [key, lang] of [["phrasings", "ar"], ["phrasingsMsa", "ar"], ["phrasingsEn", "en"]]) {
+  eq(`fixture ${key}: >= ${lang === "en" ? 2 : 3} phrasings for each of the 24 key questions`,
+    Object.values(PH[key]).flatMap((qs) => Object.values(qs)).filter((l) => l.length >= (lang === "en" ? 2 : 3)).length, 24);
   for (const [cid, qs] of Object.entries(PH[key])) {
     const c = byId(cid);
     for (const [qid, list] of Object.entries(qs)) {
@@ -114,6 +116,8 @@ eq("matcher: Arabic question in EN mode -> no key question", C.matchQuestion(c1,
 eq("AR mode: fallback line is Arabic", C.scriptOf(C.scriptedReply(c1, "When did the pain start?", "ar", {}).reply), "ar");
 eq("EN mode: fallback line is English", C.scriptOf(C.scriptedReply(c1, "كيف الجو", "en", {}).reply), "en");
 eq("EN mode: 'I don't know' in English", C.scriptedReply(c1, "what is my diagnosis?", "en", {}).reply, C.DONT_KNOW.en);
+eq("dialect and MSA questions both match (same key question)", [C.matchQuestion(c1, "من متى بدأ الألم؟", "ar").id, C.matchQuestion(c1, "منذ متى بدأ الألم؟", "ar").id], ["Q2", "Q2"]);
+eq("Arabic patient lines are MSA (no 'ما أدري' / 'عشان' / 'كذا')", [C.DONT_KNOW.ar, C.LEAK_FALLBACK.ar, C.GREETING_REPLY.ar].concat(C.FILLERS.ar).some((t) => /ما أدري|عشان|كذا|خلني/.test(t)), false);
 eq("grading still understands both languages (English term in an Arabic transcript)", C.questionsHit(c1, "عندك fever؟").map((q) => q.id), ["Q7"]);
 {
   const st = {};
@@ -135,9 +139,9 @@ eq("grading still understands both languages (English term in an Arabic transcri
   eq("patient system prompt: no unfilled placeholders", /\{\{[A-Z]+\}\}/.test(sys), false);
   eq("patient system prompt: diagnosis is NOT in it", C.leakTerms(c1).some((t) => sys.toLowerCase().includes(t.toLowerCase())), false);
   eq("patient system prompt: treatment outcomes are NOT in it", c1.treatmentOptions.some((o) => sys.includes(o.outcome)), false);
-  eq("patient system prompt: Saudi Arabic by default", sys.includes("casual Saudi Arabic"), true);
+  eq("patient system prompt: simple MSA by default (no Saudi dialect instruction)", sys.includes("Modern Standard Arabic") && !/Saudi/.test(sys), true);
   const sysEn = C.buildPatientSystem(c1, "en");
-  eq("patient system prompt: says to answer ONLY in the selected language", [sys.includes("Reply ONLY in casual Saudi Arabic"), sysEn.includes("Reply ONLY in simple everyday English")], [true, true]);
+  eq("patient system prompt: says to answer ONLY in the selected language", [sys.includes("Reply ONLY in simple, natural Modern Standard Arabic (fusha)") && /no dialect words, no English words/.test(sys), sysEn.includes("Reply ONLY in simple everyday English")], [true, true]);
   eq("patient system prompt (EN): English opener and answers, no Arabic case text", sysEn.includes(c1.profile.openerEn) && sysEn.includes(c1.keyQuestions[0].answerEn) &&
     !sysEn.includes(c1.profile.opener) && !sysEn.includes(c1.keyQuestions[0].answer), true);
   eq("patient system prompt (AR): Arabic answers, no English answers", sys.includes(c1.keyQuestions[0].answer) && !sys.includes(c1.keyQuestions[0].answerEn), true);
@@ -173,7 +177,7 @@ eq("grading still understands both languages (English term in an Arabic transcri
   eq("fast (EN): confident English question -> English scripted answer", [fe && fe.questionId, fe && fe.reply], ["Q2", c1.keyQuestions[1].answerEn]);
   eq("fast: English question in AR mode -> not answered from the Arabic script", C.fastScripted(c1, "When did the pain start?", "ar"), null);
   let fastCount = 0, total = 0;
-  for (const [key, lang] of [["phrasings", "ar"], ["phrasingsEn", "en"]]) for (const [cid, qs] of Object.entries(PH[key])) for (const [qid, list] of Object.entries(qs)) for (const t of list) {
+  for (const [key, lang] of [["phrasings", "ar"], ["phrasingsMsa", "ar"], ["phrasingsEn", "en"]]) for (const [cid, qs] of Object.entries(PH[key])) for (const [qid, list] of Object.entries(qs)) for (const t of list) {
     total++;
     const r = C.fastScripted(byId(cid), t, lang);
     if (r) { fastCount++; if (r.questionId !== qid) eq(`fast never answers the wrong question: ${cid} ${t}`, r.questionId, qid); }

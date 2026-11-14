@@ -31,7 +31,7 @@ const CONFIG = {
   // Booth 05 premium voice (only used when the page runs with ?tts=gemini). Placeholder = off.
   GEMINI_TTS_MODEL: "REPLACE_WITH_TTS_MODEL_FROM_AI_STUDIO",
   GEMINI_TTS_VOICE: "Kore",
-  TTS_STYLE: "Say it like a patient talking to a dentist, natural Saudi Arabic accent: ",
+  TTS_STYLE: "Say it like a patient talking to a dentist, in natural, clear Arabic: ",
   TTS_BUDGET_MS: 12000,
   // patientTurn speed settings
   CHAT_TEMPERATURE: 0.7,
@@ -402,7 +402,7 @@ function patientTurn_(b) {
   let leaked = false;
   if (leaks_(reply, terms)) {
     console.warn("patientTurn " + caseId + ": reply blocked by the leak check: " + reply.slice(0, 200));
-    reply = lang === "en" ? "I don't know, doctor, you're the doctor!" : "ما أدري يا دكتور، أنت الدكتور!";
+    reply = lang === "en" ? "I don't know, doctor, you're the doctor!" : "لا أعلم يا دكتور، أنت الطبيب هنا!"; // same line as LEAK_FALLBACK in booth05/index.html
     leaked = true;
   }
   return { ok: true, reply: capWords_(reply, CONFIG.PATIENT_MAX_WORDS), leaked: leaked, model: out.model, thinking: out.thinking };

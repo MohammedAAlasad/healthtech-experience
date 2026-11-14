@@ -258,7 +258,7 @@ const CASES = [
         "svg": "m_young"
       },
       "baseState": "pain",
-      "opener": "السلام عليكم دكتور، ضرسي اللي تحت ما خلاني أنام البارحة، الله يعافيك شوفه لي.",
+      "opener": "السلام عليكم يا دكتور، أعاني من ألم شديد في ضرسي السفلي ولم أستطع النوم الليلة الماضية، أرجو أن تفحصه.",
       "openerEn": "Hi doctor, my lower back tooth kept me up all last night. Please, can you take a look?"
     },
     "facts": {
@@ -291,7 +291,15 @@ const CASES = [
           "أي جهة",
           "يمين ولا يسار",
           "تقدر تحدد",
-          "تأشر"
+          "تأشر",
+          "أين",
+          "أين الألم",
+          "في أي ضرس",
+          "حدد مكان",
+          "تحديد مكان",
+          "أشر",
+          "تشير",
+          "في أي جهة"
         ],
         "keywordsEn": [
           "where",
@@ -302,7 +310,7 @@ const CASES = [
           "which one",
           "show me"
         ],
-        "answer": "تحت يمين، الضروس اللي ورا، بس ما أقدر أحدد أي واحد بالضبط لأن الوجع ينتشر.",
+        "answer": "في الأسفل على اليمين، في الأضراس الخلفية، لكنني لا أستطيع تحديد الضرس بالضبط لأن الألم ينتشر.",
         "answerEn": "Lower right, the back teeth, but I can't tell exactly which one because the pain spreads."
       },
       {
@@ -318,7 +326,13 @@ const CASES = [
           "من كم يوم",
           "كم صار له",
           "كم له",
-          "كم صار لك"
+          "كم صار لك",
+          "منذ متى",
+          "متى بدأت",
+          "منذ كم",
+          "كم مضى",
+          "كم يوما",
+          "بداية الألم"
         ],
         "keywordsEn": [
           "since when",
@@ -331,7 +345,7 @@ const CASES = [
           "how many days",
           "when was"
         ],
-        "answer": "من ثلاث أيام بدأ الوجع القوي، وقبلها كم أسبوع كانت تجيني نغزات خفيفة مع البارد.",
+        "answer": "بدأ الألم الشديد منذ ثلاثة أيام، وقبل ذلك بأسابيع كنت أشعر بوخزات خفيفة عند شرب الماء البارد.",
         "answerEn": "The strong pain started three days ago; for a few weeks before that I got short twinges with cold drinks."
       },
       {
@@ -347,7 +361,15 @@ const CASES = [
           "بدون ما تاكل",
           "مستمر",
           "على طول",
-          "يجي ويروح"
+          "يجي ويروح",
+          "دون سبب",
+          "من تلقاء نفسه",
+          "تلقائيا",
+          "وحده",
+          "بلا سبب",
+          "يأتي ويذهب",
+          "دون سبب واضح",
+          "ويذهب"
         ],
         "keywordsEn": [
           "spontaneous",
@@ -363,7 +385,7 @@ const CASES = [
           "without any reason",
           "by its own"
         ],
-        "answer": "يجيني لحاله بدون أي سبب، حتى وأنا قاعد ما سويت شي.",
+        "answer": "يأتي الألم وحده دون أي سبب، حتى وأنا جالس لا أفعل شيئاً.",
         "answerEn": "It comes on by itself for no reason, even when I'm just sitting doing nothing."
       },
       {
@@ -384,7 +406,13 @@ const CASES = [
           "ثلج",
           "آيس",
           "يطول",
-          "يستمر بعد"
+          "يستمر بعد",
+          "الساخن",
+          "الساخنة",
+          "الماء البارد",
+          "المشروبات الساخنة",
+          "شيء بارد",
+          "يبقى بعد"
         ],
         "keywordsEn": [
           "cold",
@@ -398,7 +426,7 @@ const CASES = [
           "hot drinks",
           "sensitive to"
         ],
-        "answer": "إيه، الحار والبارد يهيجونه، والوجع يقعد دقايق بعد ما أخلص الشرب.",
+        "answer": "نعم، الساخن والبارد يثيران الألم، ويستمر الألم عدة دقائق بعد أن أنتهي من الشرب.",
         "answerEn": "Yes, hot and cold set it off, and the pain stays for a few minutes after I finish drinking."
       },
       {
@@ -416,7 +444,15 @@ const CASES = [
           "صحاك",
           "تصحى",
           "تنسدح",
-          "انسدحت"
+          "انسدحت",
+          "ليلا",
+          "توقظك",
+          "يوقظك",
+          "أيقظك",
+          "تستيقظ",
+          "تستلقي",
+          "الاستلقاء",
+          "نومك"
         ],
         "keywordsEn": [
           "night",
@@ -429,7 +465,7 @@ const CASES = [
           "wake you",
           "keep you up"
         ],
-        "answer": "إيه، صحّاني من النوم آخر ليلتين، وأحس يزيد إذا انسدحت.",
+        "answer": "نعم، أيقظني من النوم في الليلتين الماضيتين، ويزداد عندما أستلقي.",
         "answerEn": "Yes, it woke me up the last two nights, and it gets worse when I lie down."
       },
       {
@@ -450,7 +486,14 @@ const CASES = [
           "كيف الألم",
           "وش نوع",
           "ينبض",
-          "نبض"
+          "نبض",
+          "شدة الألم",
+          "كم تقيم",
+          "كيف تقيم",
+          "صف الألم",
+          "صف لي",
+          "نابض",
+          "ما مدى"
         ],
         "keywordsEn": [
           "severity",
@@ -468,7 +511,7 @@ const CASES = [
           "type of pain",
           "rate the pain"
         ],
-        "answer": "قوي مرة، ثمانية من عشرة، نبض نبض ويطلع لين أذني.",
+        "answer": "شديد جداً، ثمانية من عشرة، ألم نابض يمتد إلى أذني.",
         "answerEn": "Really bad, eight out of ten, throbbing, and it goes up to my ear."
       },
       {
@@ -485,7 +528,11 @@ const CASES = [
           "منتفخ",
           "تورم",
           "متورم",
-          "تعبان"
+          "تعبان",
+          "حرارتك",
+          "ارتفاع الحرارة",
+          "انتفاخا",
+          "ارتفعت"
         ],
         "keywordsEn": [
           "fever",
@@ -495,7 +542,7 @@ const CASES = [
           "feel unwell",
           "chills"
         ],
-        "answer": "لا ما فيه انتفاخ ولا حرارة، بس الوجع.",
+        "answer": "لا يوجد انتفاخ ولا حرارة، فقط الألم.",
         "answerEn": "No swelling and no fever, just the pain."
       },
       {
@@ -518,7 +565,15 @@ const CASES = [
           "تاخذ",
           "تستخدم",
           "حساسية",
-          "حساسيه"
+          "حساسيه",
+          "تعاني من",
+          "مزمنة",
+          "السكري",
+          "ضغط الدم",
+          "تتناول",
+          "تحسس",
+          "حالتك الصحية",
+          "التاريخ المرضي"
         ],
         "keywordsEn": [
           "medical history",
@@ -536,7 +591,7 @@ const CASES = [
           "conditions",
           "health problems"
         ],
-        "answer": "ما عندي أمراض ولا عندي حساسية من شي، بس آخذ مسكنات من الصيدلية من يومين.",
+        "answer": "ليست لدي أمراض ولا حساسية من أي شيء، لكنني أتناول مسكنات من الصيدلية منذ يومين.",
         "answerEn": "No illnesses and no allergies, but I've been taking painkillers from the pharmacy for two days."
       }
     ],
@@ -598,7 +653,7 @@ const CASES = [
           "pulp extirpation",
           "nerve treatment"
         ],
-        "outcome": "الحمد لله يا دكتور، من يوم شلت العصب الوجع راح ونمت زين. باقي أكمل علاج العصب والتلبيسة مثل ما قلت لي.",
+        "outcome": "الحمد لله يا دكتور، منذ أن أزلت العصب ذهب الألم وأصبحت أنام جيداً. بقي أن أكمل علاج العصب والتاج كما قلت لي.",
         "outcomeEn": "Thank God, doctor, since you took out the nerve the pain is gone and I'm sleeping well. I still need to finish the root canal and the crown like you said.",
         "why": "Removing the inflamed pulp removes the source of pain; antibiotics do not treat pulpitis."
       },
@@ -625,7 +680,7 @@ const CASES = [
           "remove the tooth",
           "take it out"
         ],
-        "outcome": "الوجع راح بعد الخلع والحمد لله، بس صار عندي فراغ ورا والأكل صاير يعلق. قالوا لي أفكر بزراعة أو جسر.",
+        "outcome": "ذهب الألم بعد الخلع والحمد لله. لكن أصبح لدي فراغ في الخلف يعلق فيه الطعام، ونصحوني بالتفكير في زراعة أو جسر.",
         "outcomeEn": "The pain went away after the extraction, thank God. But now there's a gap at the back and food gets stuck, and they told me to think about an implant or a bridge.",
         "why": "Extraction stops the pain, but this tooth was restorable; root canal treatment would have kept it."
       },
@@ -652,7 +707,7 @@ const CASES = [
           "composite",
           "amalgam"
         ],
-        "outcome": "حشيته بس الوجع رجع أقوى من أول. صرت أصحى بالليل والمسكن ما يفيد، ورجعت للطوارئ.",
+        "outcome": "حُشي الضرس لكن الألم عاد أشد من قبل. أصبحت أستيقظ في الليل والمسكن لا يفيد، فذهبت إلى الطوارئ.",
         "outcomeEn": "You filled it, but the pain came back worse than before. I'm waking up at night, the painkillers don't help, and I ended up in the emergency room.",
         "why": "A filling cannot reverse an irreversibly inflamed pulp; the pain continues or gets worse."
       },
@@ -684,21 +739,21 @@ const CASES = [
           "prescription",
           "pills"
         ],
-        "outcome": "أخذت الحبوب كلها وخف الوجع يومين. بس رجع بالليل نفس ما كان، والحين أحس الضرس يوجعني إذا عضيت.",
+        "outcome": "تناولت الحبوب كلها فخف الألم يومين. لكنه عاد في الليل كما كان، والآن أشعر بألم في الضرس عندما أعض.",
         "outcomeEn": "I took all the pills and the pain eased for two days. But it came back at night just like before, and now the tooth hurts when I bite.",
         "why": "Antibiotics do not treat pulpitis without systemic involvement, and painkillers only mask it while the pulp keeps degenerating."
       }
     ],
     "unmatchedOutcome": {
       "outcomeTier": "unclear",
-      "outcome": "الصراحة يا دكتور ما فهمت الخطة زين، سويت اللي فهمته والوجع للحين يجي ويروح. أبي أرجع أتأكد منك.",
+      "outcome": "بصراحة يا دكتور لم أفهم الخطة جيداً، ففعلت ما فهمته وما زال الألم يأتي ويذهب. أريد أن أعود لأتأكد منك.",
       "why": "The treatment plan could not be matched to a known option; a supervisor should review it."
     },
     "unmatchedOutcomeEn": "Honestly doctor, I didn't really understand the plan. I did what I understood and the pain still comes and goes, so I want to come back and check with you.",
     "fallbackLines": [
-      "ما فهمت عليك يا دكتور، ممكن تعيد السؤال؟",
-      "والله ما أدري، أهم شي هالوجع اللي عندي.",
-      "ممكن توضح لي سؤالك أكثر؟"
+      "عفواً يا دكتور، لم أفهم سؤالك، هل يمكنك إعادته؟",
+      "لا أعرف بصراحة، ما يهمني هو هذا الألم.",
+      "هل يمكنك توضيح سؤالك أكثر؟"
     ],
     "fallbackLinesEn": [
       "Sorry doctor, I didn't get that. Could you ask again?",
@@ -713,7 +768,8 @@ const CASES = [
       "'Simple filling without pulp treatment' outcome = pain returns and worsens. Confirm realism.",
       "Biting is described as not really painful (no apical periodontitis yet). Confirm this is consistent with the diagnosis.",
       "Outcome texts after 7 days are patient-side narratives; please check they are realistic and non-alarming.",
-      "English versions (openerEn, answerEn, outcomeEn, unmatchedOutcomeEn, fallbackLinesEn) were translated from the Arabic and must say the same thing medically. Please check both columns."
+      "English versions (openerEn, answerEn, outcomeEn, unmatchedOutcomeEn, fallbackLinesEn) were translated from the Arabic and must say the same thing medically. Please check both columns.",
+      "Arabic texts are now in simple Modern Standard Arabic (فصحى مبسطة) instead of Saudi dialect; meaning and medical content unchanged. Please check the wording."
     ]
   },
   {
@@ -738,7 +794,7 @@ const CASES = [
         "svg": "f_young"
       },
       "baseState": "worried",
-      "opener": "السلام عليكم دكتور، فكي اللي تحت من ورا منتفخ ويوجعني، وما أقدر أفتح فمي زين.",
+      "opener": "السلام عليكم يا دكتور، فكي السفلي من الخلف متورم ويؤلمني، ولا أستطيع فتح فمي جيداً.",
       "openerEn": "Hello doctor, my lower jaw at the back is swollen and it hurts, and I can't open my mouth properly."
     },
     "facts": {
@@ -775,7 +831,13 @@ const CASES = [
           "أي جهة",
           "يمين ولا يسار",
           "تأشرين",
-          "تقدرين تحددين"
+          "تقدرين تحددين",
+          "أين",
+          "أين الألم",
+          "في أي جهة",
+          "تشيري",
+          "مكان التورم",
+          "حددي"
         ],
         "keywordsEn": [
           "where",
@@ -786,7 +848,7 @@ const CASES = [
           "which one",
           "show me"
         ],
-        "answer": "تحت يسار، ورا آخر ضرس، اللثة هناك منتفخة.",
+        "answer": "في الأسفل على اليسار، خلف آخر ضرس، واللثة هناك متورمة.",
         "answerEn": "Lower left, behind the last tooth, the gum there is swollen."
       },
       {
@@ -802,7 +864,12 @@ const CASES = [
           "من كم يوم",
           "كم صار له",
           "كم له",
-          "كم صار لك"
+          "كم صار لك",
+          "منذ متى",
+          "متى بدأت",
+          "منذ كم",
+          "كم مضى",
+          "بداية الأعراض"
         ],
         "keywordsEn": [
           "since when",
@@ -815,7 +882,7 @@ const CASES = [
           "how many days",
           "when was"
         ],
-        "answer": "بدأ من يومين، وكل يوم يزيد شوي.",
+        "answer": "بدأ منذ يومين، ويزداد قليلاً كل يوم.",
         "answerEn": "It started two days ago and it gets a bit worse every day."
       },
       {
@@ -830,7 +897,8 @@ const CASES = [
           "منفوخ",
           "وجهك",
           "خدك",
-          "الخد"
+          "الخد",
+          "انتفاخا"
         ],
         "keywordsEn": [
           "swelling",
@@ -841,7 +909,7 @@ const CASES = [
           "lump",
           "any swelling"
         ],
-        "answer": "إيه، اللثة ورا الضرس منتفخة، وخدي من برا كأنه منتفخ شوي.",
+        "answer": "نعم، اللثة خلف الضرس متورمة، وخدي من الخارج يبدو منتفخاً قليلاً.",
         "answerEn": "Yes, the gum behind the tooth is swollen, and my cheek looks a little puffy from outside."
       },
       {
@@ -856,7 +924,10 @@ const CASES = [
           "تقدرين تفتحين",
           "افتحي",
           "صعوبة في الفتح",
-          "الفك مقفل"
+          "الفك مقفل",
+          "فتح فمك",
+          "تستطيعين فتح",
+          "كم يمكنك أن تفتحي"
         ],
         "keywordsEn": [
           "open your mouth",
@@ -869,7 +940,7 @@ const CASES = [
           "open your jaw",
           "how wide"
         ],
-        "answer": "ما أقدر أفتح فمي كامل، يا دوب يدخل إصبعين.",
+        "answer": "لا أستطيع فتح فمي كاملاً، بالكاد يدخل إصبعان.",
         "answerEn": "I can't open my mouth all the way, barely two fingers fit."
       },
       {
@@ -883,7 +954,10 @@ const CASES = [
           "رائحه",
           "ريحه",
           "صديد",
-          "قيح"
+          "قيح",
+          "طعم سيئ",
+          "رائحة كريهة",
+          "خروج صديد"
         ],
         "keywordsEn": [
           "taste",
@@ -896,7 +970,7 @@ const CASES = [
           "bad taste",
           "bad smell"
         ],
-        "answer": "إيه، فيه طعم مو حلو بفمي وريحة، خصوصاً الصبح.",
+        "answer": "نعم، هناك طعم سيئ في فمي ورائحة كريهة، خصوصاً في الصباح.",
         "answerEn": "Yes, there's a bad taste in my mouth and a bad smell, especially in the morning."
       },
       {
@@ -912,7 +986,10 @@ const CASES = [
           "تاكلين",
           "تاكلي",
           "المضغ",
-          "تمضغين"
+          "تمضغين",
+          "يؤلمك البلع",
+          "صعوبة في الأكل",
+          "المضغ على"
         ],
         "keywordsEn": [
           "swallow",
@@ -924,7 +1001,7 @@ const CASES = [
           "hurt to swallow",
           "difficult to eat"
         ],
-        "answer": "البلع يوجعني شوي، والأكل صاير صعب على هالجهة.",
+        "answer": "البلع يؤلمني قليلاً، وأصبح الأكل صعباً على هذا الجانب.",
         "answerEn": "Swallowing hurts a bit, and eating on this side has become hard."
       },
       {
@@ -942,7 +1019,11 @@ const CASES = [
           "التنفس",
           "تنفس",
           "رقبتك",
-          "الرقبة"
+          "الرقبة",
+          "حرارتك",
+          "صعوبة في التنفس",
+          "امتد",
+          "إلى رقبتك"
         ],
         "keywordsEn": [
           "fever",
@@ -955,7 +1036,7 @@ const CASES = [
           "trouble breathing",
           "general health"
         ],
-        "answer": "لا ما فيه حرارة، قستها البارحة وكانت طبيعية، وما عندي صعوبة بالتنفس.",
+        "answer": "لا توجد حرارة، قستها أمس وكانت طبيعية، ولا أجد صعوبة في التنفس.",
         "answerEn": "No fever, I checked it yesterday and it was normal, and I have no trouble breathing."
       },
       {
@@ -978,7 +1059,11 @@ const CASES = [
           "تاخذين",
           "تستخدمين",
           "حساسية",
-          "حساسيه"
+          "حساسيه",
+          "تتناولين",
+          "تعانين",
+          "مزمنة",
+          "تحسس"
         ],
         "keywordsEn": [
           "medical history",
@@ -996,7 +1081,7 @@ const CASES = [
           "conditions",
           "penicillin"
         ],
-        "answer": "ما عندي أمراض، بس عندي حساسية من البنسلين، طلع لي طفح وأنا صغيرة.",
+        "answer": "ليست لدي أمراض، لكن لدي حساسية من البنسلين، فقد ظهر عندي طفح جلدي وأنا صغيرة.",
         "answerEn": "I don't have any illnesses, but I'm allergic to penicillin, I got a rash when I was little."
       }
     ],
@@ -1059,7 +1144,7 @@ const CASES = [
           "salt water",
           "oral hygiene"
         ],
-        "outcome": "يا دكتور الحمد لله، بعد التنظيف والمضمضة بالموية والملح الورم خف من ثاني يوم، والحين أفتح فمي عادي وآكل زين. باقي موعد نقرر فيه خلع ضرس العقل.",
+        "outcome": "الحمد لله يا دكتور، بعد التنظيف والمضمضة بالماء الدافئ والملح خف التورم من اليوم الثاني. والآن أفتح فمي بشكل طبيعي وآكل جيداً، ولدي موعد لنقرر خلع ضرس العقل.",
         "outcomeEn": "Thank God, doctor, after the cleaning and the warm salt-water rinses the swelling went down by the second day. Now I can open my mouth normally and eat well, and I have an appointment to decide about taking out the wisdom tooth.",
         "why": "Cleaning and irrigating under the flap removes the trapped debris; antibiotics are not needed without fever or spreading swelling."
       },
@@ -1087,7 +1172,7 @@ const CASES = [
           "pull",
           "surgery"
         ],
-        "outcome": "الضرس انشال، بس الأسبوع الأول كان صعب، فكي ورم أكثر وما قدرت أفتح فمي أيام. الحين أحسن بس لسا فيه شد خفيف.",
+        "outcome": "خُلع الضرس، لكن الأسبوع الأول كان صعباً، فقد تورم فكي أكثر ولم أستطع فتح فمي لأيام. الآن أنا أفضل، لكن ما زال هناك شد خفيف.",
         "outcomeEn": "The tooth was taken out, but the first week was hard: my jaw swelled more and I couldn't open my mouth for days. Now it's better, but there's still a little stiffness.",
         "why": "Extracting during the acute phase with limited mouth opening is harder and more painful; it is usually planned after the infection settles."
       },
@@ -1117,7 +1202,7 @@ const CASES = [
           "teething",
           "leave it"
         ],
-        "outcome": "صبرت مثل ما قلت لي، بس الورم زاد ونزل لرقبتي شوي وصرت ما أقدر أبلع. رحت الطوارئ وحولوني لجراح الفم.",
+        "outcome": "انتظرت كما قلت لي، لكن التورم ازداد وامتد قليلاً إلى رقبتي وأصبحت لا أستطيع البلع. ذهبت إلى الطوارئ فحولوني إلى جراح الفم.",
         "outcomeEn": "I waited like you said, but the swelling got bigger and spread down to my neck a bit, and I couldn't swallow. I went to the emergency room and they referred me to an oral surgeon.",
         "why": "Without local cleaning the infection can spread to the tissue spaces around the jaw and needs urgent referral."
       },
@@ -1149,21 +1234,21 @@ const CASES = [
           "prescription",
           "pills"
         ],
-        "outcome": "أخذت الحبوب وخف الوجع كم يوم. بس أول ما خلصتها رجع الورم والطعم الشين مثل أول.",
+        "outcome": "تناولت الحبوب فخف الألم بضعة أيام. لكن بمجرد أن أنهيتها عاد التورم والطعم السيئ كما كان.",
         "outcomeEn": "I took the pills and the pain eased for a few days. But as soon as I finished them, the swelling and the bad taste came back like before.",
         "why": "Medicines alone leave the debris under the flap, so it recurs; antibiotics are for fever or spreading infection (and she is allergic to penicillin)."
       }
     ],
     "unmatchedOutcome": {
       "outcomeTier": "unclear",
-      "outcome": "الصراحة يا دكتور ما فهمت الخطة زين، سويت اللي فهمته والورم للحين يجي ويروح. أبي أرجع أتأكد منك.",
+      "outcome": "بصراحة يا دكتور لم أفهم الخطة جيداً، ففعلت ما فهمته وما زال التورم يأتي ويذهب. أريد أن أعود لأتأكد منك.",
       "why": "The treatment plan could not be matched to a known option; a supervisor should review it."
     },
     "unmatchedOutcomeEn": "Honestly doctor, I didn't really understand the plan. I did what I understood and the swelling still comes and goes, so I want to come back and check with you.",
     "fallbackLines": [
-      "عفواً دكتور، ما فهمت السؤال، ممكن تعيده؟",
-      "والله ما أدري، اللي يهمني الورم والوجع.",
-      "ممكن توضح لي أكثر؟"
+      "عفواً يا دكتور، لم أفهم السؤال، هل يمكنك إعادته؟",
+      "لا أعرف بصراحة، ما يقلقني هو التورم والألم.",
+      "هل يمكنك التوضيح أكثر؟"
     ],
     "fallbackLinesEn": [
       "Sorry doctor, I didn't understand the question. Could you repeat it?",
@@ -1177,7 +1262,8 @@ const CASES = [
       "Reassurance-only outcome describes spread towards the neck needing referral (non-graphic). Confirm it is realistic and not alarming.",
       "Penicillin allergy is included so that the allergy question matters. Confirm wording.",
       "Accepted diagnosis synonyms include 'operculitis'. Confirm whether it deserves full credit.",
-      "English versions (openerEn, answerEn, outcomeEn, unmatchedOutcomeEn, fallbackLinesEn) were translated from the Arabic and must say the same thing medically. Please check both columns."
+      "English versions (openerEn, answerEn, outcomeEn, unmatchedOutcomeEn, fallbackLinesEn) were translated from the Arabic and must say the same thing medically. Please check both columns.",
+      "Arabic texts are now in simple Modern Standard Arabic (فصحى مبسطة) instead of Saudi dialect; meaning and medical content unchanged. Please check the wording."
     ]
   },
   {
@@ -1202,7 +1288,7 @@ const CASES = [
         "svg": "m_older"
       },
       "baseState": "worried",
-      "opener": "السلام عليكم يا دكتور، طلع لي ورم في اللثة جنب ضرسي، وأحس الضرس صاير يتحرك.",
+      "opener": "السلام عليكم يا دكتور، ظهر عندي تورم في اللثة بجانب ضرسي، وأشعر أن الضرس أصبح يتحرك.",
       "openerEn": "Hello doctor, I've got a swelling in the gum next to my back tooth, and the tooth feels like it's moving."
     },
     "facts": {
@@ -1240,7 +1326,13 @@ const CASES = [
           "يمين ولا يسار",
           "فوق ولا تحت",
           "تقدر تحدد",
-          "تأشر"
+          "تأشر",
+          "أين",
+          "أين يقع",
+          "يقع التورم",
+          "الفك العلوي",
+          "العلوي أم السفلي",
+          "في أي ضرس"
         ],
         "keywordsEn": [
           "where",
@@ -1252,7 +1344,7 @@ const CASES = [
           "show me",
           "upper or lower"
         ],
-        "answer": "فوق يسار، اللثة جنب الضرس من جهة الخد منتفخة.",
+        "answer": "في الأعلى على اليسار، اللثة بجانب الضرس من جهة الخد متورمة.",
         "answerEn": "Upper left, the gum next to the back tooth on the cheek side is swollen."
       },
       {
@@ -1268,7 +1360,12 @@ const CASES = [
           "من كم يوم",
           "كم صار له",
           "كم له",
-          "كم صار لك"
+          "كم صار لك",
+          "منذ متى",
+          "متى ظهر",
+          "متى بدأت",
+          "كم مضى",
+          "منذ كم"
         ],
         "keywordsEn": [
           "since when",
@@ -1281,7 +1378,7 @@ const CASES = [
           "how many days",
           "when was it"
         ],
-        "answer": "من أربع أيام، بدت صغيرة وكبرت شوي.",
+        "answer": "منذ أربعة أيام، بدأ صغيراً ثم كبر قليلاً.",
         "answerEn": "Four days ago; it started small and got a bit bigger."
       },
       {
@@ -1302,7 +1399,11 @@ const CASES = [
           "كيف الوجع",
           "كيف الألم",
           "قوي",
-          "من عشرة"
+          "من عشرة",
+          "يؤلمك",
+          "صف لي",
+          "صف الألم",
+          "عندما تعض"
         ],
         "keywordsEn": [
           "bite",
@@ -1315,7 +1416,7 @@ const CASES = [
           "how bad",
           "hurt when you bite"
         ],
-        "answer": "وجع خفيف ينبض، ويزيد إذا عضيت على الضرس.",
+        "answer": "ألم خفيف نابض، ويزداد عندما أعض على الضرس.",
         "answerEn": "A mild throbbing ache, and it gets worse when I bite on that tooth."
       },
       {
@@ -1330,7 +1431,9 @@ const CASES = [
           "مخلخل",
           "تخلخل",
           "رخو",
-          "ثابت"
+          "ثابت",
+          "الضرس متحرك",
+          "السن يتحرك"
         ],
         "keywordsEn": [
           "loose",
@@ -1342,7 +1445,7 @@ const CASES = [
           "feel loose",
           "wiggle"
         ],
-        "answer": "إيه، الضرس أحسه يتحرك شوي، وكأنه أطول من اللي جنبه.",
+        "answer": "نعم، أشعر أن الضرس يتحرك قليلاً، وكأنه أطول من الضرس المجاور.",
         "answerEn": "Yes, the tooth feels a little loose, and it feels taller than the one next to it."
       },
       {
@@ -1361,7 +1464,9 @@ const CASES = [
           "رائحة",
           "رائحه",
           "ريحه",
-          "مالح"
+          "مالح",
+          "خرج صديد",
+          "طعم مالح"
         ],
         "keywordsEn": [
           "pus",
@@ -1374,7 +1479,7 @@ const CASES = [
           "anything come out",
           "bad taste"
         ],
-        "answer": "أمس ضغطت عليها وطلع شي أبيض طعمه مالح ومو حلو.",
+        "answer": "بالأمس ضغطت عليها فخرج شيء أبيض طعمه مالح وكريه.",
         "answerEn": "Yesterday I pressed on it and something white came out; it tasted salty and nasty."
       },
       {
@@ -1392,7 +1497,11 @@ const CASES = [
           "اخر زيارة",
           "تفرش",
           "الفرشاة",
-          "خيط"
+          "خيط",
+          "تنزف لثتك",
+          "تنظيف الأسنان",
+          "نظفت فيها",
+          "الخيط"
         ],
         "keywordsEn": [
           "bleed",
@@ -1409,7 +1518,7 @@ const CASES = [
           "last cleaning",
           "dentist last"
         ],
-        "answer": "لثتي تنزف إذا فرشت من سنين، وآخر تنظيف جير سويته قبل أكثر من خمس سنين.",
+        "answer": "لثتي تنزف عند التفريش منذ سنوات، وآخر مرة نظفت فيها الجير كانت قبل أكثر من خمس سنوات.",
         "answerEn": "My gums have bled when I brush for years, and my last scaling was more than five years ago."
       },
       {
@@ -1423,7 +1532,12 @@ const CASES = [
           "سخونه",
           "تعبان",
           "رقبتك",
-          "غدد"
+          "غدد",
+          "حرارتك",
+          "توعك",
+          "تتوعك",
+          "الغدد",
+          "الرقبة"
         ],
         "keywordsEn": [
           "fever",
@@ -1435,7 +1549,7 @@ const CASES = [
           "feel sick",
           "feeling unwell"
         ],
-        "answer": "لا ما فيه حرارة، وأحس نفسي عادي.",
+        "answer": "لا توجد حرارة، وأشعر أنني بخير.",
         "answerEn": "No fever, I feel fine."
       },
       {
@@ -1461,7 +1575,11 @@ const CASES = [
           "تدخن",
           "تدخين",
           "دخان",
-          "سجاير"
+          "سجاير",
+          "السكري",
+          "مزمنة",
+          "ضغط الدم",
+          "تعاني من"
         ],
         "keywordsEn": [
           "medical history",
@@ -1480,7 +1598,7 @@ const CASES = [
           "sugar",
           "conditions"
         ],
-        "answer": "عندي ضغط وآخذ حبة كل يوم، والسكر فحصته السنة اللي فاتت وطلع طبيعي، وأدخن من سنين.",
+        "answer": "لدي ضغط دم مرتفع وآخذ حبة كل يوم، وفحصت السكر في السنة الماضية وكان طبيعياً، وأدخن منذ سنوات.",
         "answerEn": "I have high blood pressure and take one pill a day, my sugar test last year was normal, and I've smoked for years."
       }
     ],
@@ -1540,7 +1658,7 @@ const CASES = [
           "deep cleaning",
           "periodontal treatment"
         ],
-        "outcome": "الحمد لله، بعد التنظيف تحت اللثة الورم راح خلال يومين والطعم المالح اختفى. الضرس صار أثبت شوي، وعندي مواعيد تنظيف لباقي اللثة.",
+        "outcome": "الحمد لله، بعد التنظيف تحت اللثة زال التورم خلال يومين واختفى الطعم المالح. أصبح الضرس أثبت قليلاً، ولدي مواعيد لتنظيف بقية اللثة.",
         "outcomeEn": "Thank God, after the cleaning under the gum the swelling was gone within two days and the salty taste disappeared. The tooth feels a bit firmer, and I have appointments to clean the rest of my gums.",
         "why": "Draining and cleaning the pocket removes the source; antibiotics are not needed without fever, and the gum disease needs ongoing treatment."
       },
@@ -1568,7 +1686,7 @@ const CASES = [
           "lance",
           "cut it open"
         ],
-        "outcome": "الورم نزل بعد ما فتحته. بس للحين لثتي تنزف والضرس يتحرك شوي، وأحس الورم ممكن يرجع.",
+        "outcome": "خف التورم بعد أن فتحته. لكن لثتي ما زالت تنزف والضرس ما زال يتحرك قليلاً، وأشعر أن التورم قد يعود.",
         "outcomeEn": "The swelling went down after you opened it. But my gums still bleed and the tooth still moves a little, and I feel the swelling might come back.",
         "why": "Drainage relieves the acute swelling, but without pocket debridement and periodontal treatment it tends to recur."
       },
@@ -1594,7 +1712,7 @@ const CASES = [
           "endodontic",
           "nerve treatment"
         ],
-        "outcome": "سويت علاج العصب وتعبت بالمواعيد. بس الورم ما راح والطعم المالح باقي، ورجعت أدور حل.",
+        "outcome": "أجريت علاج العصب وتعبت من كثرة المواعيد. لكن التورم لم يزل والطعم المالح ما زال موجوداً، فعدت أبحث عن حل.",
         "outcomeEn": "I had the root canal treatment and all those appointments were tiring. But the swelling didn't go away and the salty taste is still there, so I'm back looking for a solution.",
         "why": "The tooth responds normally to hot and cold; the infection comes from the gum pocket, so root canal treatment does not address it."
       },
@@ -1626,21 +1744,21 @@ const CASES = [
           "prescription",
           "pills"
         ],
-        "outcome": "أخذت الحبوب وخف الورم. بس بعد ما خلصتها بأسبوع رجع نفس الورم في نفس المكان.",
+        "outcome": "تناولت الحبوب فخف التورم. لكن بعد أسبوع من إنهائها عاد التورم نفسه في المكان نفسه.",
         "outcomeEn": "I took the pills and the swelling went down. But a week after I finished them, the same swelling came back in the same place.",
         "why": "Medicines alone do not clean the pocket, so the abscess recurs; antibiotics are reserved for systemic involvement."
       }
     ],
     "unmatchedOutcome": {
       "outcomeTier": "unclear",
-      "outcome": "الصراحة يا دكتور ما فهمت الخطة زين، سويت اللي فهمته والورم للحين يجي ويروح. أبي أرجع أتأكد منك.",
+      "outcome": "بصراحة يا دكتور لم أفهم الخطة جيداً، ففعلت ما فهمته وما زال التورم يأتي ويذهب. أريد أن أعود لأتأكد منك.",
       "why": "The treatment plan could not be matched to a known option; a supervisor should review it."
     },
     "unmatchedOutcomeEn": "Honestly doctor, I didn't really understand the plan. I did what I understood and the swelling still comes and goes, so I want to come back and check with you.",
     "fallbackLines": [
-      "ما فهمت عليك يا دكتور، ممكن تعيد؟",
-      "والله ما أدري، اللي مضايقني الورم هذا.",
-      "ممكن توضح سؤالك أكثر؟"
+      "عفواً يا دكتور، لم أفهم سؤالك، هل يمكنك إعادته؟",
+      "لا أعرف بصراحة، ما يزعجني هو هذا التورم.",
+      "هل يمكنك توضيح سؤالك أكثر؟"
     ],
     "fallbackLinesEn": [
       "Sorry doctor, I didn't get that. Could you repeat it?",
@@ -1654,7 +1772,8 @@ const CASES = [
       "Root canal treatment is graded 'common_wrong' because the tooth is vital. Confirm.",
       "Accepted diagnosis synonyms include 'gum abscess' / 'خراج اللثة' (lay terms). Confirm whether they deserve full credit; 'gingival abscess' is deliberately NOT accepted.",
       "Medical history: controlled hypertension, normal blood sugar last year. Confirm this is appropriate and does not change the antibiotic decision.",
-      "English versions (openerEn, answerEn, outcomeEn, unmatchedOutcomeEn, fallbackLinesEn) were translated from the Arabic and must say the same thing medically. Please check both columns."
+      "English versions (openerEn, answerEn, outcomeEn, unmatchedOutcomeEn, fallbackLinesEn) were translated from the Arabic and must say the same thing medically. Please check both columns.",
+      "Arabic texts are now in simple Modern Standard Arabic (فصحى مبسطة) instead of Saudi dialect; meaning and medical content unchanged. Please check the wording."
     ]
   }
 ];
@@ -1675,14 +1794,16 @@ const FAST_MIN_SCORE = 5;
 const FAST_MARGIN = 2;
 const MIN_CHUNK_WORDS = 3;     // spoken chunks shorter than this are joined to the next one
 const TIER_CREDIT = { correct: 1, partial: 0.5, common_wrong: 0, meds_only: 0 };
-const LEAK_FALLBACK = { ar: "ما أدري يا دكتور، أنت الدكتور!", en: "I don't know, doctor, you're the doctor!" };
-const DONT_KNOW = { ar: "ما أدري يا دكتور، عشان كذا جيتك.", en: "I don't know, doctor, that's why I came to you." };
-const GREETING_REPLY = { ar: "وعليكم السلام يا دكتور، الله يعافيك.", en: "Hello doctor, thank you for seeing me." };
-const FILLERS = { ar: ["امم…", "لحظة يا دكتور…", "اممم، خلني أتذكر…"], en: ["Hmm…", "Let me think…"] }; // pre-written, never from the model
-const LANG_TEXT = { ar: "casual Saudi Arabic (everyday dialect, not formal Arabic)", en: "simple everyday English" };
+// Arabic patient text is simple Modern Standard Arabic (فصحى مبسطة), no dialect (checked by validate_cases.py / patient_guard.py).
+const LEAK_FALLBACK = { ar: "لا أعلم يا دكتور، أنت الطبيب هنا!", en: "I don't know, doctor, you're the doctor!" }; // same lines in Code.gs
+const DONT_KNOW = { ar: "لا أعلم يا دكتور، ولهذا جئت إليك.", en: "I don't know, doctor, that's why I came to you." };
+const GREETING_REPLY = { ar: "وعليكم السلام يا دكتور، شكراً لاستقبالي.", en: "Hello doctor, thank you for seeing me." };
+const FILLERS = { ar: ["امم…", "لحظة يا دكتور…", "دعني أتذكر…"], en: ["Hmm…", "Let me think…"] }; // pre-written, never from the model
+const LANG_TEXT = { ar: "simple, natural Modern Standard Arabic (fusha) as a patient speaks to a doctor: short clear sentences, not literary, no dialect words, no English words",
+  en: "simple everyday English" };
 const DIAG_ASK_TERMS = ["وش عندي", "ايش عندي", "شو عندي", "وش فيني", "ايش فيني", "وش المشكلة", "ايش المشكلة", "وش التشخيص", "ايش التشخيص",
-  "تشخيص", "what do i have", "what's wrong with me", "what is wrong with me", "diagnosis", "diagnose"];
-const GREETING_TERMS = ["السلام عليكم", "السلام", "مرحبا", "هلا", "اهلين", "صباح الخير", "مساء الخير", "كيف حالك", "شلونك", "hello", "hi", "good morning",
+  "تشخيص", "ماذا لدي", "ما مشكلتي", "ما مرضي", "مما أعاني", "ما الذي أعاني منه", "what do i have", "what's wrong with me", "what is wrong with me", "diagnosis", "diagnose"];
+const GREETING_TERMS = ["السلام عليكم", "السلام", "مرحبا", "هلا", "اهلين", "أهلا", "صباح الخير", "مساء الخير", "كيف حالك", "شلونك", "hello", "hi", "good morning",
   "good evening", "how are you"];
 const SEVERITY_TERMS = ["من عشرة", "من 10", "شدة", "شده", "قوي", "كم تعطي", "قد ايش", "severity", "how bad", "out of 10", "out of ten", "scale"];
 
@@ -2032,14 +2153,14 @@ function tutorSummary(g, lang) {
       (tier === "correct" ? "Your treatment plan is appropriate. " : tier === "partial" ? "Your treatment plan is partly appropriate. " : tier ? "Your treatment plan is not appropriate. " : "I could not match your treatment plan. ") +
       "Your score is " + fmtNum(g.total) + " out of 10.";
   }
-  return "سألت " + asked + " من " + n + " أسئلة مهمة. " +
+  return "سألتَ " + asked + " من " + n + " أسئلة مهمة. " +
     (g.dxCredit === 1 ? "التشخيص صحيح. " : g.dxCredit === 0.5 ? "التشخيص صحيح جزئياً. " : "التشخيص غير صحيح. ") +
-    (tier === "correct" ? "خطة العلاج مناسبة. " : tier === "partial" ? "خطة العلاج مناسبة جزئياً. " : tier ? "خطة العلاج غير مناسبة. " : "ما قدرت أحدد خطة العلاج. ") +
+    (tier === "correct" ? "خطة العلاج مناسبة. " : tier === "partial" ? "خطة العلاج مناسبة جزئياً. " : tier ? "خطة العلاج غير مناسبة. " : "لم أتمكن من تحديد خطة العلاج. ") +
     "درجتك " + fmtNum(g.total) + " من عشرة.";
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { CASES, PATIENT_SYSTEM, GRADING_PROMPT, INJECTION_SRC, TIER_CREDIT, LEAK_FALLBACK, DONT_KNOW, FILLERS, MAX_CHAT_TURNS,
+  module.exports = { CASES, PATIENT_SYSTEM, GRADING_PROMPT, INJECTION_SRC, TIER_CREDIT, LEAK_FALLBACK, DONT_KNOW, GREETING_REPLY, FILLERS, LANG_TEXT, MAX_CHAT_TURNS,
     FAST_MIN_SCORE, FAST_MARGIN, normalize, termIn, hasAnyTerm, termScore, looksLikeInjection, questionRanking, matchQuestion, questionsHit,
     asksSeverity, fastScripted, matchTreatment, scriptedReply, leakTerms, capWords, guardReply, splitSentences, turnsText, scriptOf, answerOf,
     openerOf, fallbackLinesOf, outcomeText, voiceSex,
@@ -2607,7 +2728,7 @@ const AVATARS = (function () {
   settingsBtn.addEventListener("click", () => openDrawer(drawer.hidden));
   document.getElementById("drawerClose").addEventListener("click", () => openDrawer(false));
   document.getElementById("drawerTest").addEventListener("click", () =>
-    speak(lang === "en" ? "Hello doctor. This is a voice test." : "السلام عليكم دكتور. هذا اختبار للصوت.", lang, null, { sex: voiceSexSelect.value }));
+    speak(lang === "en" ? "Hello doctor. This is a voice test." : "السلام عليكم يا دكتور. هذا اختبار للصوت.", lang, null, { sex: voiceSexSelect.value }));
   setLang(lang);
   renderDebug();
 
@@ -2669,7 +2790,7 @@ const AVATARS = (function () {
       testBtn.disabled = true;
       heard.className = "said";
       heard.textContent = "Playing a sample…";
-      await speak(lang === "en" ? "Hello doctor. Please say something after this sentence." : "السلام عليكم دكتور. قل أي جملة بعد ما أخلص.", lang, avatar);
+      await speak(lang === "en" ? "Hello doctor. Please say something after this sentence." : "السلام عليكم يا دكتور. قل أي جملة بعد أن أنتهي.", lang, avatar);
       if (token !== S.token) return;
       if (!SR) { heard.textContent = "Speaker OK? Voice input is not available in this browser: use the text box."; testBtn.disabled = false; return; }
       heard.textContent = "Listening… speak now";
@@ -2694,7 +2815,7 @@ const AVATARS = (function () {
         h("div", { class: "step", text: "Your patient" }),
         h("h2", { text: "You are the dentist. Find out what is wrong." }),
         h("p", { class: "hint", text: "Headset on. Tap the big button, ask one question, then tap again (or pause). The patient answers only what you ask. You have 5 minutes, then you give your diagnosis and treatment plan." }),
-        h("p", { class: "hint", id: "speechHint", text: "Patient speech: " + (lang === "en" ? "English" : "Saudi Arabic") + " (AR/EN button at the top)." }),
+        h("p", { class: "hint", id: "speechHint", text: "Patient speech: " + (lang === "en" ? "English" : "Arabic (simple MSA)") + " (AR/EN button at the top)." }),
         h("div", { class: "sub", text: "Supervisor: voice check" }),
         h("div", { class: "voice-line", id: "voiceTestVoice" }),
         h("div", { class: "edge-hint", id: "voiceTestHint", hidden: true, text: "Open this page in Microsoft Edge for free natural Arabic voices." }),
@@ -2703,7 +2824,7 @@ const AVATARS = (function () {
       )));
     S.onLang = () => {
       const hint = document.getElementById("speechHint");
-      if (hint) hint.textContent = "Patient speech: " + (S.lang === "en" ? "English" : "Saudi Arabic") + " (AR/EN button at the top).";
+      if (hint) hint.textContent = "Patient speech: " + (S.lang === "en" ? "English" : "Arabic (simple MSA)") + " (AR/EN button at the top).";
       refreshVoiceUi();
     };
     refreshVoiceUi();

@@ -30,6 +30,38 @@ BRANDS = ["panadol", "adol", "tylenol", "brufen", "advil", "nurofen", "voltaren"
           "أموكسيل", "فلاجيل", "زيثروماكس", "فيفادول", "سولبادين"]
 
 
+# Common Gulf/Saudi dialect markers. The Arabic patient text is simple Modern Standard Arabic (فصحى مبسطة);
+# dialect is allowed only in keywords (visitors may ask in dialect).
+DIALECT_MARKERS = ["وش", "ايش", "شنو", "كذا", "الحين", "أبغى", "أبي", "يبي", "شلون", "ليش", "مب", "ما أدري", "وايد", "هب",
+                   "عشان", "شوي", "زين", "إيه", "اللي", "مو", "يبغى", "تبغى", "بس", "خلني", "ابغى", "دحين"]
+
+
+def _norm_ar(text):
+    out = []
+    for ch in str(text or ""):
+        o = ord(ch)
+        if 0x064B <= o <= 0x065F or o in (0x0670, 0x0640):
+            continue
+        ch = "ا" if ch in "أإآٱ" else {"ى": "ي", "ة": "ه"}.get(ch, ch)
+        out.append(ch)
+    return " ".join(re.findall(r"[\u0621-\u064A]+", "".join(out)))
+
+
+def dialect_hits(text):
+    """Dialect markers found in an Arabic text (whole words; a leading و/ف is ignored), e.g. ['وش', 'ما ادري']."""
+    words = _norm_ar(text).split()
+    padded = " " + " ".join(words) + " "
+    hits = []
+    for m in DIALECT_MARKERS:
+        nm = _norm_ar(m)
+        if " " in nm:
+            if " " + nm + " " in padded:
+                hits.append(nm)
+        elif any(w == nm or (len(w) > len(nm) and w[0] in "وف" and w[1:] == nm) for w in words):
+            hits.append(nm)
+    return list(dict.fromkeys(hits))
+
+
 def is_ar(s):
     return isinstance(s, str) and bool(ARABIC.search(s))
 
@@ -222,6 +254,15 @@ def validate(data):
         rn = c.get("reviewNotes")
         if not isinstance(rn, list) or not rn or not all(nonempty(x) for x in rn):
             errs.append(p + ".reviewNotes must be a non-empty list")
+
+        patient_ar = [("profile.opener", pr.get("opener")), ("unmatchedOutcome.outcome", (c.get("unmatchedOutcome") or {}).get("outcome"))]
+        patient_ar += [(f"keyQuestions[{i}].answer", q.get("answer")) for i, q in enumerate(c.get("keyQuestions") or []) if isinstance(q, dict)]
+        patient_ar += [(f"treatmentOptions[{i}].outcome", o.get("outcome")) for i, o in enumerate(c.get("treatmentOptions") or []) if isinstance(o, dict)]
+        patient_ar += [(f"fallbackLines[{i}]", t) for i, t in enumerate(c.get("fallbackLines") or [])]
+        for field, text in patient_ar:
+            hits = dialect_hits(text)
+            if hits:
+                errs.append(f"{p}.{field}: dialect word(s) {', '.join(hits)} — use simple Modern Standard Arabic: {str(text)[:60]!r}")
 
         for s in all_strings(c):
             if DOSAGE.search(s):

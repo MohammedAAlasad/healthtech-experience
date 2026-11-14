@@ -33,13 +33,14 @@ MIN_CHUNK_WORDS = 3
 SCORE_TOLERANCE = 1.5
 INJECTION_CAP = 3
 TIER_CREDIT = {"correct": 1, "partial": 0.5, "common_wrong": 0, "meds_only": 0}
-LEAK_FALLBACK = {"ar": "ما أدري يا دكتور، أنت الدكتور!", "en": "I don't know, doctor, you're the doctor!"}
-DONT_KNOW = {"ar": "ما أدري يا دكتور، عشان كذا جيتك.", "en": "I don't know, doctor, that's why I came to you."}
-GREETING_REPLY = {"ar": "وعليكم السلام يا دكتور، الله يعافيك.", "en": "Hello doctor, thank you for seeing me."}
-LANG_TEXT = {"ar": "casual Saudi Arabic (everyday dialect, not formal Arabic)", "en": "simple everyday English"}
+LEAK_FALLBACK = {"ar": "لا أعلم يا دكتور، أنت الطبيب هنا!", "en": "I don't know, doctor, you're the doctor!"}
+DONT_KNOW = {"ar": "لا أعلم يا دكتور، ولهذا جئت إليك.", "en": "I don't know, doctor, that's why I came to you."}
+GREETING_REPLY = {"ar": "وعليكم السلام يا دكتور، شكراً لاستقبالي.", "en": "Hello doctor, thank you for seeing me."}
+LANG_TEXT = {"ar": "simple, natural Modern Standard Arabic (fusha) as a patient speaks to a doctor: short clear sentences, not literary, no dialect words, no English words",
+             "en": "simple everyday English"}
 DIAG_ASK_TERMS = ["وش عندي", "ايش عندي", "شو عندي", "وش فيني", "ايش فيني", "وش المشكلة", "ايش المشكلة", "وش التشخيص", "ايش التشخيص",
-                  "تشخيص", "what do i have", "what's wrong with me", "what is wrong with me", "diagnosis", "diagnose"]
-GREETING_TERMS = ["السلام عليكم", "السلام", "مرحبا", "هلا", "اهلين", "صباح الخير", "مساء الخير", "كيف حالك", "شلونك", "hello", "hi",
+                  "تشخيص", "ماذا لدي", "ما مشكلتي", "ما مرضي", "مما أعاني", "ما الذي أعاني منه", "what do i have", "what's wrong with me", "what is wrong with me", "diagnosis", "diagnose"]
+GREETING_TERMS = ["السلام عليكم", "السلام", "مرحبا", "هلا", "اهلين", "أهلا", "صباح الخير", "مساء الخير", "كيف حالك", "شلونك", "hello", "hi",
                   "good morning", "good evening", "how are you"]
 
 
@@ -478,7 +479,7 @@ def self_test():
             got["outcomeTier"] = g["outcome"]["outcomeTier"]
         eq("grade: " + it["name"], got, it["expect"])
 
-    for key, lng in (("phrasings", "ar"), ("phrasingsEn", "en")):
+    for key, lng in (("phrasings", "ar"), ("phrasingsMsa", "ar"), ("phrasingsEn", "en")):
         for cid, qs in ph[key].items():
             for qid, texts in qs.items():
                 for t in texts:
@@ -486,6 +487,8 @@ def self_test():
                     q = next(x for x in cases[cid]["keyQuestions"] if x["id"] == qid)
                     eq(f"scripted [{lng}] {cid} {qid}: {t}", [r["questionId"], r["reply"]], [qid, answer_of(q, lng)])
                     eq(f"scripted [{lng}] the other language's keywords only -> no question: {t}", match_question(cases[cid], t, "en" if lng == "ar" else "ar"), None)
+        eq(f"fixture {key}: at least 3 phrasings for every key question" if key != "phrasingsEn" else "fixture phrasingsEn: at least 2 per question",
+           all(len(v) >= (2 if key == "phrasingsEn" else 3) for qs in ph[key].values() for v in qs.values()) and len(ph[key]) == 3, True)
     for sp in ph["specials"]:
         eq(f"scripted special {sp['text']}", run("scriptedReply", lambda c, u, l, st: scripted_reply(c, u, l, st), sp["caseId"], sp["text"], "ar", {})["kind"], sp["kind"])
 
@@ -506,6 +509,21 @@ def self_test():
         eq("injection: " + s, run("looksLikeInjection", looks_like_injection, None, s), True)
     for s in ["what is the diagnosis?", "متى بدأ الألم؟"]:
         eq("not injection: " + s, run("looksLikeInjection", looks_like_injection, None, s), False)
+    # Arabic patient-side lines: simple MSA, no dialect (same marker list as validate_cases.py)
+    sys.path.insert(0, str(TOOLS))
+    from validate_cases import dialect_hits
+    page_lines = [LEAK_FALLBACK["ar"], DONT_KNOW["ar"], GREETING_REPLY["ar"]]
+    js_consts = json.loads(subprocess.run([shutil.which("node") or "node", "-e",
+        "const C=require(process.argv[1]).loadCore();console.log(JSON.stringify({f:C.FILLERS.ar,t:[0,0.5,1].map((d)=>C.tutorSummary({questions:[{credit:1},{credit:0}],dxCredit:d,option:d?{tier:'partial'}:null,total:4.5},'ar'))}))",
+        str(TOOLS / "js_bridge.js")], capture_output=True, timeout=60).stdout or b'{"f":[],"t":[]}')
+    page_lines += js_consts["f"] + js_consts["t"]
+    codegs = (ROOT.parent / "apps-script" / "Code.gs").read_text(encoding="utf-8")
+    m = re.search(r'reply = lang === "en" \? "[^"]*" : "([^"]*)"', codegs)
+    eq("Code.gs leak line == page LEAK_FALLBACK.ar", m and m.group(1), LEAK_FALLBACK["ar"])
+    eq("page and tutor Arabic lines contain no dialect markers", {t: dialect_hits(t) for t in page_lines if dialect_hits(t)}, {})
+    eq("tutor summaries checked", len(js_consts["t"]), 3)
+    eq("dialect check catches dialect", [dialect_hits("وش عندي يا دكتور"), dialect_hits("ما أدري، عشان كذا جيتك"), dialect_hits("هكذا بدأ الألم")],
+       [["وش"], ["كذا", "ما ادري", "عشان"], []])
     eq("normalize Arabic", run("normalize", normalize, None, "الْأَلـــم، حرارة ٨/١٠ Cold?!"), "الالم حراره 8 10 cold")
     eq("treatment: procedure beats medicines", run("matchTreatment", match_treatment, "case01", "root canal and antibiotics")["id"], "T1")
 

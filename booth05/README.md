@@ -1,6 +1,6 @@
 # Booth 05 — Virtual Patient
 
-The visitor plays the dentist and talks to a virtual patient through a headset, in Saudi Arabic (default) or English (AR/EN toggle). They have 5 minutes to take a history. Then they say or type a diagnosis and a treatment plan, and the "clinical tutor" scores them out of 10: 5 for history (8 key questions), 3 for the diagnosis, 2 for the treatment. Next, the patient comes back "after 7 days" and says what happened (pre-written per case and per plan). The score goes to the shared leaderboard as `booth05`.
+The visitor plays the dentist and talks to a virtual patient through a headset, in Arabic (default) or English (AR/EN toggle). The Arabic patient speaks simple, natural Modern Standard Arabic (فصحى مبسطة), not dialect. They have 5 minutes to take a history. Then they say or type a diagnosis and a treatment plan, and the "clinical tutor" scores them out of 10: 5 for history (8 key questions), 3 for the diagnosis, 2 for the treatment. Next, the patient comes back "after 7 days" and says what happened (pre-written per case and per plan). The score goes to the shared leaderboard as `booth05`.
 
 The patient is a **photo portrait** when the 4 AI-generated images of a case exist (`booth05/images/avatar/README.md`: file list and image prompts), otherwise the built-in illustration.
 
@@ -29,6 +29,7 @@ Vanilla HTML/CSS/JS, no build step. Page: `booth05/index.html`. Shared client: `
 ### 2a. Conversation language (AR / EN)
 
 - One setting decides the language: **AR** (default, never taken from the browser language) or **EN**. `?lang=en` / `?lang=ar` sets it; the last choice is remembered on the laptop. The **AR/EN** button in the header switches it at any time, also in the middle of a consultation. The call screen shows an **AR** / **EN** badge.
+- **Arabic register:** the Arabic patient text (opener, answers, neutral lines, 7-day outcomes, tutor summary, "I don't know" / leak lines in the page and in Code.gs) is simple MSA, and the AI patient is told to answer in simple MSA with short sentences, no dialect and no English words. Visitors may still ask in dialect or MSA: `keywords` contains both (only the patient's *answers* must be MSA). `validate_cases.py` fails if an Arabic patient-facing field contains dialect markers (وش، ايش، كذا، الحين، أبغى، ما أدري، عشان، اللي …).
 - It controls: speech recognition (`ar-SA` / `en-US`), the opener, the scripted answers and neutral lines (only that language's keywords are matched), the AI patient (told to answer ONLY in that language), the tutor's spoken and written summary, and the "after 7 days" text. Buttons and labels stay English in both modes.
 - If the AI still answers in the other language (more Latin than Arabic letters, or the opposite), that reply is dropped and the scripted answer is used for that turn (saved as `w` in `sources`).
 - Grading accepts Arabic and English in both modes (students often write the diagnosis in English).
@@ -88,7 +89,7 @@ Target: under 3 s from the end of the visitor's sentence to the patient's first 
 ## 7. Editing the cases
 
 1. Edit `booth05/data/cases.json`. Every patient-facing text exists twice: Arabic (`opener`, `answer`, `outcome`, `unmatchedOutcome.outcome`, `fallbackLines`, Arabic `keywords`) and English (`openerEn`, `answerEn`, `outcomeEn`, `unmatchedOutcomeEn`, `fallbackLinesEn`, `keywordsEn`), with the same medical content. Each case has a profile, facts, 8 key questions (`Q1..Q8`), the diagnosis (`DX`, accepted synonyms, `hintTerms` for the leak check), 4 treatment options (`T1..T4`: one each of `correct`, `partial`, `common_wrong`, `meds_only`, each with a 7-day outcome and a one-line "why"), `unmatchedOutcome`, `fallbackLines` and `reviewNotes`.
-2. `python3 booth05/tools/validate_cases.py` (schema, 8 questions, 4 tiers, Arabic and English fields in the right script, no dosages or brand names).
+2. `python3 booth05/tools/validate_cases.py` (schema, 8 questions, 4 tiers, Arabic and English fields in the right script, no dialect in Arabic patient text, no dosages or brand names).
 3. `python3 booth05/tools/inject_cases.py` (copies them into the page; refuses if validation fails).
 4. `python3 booth05/tools/build_review.py` → `booth05/review/booth05_review.html` + `.pdf` (git-ignored, Arabic and English side by side). Send the PDF to Dentistry; each row has Approve / Needs change boxes.
 5. After sign-off set `"reviewStatus": "APPROVED"` per case (`"REJECTED"` hides it), then validate and inject again.

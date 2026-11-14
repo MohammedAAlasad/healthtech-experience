@@ -122,7 +122,7 @@ function wav(seconds) {
   b.writeUInt32LE(24000, 24); b.writeUInt32LE(48000, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write("data", 36); b.writeUInt32LE(n, 40);
   return b;
 }
-const FAKE = { latency: 300, reply: "طيب يا دكتور. الوجع يجي ويروح، وما أدري وش السبب.", replyEn: "Well doctor, it comes and goes. I really don't know why.", wrongLang: false, tts: "error", calls: [] };
+const FAKE = { latency: 300, reply: "حسناً يا دكتور. الألم يأتي ويذهب، ولا أعرف السبب.", replyEn: "Well doctor, it comes and goes. I really don't know why.", wrongLang: false, tts: "error", calls: [] };
 async function onPaused(p) {
   const url = p.request.url;
   const fulfill = (code, body, type) => send("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: code,
@@ -250,7 +250,8 @@ for (const q of c1.keyQuestions) {
   if (r !== q.answer) { allRight = false; console.log("      " + q.id + " got: " + r); }
 }
 ok("8 typed questions -> 8 correct scripted answers", allRight);
-ok("asking for the diagnosis -> patient doesn't know", (await ask("وش التشخيص يا ترى؟")) === "ما أدري يا دكتور، عشان كذا جيتك.");
+ok("asking for the diagnosis -> patient doesn't know (MSA)", (await ask("وش التشخيص يا ترى؟")) === (await ev(`DONT_KNOW.ar`)));
+ok("MSA question gets the same scripted answer as the dialect one", (await ask("منذ متى بدأ الألم؟")) === c1.keyQuestions[1].answer);
 ok("transcript scrolls inside its panel (page does not overflow sideways)", !(await overflowX()));
 for (const [n, w, h] of SIZES) {
   await viewport(w, h); await sleep(300); await shot(`3_consult_photo_${n}`);

@@ -4,6 +4,8 @@ The repo copy `apps-script/Code.gs` contains everything Booth 05 needs. **After 
 
 The other actions are unchanged (checked by `node booth05/tools/test_backend.js`).
 
+> **Latest Code.gs change (Arabic register):** the Arabic leak-check line is now MSA ("لا أعلم يا دكتور، أنت الطبيب هنا!", the same as the page), and `TTS_STYLE` asks for natural, clear Arabic instead of a Saudi accent. **Paste Code.gs again and deploy a New version** (steps below). Until then the old server still sends the dialect leak line in the rare leak case.
+
 ## Booth 05 actions in Code.gs
 
 | Action | What it does |
@@ -40,7 +42,7 @@ The first brief suggested `["gemini-4-hydrogen", "gemini-3.8-flash"]` for the fa
 5. **Version: New version** → **Deploy**. The Web App URL stays the same; `shared/shared.js` needs no change.
 6. Test from a terminal (replace the URL; no `-X POST`, so the Apps Script redirect works):
    ```
-   curl -sL "<WEB_APP_URL>" --data '{"action":"patientTurn","lang":"ar","system":"You are a dental patient. Answer in one short Saudi Arabic sentence.","turns":[],"text":"السلام عليكم، وش فيك؟","leakTerms":[]}'
+   curl -sL "<WEB_APP_URL>" --data '{"action":"patientTurn","lang":"ar","system":"You are a dental patient. Answer in one short sentence of simple Modern Standard Arabic.","turns":[],"text":"السلام عليكم، ما الذي تشكو منه؟","leakTerms":[]}'
    ```
    Expect `{"ok":true,"reply":"…","model":"…","thinking":"…"}`. An `"error"` names the models that failed and why (`404` = wrong model id, `429` = quota).
 7. Open `…/booth05/?debug=1` and play one test visitor with an ID starting `999`: check the timings (see above). The tutor screen should say **Graded by AI against the key**, and the score should appear on the dashboard under Virtual Patient.

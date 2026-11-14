@@ -1,6 +1,6 @@
 # Booth 05 — Virtual Patient
 
-The visitor plays the dentist and talks to an illustrated virtual patient through a headset (Saudi Arabic by default, EN toggle). They have 5 minutes to take a history. Then they say or type a diagnosis and a treatment plan, and the "clinical tutor" scores them out of 10: 5 for history (8 key questions), 3 for the diagnosis, 2 for the treatment. Next, the patient comes back "after 7 days" and says what happened (pre-written per case and per plan). The score goes to the shared leaderboard as `booth05`.
+The visitor plays the dentist and talks to a virtual patient through a headset, in Saudi Arabic (default) or English (AR/EN toggle). They have 5 minutes to take a history. Then they say or type a diagnosis and a treatment plan, and the "clinical tutor" scores them out of 10: 5 for history (8 key questions), 3 for the diagnosis, 2 for the treatment. Next, the patient comes back "after 7 days" and says what happened (pre-written per case and per plan). The score goes to the shared leaderboard as `booth05`.
 
 The patient is a **photo portrait** when the 4 AI-generated images of a case exist (`booth05/images/avatar/README.md`: file list and image prompts), otherwise the built-in illustration.
 
@@ -13,7 +13,7 @@ Vanilla HTML/CSS/JS, no build step. Page: `booth05/index.html`. Shared client: `
 1. From the repo root: `python3 -m http.server 8000`
 2. Mock mode (no backend; scripted patient, keyword grading, scores in this browser): `http://localhost:8000/booth05/?mock=1`
 3. Real backend: `http://localhost:8000/booth05/` (use test IDs starting with **999**).
-4. URL options (combine with `&`): `case=case02` forces a case · `avatar=svg` forces the illustration · `debug=1` shows the timing overlay · `fast=0` turns FAST_SCRIPTED_FIRST off · `tts=gemini` tries the premium voice (§ 2b).
+4. URL options (combine with `&`): `case=case02` forces a case · `avatar=svg` forces the illustration · `lang=en` / `lang=ar` sets the conversation language · `debug=1` shows the timing overlay · `fast=0` turns FAST_SCRIPTED_FIRST off · `tts=gemini` tries the premium voice (§ 2b).
    Example: `http://localhost:8000/booth05/?mock=1&case=case02&debug=1`. Without `case=`, each visitor gets a random case, never the same one as the previous visitor.
 5. Mock scores appear on `http://localhost:8000/dashboard/?mock=1`.
 
@@ -24,7 +24,16 @@ Vanilla HTML/CSS/JS, no build step. Page: `booth05/index.html`. Shared client: `
 - On the first visit the browser asks for microphone permission: choose **Allow** (the supervisor does this once per laptop).
 - Speech recognition in Chrome/Edge uses the browser vendor's online service, so it needs internet. Without internet, use the text box.
 - **Settings** (top right): Arabic voice picker (remembered on this laptop) and speech language. If the list shows no Arabic voice, install one in the OS (macOS: System Settings → Accessibility → Spoken Content → System voice → Manage voices → Arabic; Windows: Settings → Time & language → Speech → Add voices → Arabic (Saudi Arabia)). Then reload the page.
-- **AR / EN** button: switches recognition (ar-SA / en-US) and the patient's reply language. The patient also answers in English when the visitor clearly types or speaks English.
+- **AR / EN** button: see § 2a.
+
+### 2a. Conversation language (AR / EN)
+
+- One setting decides the language: **AR** (default, never taken from the browser language) or **EN**. `?lang=en` / `?lang=ar` sets it; the last choice is remembered on the laptop. The **AR/EN** button in the header switches it at any time, also in the middle of a consultation. The call screen shows an **AR** / **EN** badge.
+- It controls: speech recognition (`ar-SA` / `en-US`), the opener, the scripted answers and neutral lines (only that language's keywords are matched), the AI patient (told to answer ONLY in that language), the tutor's spoken and written summary, and the "after 7 days" text. Buttons and labels stay English in both modes.
+- If the AI still answers in the other language (more Latin than Arabic letters, or the opposite), that reply is dropped and the scripted answer is used for that turn (saved as `w` in `sources`).
+- Grading accepts Arabic and English in both modes (students often write the diagnosis in English).
+- **Voices** are picked by the language of the text being spoken: Arabic letters → the best Arabic voice, Latin → the best English voice. An Arabic text is never spoken with an English voice or the opposite. Natural / Neural / Online voices come first, and a voice that matches the patient's sex is preferred (Hamed / Zariyah, Guy / Aria in Edge). Settings saves a choice per slot: Arabic-male, Arabic-female, English-male, English-female. The picker shows the voices of the current language for the selected slot.
+- `?debug=1` shows the language, the active recognition language and the patient voice.
 
 ### Best voice setup
 
@@ -78,10 +87,10 @@ Target: under 3 s from the end of the visitor's sentence to the patient's first 
 
 ## 7. Editing the cases
 
-1. Edit `booth05/data/cases.json`. Each case has a profile, facts, 8 key questions (`Q1..Q8`, Arabic + English keywords, a one-sentence Saudi Arabic answer), the diagnosis (`DX`, accepted synonyms, `hintTerms` for the leak check), 4 treatment options (`T1..T4`: one each of `correct`, `partial`, `common_wrong`, `meds_only`, each with a 7-day outcome and a one-line "why"), `unmatchedOutcome`, `fallbackLines` and `reviewNotes`.
-2. `python3 booth05/tools/validate_cases.py` (schema, 8 questions, 4 tiers, Arabic fields, no dosages or brand names).
+1. Edit `booth05/data/cases.json`. Every patient-facing text exists twice: Arabic (`opener`, `answer`, `outcome`, `unmatchedOutcome.outcome`, `fallbackLines`, Arabic `keywords`) and English (`openerEn`, `answerEn`, `outcomeEn`, `unmatchedOutcomeEn`, `fallbackLinesEn`, `keywordsEn`), with the same medical content. Each case has a profile, facts, 8 key questions (`Q1..Q8`), the diagnosis (`DX`, accepted synonyms, `hintTerms` for the leak check), 4 treatment options (`T1..T4`: one each of `correct`, `partial`, `common_wrong`, `meds_only`, each with a 7-day outcome and a one-line "why"), `unmatchedOutcome`, `fallbackLines` and `reviewNotes`.
+2. `python3 booth05/tools/validate_cases.py` (schema, 8 questions, 4 tiers, Arabic and English fields in the right script, no dosages or brand names).
 3. `python3 booth05/tools/inject_cases.py` (copies them into the page; refuses if validation fails).
-4. `python3 booth05/tools/build_review.py` → `booth05/review/booth05_review.html` + `.pdf` (git-ignored). Send the PDF to Dentistry; each row has Approve / Needs change boxes.
+4. `python3 booth05/tools/build_review.py` → `booth05/review/booth05_review.html` + `.pdf` (git-ignored, Arabic and English side by side). Send the PDF to Dentistry; each row has Approve / Needs change boxes.
 5. After sign-off set `"reviewStatus": "APPROVED"` per case (`"REJECTED"` hides it), then validate and inject again.
 
 The AI patient only sees the profile, the facts and the scripted answers. It never sees the diagnosis, the treatment options or the outcomes.
@@ -94,7 +103,8 @@ node booth05/tools/test_guard.js                  # guard, leak check, word cap,
 python3 booth05/tools/patient_guard.py --self-test # Python mirror + byte-identical prompts / equal results vs the shipped JS
 node booth05/tools/test_backend.js                # Code.gs: new actions + existing actions unchanged
 node booth05/tools/e2e_mock.mjs                   # headless Chrome (server on :8000): mock flow, fake backend (AI path, timings,
-                                                  # fast scripted, filler, re-say, ttsSpeak), photo/SVG avatar, voice auto-selection
+                                                  # fast scripted, filler, re-say, ttsSpeak), photo/SVG avatar, voice auto-selection,
+                                                  # language mode (?lang, mid-session switch, wrong-language replies, voice per text language)
 ```
 
 ## 9. Gemini quota estimate

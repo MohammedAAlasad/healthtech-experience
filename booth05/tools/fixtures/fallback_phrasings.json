@@ -130,5 +130,126 @@
    "text": "كيف كانت الإجازة؟",
    "kind": "fallback"
   }
+ ],
+ "phrasingsEn": {
+  "case01": {
+   "Q1": [
+    "Where exactly is the pain?",
+    "Which tooth is hurting?"
+   ],
+   "Q2": [
+    "When did the pain start?",
+    "How long have you had this pain?"
+   ],
+   "Q3": [
+    "Does the pain come on by itself?",
+    "Does it hurt for no reason?"
+   ],
+   "Q4": [
+    "Does cold water make it hurt?",
+    "Do hot drinks bother it?"
+   ],
+   "Q5": [
+    "Does it wake you up at night?",
+    "Is it worse when you lie down?"
+   ],
+   "Q6": [
+    "How bad is the pain out of ten?",
+    "Can you describe the pain?"
+   ],
+   "Q7": [
+    "Do you have any fever or swelling?",
+    "Is your face swollen?"
+   ],
+   "Q8": [
+    "Do you have any medical conditions?",
+    "Are you allergic to anything?"
+   ]
+  },
+  "case02": {
+   "Q1": [
+    "Where does it hurt?",
+    "Which side is it?"
+   ],
+   "Q2": [
+    "When did it start?",
+    "How many days has it been like this?"
+   ],
+   "Q3": [
+    "Is your face swollen?",
+    "Do you have any swelling?"
+   ],
+   "Q4": [
+    "Can you open your mouth fully?",
+    "Is it hard to open your mouth?"
+   ],
+   "Q5": [
+    "Any bad taste or smell?",
+    "Have you noticed any pus?"
+   ],
+   "Q6": [
+    "Does it hurt to swallow?",
+    "Is eating difficult?"
+   ],
+   "Q7": [
+    "Do you have a fever?",
+    "Any trouble breathing?"
+   ],
+   "Q8": [
+    "Are you allergic to any medicine?",
+    "Do you take any medications?"
+   ]
+  },
+  "case03": {
+   "Q1": [
+    "Where is the swelling?",
+    "Which tooth is it?"
+   ],
+   "Q2": [
+    "When did the swelling start?",
+    "How long have you had it?"
+   ],
+   "Q3": [
+    "Does it hurt when you bite?",
+    "Can you describe the pain?"
+   ],
+   "Q4": [
+    "Is the tooth loose?",
+    "Does the tooth move?"
+   ],
+   "Q5": [
+    "Has any pus come out?",
+    "Do you notice a salty taste?"
+   ],
+   "Q6": [
+    "Do your gums bleed when you brush?",
+    "When was your last cleaning?"
+   ],
+   "Q7": [
+    "Do you have a fever?",
+    "Are you feeling unwell?"
+   ],
+   "Q8": [
+    "Do you smoke?",
+    "Do you have diabetes?"
+   ]
+  }
+ },
+ "specialsEn": [
+  {
+   "caseId": "case01",
+   "text": "What do I have, doctor?",
+   "kind": "dontknow"
+  },
+  {
+   "caseId": "case03",
+   "text": "Hello, good morning",
+   "kind": "greeting"
+  },
+  {
+   "caseId": "case02",
+   "text": "How was your weekend?",
+   "kind": "fallback"
+  }
  ]
 }

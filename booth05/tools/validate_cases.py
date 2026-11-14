@@ -34,6 +34,20 @@ def is_ar(s):
     return isinstance(s, str) and bool(ARABIC.search(s))
 
 
+def is_en(s):
+    """English text: has Latin letters and no Arabic letters."""
+    return isinstance(s, str) and bool(re.search(r"[A-Za-z]", s)) and not ARABIC.search(s)
+
+
+def sentences(s):
+    return len([x for x in re.split(r"[.!؟?]+", s) if x.strip()])
+
+
+def kw_list(v, lang):
+    """Non-empty list of strings, all Arabic (lang 'ar') or all English ('en')."""
+    return isinstance(v, list) and bool(v) and all((is_ar(k) if lang == "ar" else is_en(k)) for k in v)
+
+
 def nonempty(s):
     return isinstance(s, str) and s.strip() != ""
 
@@ -94,6 +108,8 @@ def validate(data):
             errs.append(p + ".profile.nameAr must be Arabic")
         if not is_ar(pr.get("opener")):
             errs.append(p + ".profile.opener must be Arabic")
+        if not is_en(pr.get("openerEn")):
+            errs.append(p + ".profile.openerEn must be English")
         if not isinstance(pr.get("age"), int) or not 1 <= pr.get("age") <= 110:
             errs.append(p + ".profile.age must be an integer")
         if pr.get("sex") not in ("male", "female"):
@@ -135,16 +151,14 @@ def validate(data):
                 errs.append(f"{qp}.id must be Q{i + 1}")
             if not nonempty(q.get("label")):
                 errs.append(qp + ".label missing")
-            kw = q.get("keywords")
-            if not isinstance(kw, list) or not all(nonempty(k) for k in kw):
-                errs.append(qp + ".keywords must be a list of strings")
-            else:
-                if not any(is_ar(k) for k in kw):
-                    errs.append(qp + ".keywords need at least one Arabic keyword")
-                if not any(re.search(r"[A-Za-z]", k) for k in kw):
-                    errs.append(qp + ".keywords need at least one English keyword")
+            if not kw_list(q.get("keywords"), "ar"):
+                errs.append(qp + ".keywords must be a non-empty list of Arabic keywords (English ones go in keywordsEn)")
+            if not kw_list(q.get("keywordsEn"), "en"):
+                errs.append(qp + ".keywordsEn must be a non-empty list of English keywords")
             if not is_ar(q.get("answer")):
                 errs.append(qp + ".answer must be Arabic")
+            if not is_en(q.get("answerEn")):
+                errs.append(qp + ".answerEn must be English")
 
         dx = c.get("diagnosis") or {}
         if dx.get("id") != "DX":
@@ -182,26 +196,29 @@ def validate(data):
             for k in ["label", "why"]:
                 if not nonempty(o.get(k)):
                     errs.append(f"{op}.{k} missing")
-            kw = o.get("keywords")
-            if not isinstance(kw, list) or not kw or not all(nonempty(k) for k in kw):
-                errs.append(op + ".keywords must be a non-empty list of strings")
-            elif not any(is_ar(k) for k in kw):
-                errs.append(op + ".keywords need at least one Arabic keyword")
-            if not is_ar(o.get("outcome")):
-                errs.append(op + ".outcome must be Arabic")
-            else:
-                n = len([s for s in re.split(r"[.!؟?]+", o["outcome"]) if s.strip()])
-                if not 2 <= n <= 3:
-                    errs.append(f"{op}.outcome must be 2-3 sentences (found {n})")
+            if not kw_list(o.get("keywords"), "ar"):
+                errs.append(op + ".keywords must be a non-empty list of Arabic keywords (English ones go in keywordsEn)")
+            if not kw_list(o.get("keywordsEn"), "en"):
+                errs.append(op + ".keywordsEn must be a non-empty list of English keywords")
+            for k, check, name in (("outcome", is_ar, "Arabic"), ("outcomeEn", is_en, "English")):
+                if not check(o.get(k)):
+                    errs.append(f"{op}.{k} must be {name}")
+                elif not 2 <= sentences(o[k]) <= 3:
+                    errs.append(f"{op}.{k} must be 2-3 sentences (found {sentences(o[k])})")
         if sorted(t for t in tiers if t) != sorted(TIERS):
             errs.append(p + ".treatmentOptions must contain exactly one of each tier: " + ", ".join(TIERS))
 
         um = c.get("unmatchedOutcome") or {}
         if um.get("outcomeTier") != "unclear" or not is_ar(um.get("outcome")) or not nonempty(um.get("why")):
             errs.append(p + ".unmatchedOutcome needs outcomeTier 'unclear', an Arabic outcome and a why")
+        if not is_en(c.get("unmatchedOutcomeEn")):
+            errs.append(p + ".unmatchedOutcomeEn must be English")
         fl = c.get("fallbackLines")
         if not isinstance(fl, list) or not fl or not all(is_ar(x) for x in fl):
             errs.append(p + ".fallbackLines must be a non-empty list of Arabic lines")
+        fle = c.get("fallbackLinesEn")
+        if not isinstance(fle, list) or not fle or not all(is_en(x) for x in fle):
+            errs.append(p + ".fallbackLinesEn must be a non-empty list of English lines")
         rn = c.get("reviewNotes")
         if not isinstance(rn, list) or not rn or not all(nonempty(x) for x in rn):
             errs.append(p + ".reviewNotes must be a non-empty list")

@@ -11,6 +11,8 @@
  *         answered here; nothing leaves the machine): AI replies, FAST_SCRIPTED_FIRST, 8-turn trimming, filler,
  *         ?debug=1 timings, fake speech recognition (Heard line, re-say), sentence-chunked speech, ?tts=gemini.
  * Part C: voice auto-selection with fake voice lists (natural / standard / none).
+ * Part D: language mode (?lang=, toggle mid-session, remembered choice), voice chosen by the language of the spoken text,
+ *         per-sex voices, recognition language, wrong-language AI replies.
  * Speech output is a fake speechSynthesis that records every utterance (headless Chrome has no voices).
  */
 import fs from "fs";
@@ -78,13 +80,14 @@ const idleSpeech = () => waitFor(`!document.querySelector('#patientPanel .meter.
 const INJECT = `(()=>{try{
   if(!window.__skip){const o=performance.now.bind(performance);let off=0;performance.now=()=>o()+off;window.__skip=(s)=>{off+=s*1000};}
   const mode=localStorage.getItem('__fakeVoices')||'natural';
-  const lists={natural:[['Microsoft Hamed Online (Natural) - Arabic (Saudi Arabia)','ar-SA'],['Maged','ar-SA'],['Samantha','en-US']],
-    standard:[['Maged','ar-SA'],['Microsoft Naayf - Arabic (Saudi)','ar-SA'],['Samantha','en-US']],none:[['Samantha','en-US']]};
+  const lists={natural:[['Microsoft Hamed Online (Natural) - Arabic (Saudi Arabia)','ar-SA'],['Microsoft Zariyah Online (Natural) - Arabic (Saudi Arabia)','ar-SA'],['Maged','ar-SA'],
+      ['Microsoft Guy Online (Natural) - English (United States)','en-US'],['Microsoft Aria Online (Natural) - English (United States)','en-US'],['Samantha','en-US']],
+    standard:[['Maged','ar-SA'],['Microsoft Naayf - Arabic (Saudi)','ar-SA'],['Samantha','en-US'],['Alex','en-US']],none:[['Samantha','en-US'],['Alex','en-US']]};
   const voices=(lists[mode]||lists.natural).map(([name,lang])=>({name,lang,voiceURI:name,localService:true,default:false}));
   window.__spoken=[];let current=null,timers=[];
   const synth={speaking:false,pending:false,paused:false,onvoiceschanged:null,getVoices:()=>voices,addEventListener(){},removeEventListener(){},
     speak(u){const w=String(u.text||'').split(/\\s+/).filter(Boolean).length;const rec={text:u.text,queued:performance.now(),voice:u.voice&&u.voice.name,rate:u.rate,lang:u.lang};
-      window.__spoken.push(rec);current=u;synth.speaking=true;
+      rec.voiceLang=u.voice?u.voice.lang:null;window.__spoken.push(rec);current=u;synth.speaking=true;
       timers.push(setTimeout(()=>{rec.started=performance.now();u.onstart&&u.onstart({})},15));
       for(let i=0;i<w;i++)timers.push(setTimeout(()=>{u.onboundary&&u.onboundary({})},25+i*45));
       timers.push(setTimeout(()=>{synth.speaking=false;current=null;rec.ended=performance.now();u.onend&&u.onend({})},40+w*45));},
@@ -92,7 +95,7 @@ const INJECT = `(()=>{try{
   Object.defineProperty(window,'speechSynthesis',{value:synth,configurable:true});
   window.SpeechSynthesisUtterance=function(t){this.text=t};
   if(localStorage.getItem('__fakeSR')==='1'){
-    function FakeSR(){} FakeSR.prototype.start=function(){const self=this;const t=window.__nextUtterance||'';self.__t=[
+    function FakeSR(){} FakeSR.prototype.start=function(){const self=this;(window.__recLangs=window.__recLangs||[]).push(self.lang);const t=window.__nextUtterance||'';self.__t=[
       setTimeout(()=>{self.onresult&&self.onresult({resultIndex:0,results:[Object.assign([{transcript:t.slice(0,Math.ceil(t.length/2))}],{isFinal:false})]})},60),
       setTimeout(()=>{window.__interimSeen=document.getElementById('heardLine')?document.getElementById('heardLine').textContent:'';
         self.onresult&&self.onresult({resultIndex:0,results:[Object.assign([{transcript:t}],{isFinal:true})]});self.onend&&self.onend()},200)]};
@@ -119,7 +122,7 @@ function wav(seconds) {
   b.writeUInt32LE(24000, 24); b.writeUInt32LE(48000, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write("data", 36); b.writeUInt32LE(n, 40);
   return b;
 }
-const FAKE = { latency: 300, reply: "طيب يا دكتور. الوجع يجي ويروح، وما أدري وش السبب.", tts: "error", calls: [] };
+const FAKE = { latency: 300, reply: "طيب يا دكتور. الوجع يجي ويروح، وما أدري وش السبب.", replyEn: "Well doctor, it comes and goes. I really don't know why.", wrongLang: false, tts: "error", calls: [] };
 async function onPaused(p) {
   const url = p.request.url;
   const fulfill = (code, body, type) => send("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: code,
@@ -138,7 +141,9 @@ async function onPaused(p) {
     case "register": return json({ ok: true, created: true, name: body.name });
     case "score": return json({ counted: true, points: body.points });
     case "leaderboard": return json({ updatedAt: new Date().toISOString(), totalParticipants: 0, top: [], perBooth: {} });
-    case "patientTurn": await sleep(FAKE.latency); return json({ ok: true, reply: FAKE.reply, leaked: false, model: "fake-flash-lite" });
+    case "patientTurn": { await sleep(FAKE.latency);
+      const en = (body.lang === "en") !== FAKE.wrongLang; // FAKE.wrongLang: answer in the other language on purpose
+      return json({ ok: true, reply: en ? FAKE.replyEn : FAKE.reply, leaked: false, model: "fake-flash-lite" }); }
     case "patientGrade": await sleep(200); return json({ ok: true, model: "fake-pro", result: { questionsAsked: [{ id: "Q2", credit: 1 }, { id: "Q4", credit: 1 }],
       diagnosis: { credit: 1 }, treatment: { optionId: "T1", credit: 1 }, injectionSuspected: false, total: 6.3 } });
     case "ttsSpeak": await sleep(150);
@@ -148,6 +153,7 @@ async function onPaused(p) {
   }
 }
 const calls = (a) => FAKE.calls.filter((c) => c.action === a);
+const C_isArabic = (t) => /[\u0621-\u064A]/.test(t) && !/[A-Za-z]{3}/.test(t);
 
 await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable");
 await send("Page.addScriptToEvaluateOnNewDocument", { source: INJECT });
@@ -197,7 +203,8 @@ await viewport(1920, 1080);
 await click("#settingsBtn"); await sleep(200);
 ok("settings drawer: voice picker + chosen voice + badge", await ev(`!document.getElementById('drawer').hidden && document.getElementById('voiceSelect').options.length>=3 && /Natural/.test(document.getElementById('voiceChosen').textContent)`));
 await ev(`(()=>{const s=document.getElementById('voiceSelect');s.value='Maged';s.dispatchEvent(new Event('change'))})()`);
-ok("voice picker: choice is remembered and shown", (await ev(`localStorage.getItem('patient_voiceName')`)) === "Maged" && /Maged.*Standard/.test(await text("#voiceChosen")));
+ok("voice picker: choice is remembered per language + sex (ar-male) and shown", (await ev(`localStorage.getItem('patient_voice_ar-male')`)) === "Maged" && /Maged.*Standard/.test(await text("#voiceChosen")));
+ok("voice picker (AR mode) lists Arabic voices only", await ev(`[...document.getElementById('voiceSelect').options].slice(1).every(o=>/\\(ar-/.test(o.textContent))`));
 await ev(`(()=>{const s=document.getElementById('voiceSelect');s.value='';s.dispatchEvent(new Event('change'))})()`);
 await shot("2_settings_1080p");
 await click("#drawerClose");
@@ -268,6 +275,7 @@ ok("score 10 / 10 (8/8 questions, diagnosis, correct plan)", (await text("#total
 ok("Preliminary grading label in mock mode", (await text("#gradingMode")) === "Preliminary grading");
 ok("8 key questions listed, all asked", await ev(`document.querySelectorAll('#questionList li.good').length===8`));
 ok("matched plan T1", (await text("#matchedPlan")).startsWith("Pulp therapy"));
+ok("tutor summary shown in Arabic (AR mode)", /درجتك 10 من عشرة/.test(await text("#tutorSays")));
 for (const [n, w, h] of SIZES) {
   await viewport(w, h); await sleep(300); await shot(`6_feedback_${n}`);
   ok(`feedback ${n}: next button visible without scrolling`, await ev(`document.getElementById('toOutcomeBtn').getBoundingClientRect().bottom<=innerHeight`));
@@ -280,6 +288,11 @@ ok("after-7-days screen", await waitFor(`document.getElementById('outcome')`));
 ok("outcome tier 'Healed' with the pre-written text", (await text("#outcomeTier")) === "Healed" && (await text("#outcomeText")) === c1.treatmentOptions[0].outcome);
 await sleep(300);
 ok("relieved portrait for a good outcome", (await avatarState()) === "photo:relieved", await avatarState());
+await click("#langBtn");
+ok("switch to EN on the outcome screen -> English outcome text, left-to-right", (await text("#outcomeText")) === c1.treatmentOptions[0].outcomeEn &&
+  (await ev(`document.getElementById('outcomeText').dir`)) === "ltr");
+await click("#langBtn");
+ok("switch back to AR -> Arabic outcome text", (await text("#outcomeText")) === c1.treatmentOptions[0].outcome);
 for (const [n, w, h] of SIZES) {
   await viewport(w, h); await sleep(400); await shot(`7_outcome_photo_${n}`);
   ok(`outcome ${n}: fits on one screen`, await ev(`document.documentElement.scrollHeight<=innerHeight`));
@@ -449,9 +462,10 @@ for (const mode of ["error", "ok"]) {
   await ev(`window.__spoken.length=0`);
   await click("#startConsultBtn");
   await waitFor(`document.querySelector('.bubble.patient')`, 5000);
-  await sleep(mode === "ok" ? 2500 : 1500);
-  const spoken = await ev(`window.__spoken.map(s=>s.text)`);
   const nOpen = await ev(`splitSentences(${JSON.stringify(c1.profile.opener)}).length`);
+  for (let i = 0; i < 80 && (mode === "ok" ? calls("ttsSpeak").length < nOpen : (await ev(`window.__spoken.length`)) < nOpen); i++) await sleep(100);
+  await sleep(800);
+  const spoken = await ev(`window.__spoken.map(s=>s.text)`);
   if (mode === "error") ok("?tts=gemini + backend error -> browser voice speaks every sentence", calls("ttsSpeak").length >= 1 && spoken.length === nOpen, JSON.stringify(spoken));
   else ok("?tts=gemini + backend audio -> played via <audio> sentence by sentence, browser voice not used", calls("ttsSpeak").length === nOpen && spoken.length === 0,
     calls("ttsSpeak").length + " tts calls, browser spoke " + JSON.stringify(spoken));
@@ -461,7 +475,7 @@ for (const mode of ["error", "ok"]) {
 console.log("--- Part C: voice auto-selection");
 for (const [mode, expName, expQ, hint] of [["natural", "Microsoft Hamed Online (Natural) - Arabic (Saudi Arabia)", "Natural", false], ["standard", "Maged", "Standard", true],
   ["none", "Browser default", "Standard", true]]) {
-  await nav("booth05/?mock=1", { __fakeVoices: mode, __fakeSR: "0", patient_voiceName: "" });
+  await nav("booth05/?mock=1&lang=ar", { __fakeVoices: mode, __fakeSR: "0", "patient_voice_ar-male": "" });
   await click("#settingsBtn"); await sleep(200);
   const line = await text("#voiceChosen");
   ok(`voices '${mode}': auto-selects ${expName} (${expQ})`, line.includes(expName) && (await ev(`document.querySelector('#voiceChosen .q-badge').dataset.quality`)) === expQ, line);
@@ -471,6 +485,118 @@ for (const [mode, expName, expQ, hint] of [["natural", "Microsoft Hamed Online (
   const r = await ev(`window.__spoken.map(s=>[s.voice||null,s.rate])`);
   ok(`voices '${mode}': rate ${expQ === "Natural" ? "1.0" : "0.92"}, sample spoken with that voice`, r.length > 0 && r.every(([v, rate]) => rate === (expQ === "Natural" ? 1 : 0.92) && (mode === "none" ? v === null : v === expName)), JSON.stringify(r));
 }
+
+/* =================== Part D: language mode =================== */
+console.log("--- Part D: language mode");
+errs = []; FAKE.calls.length = 0;
+const voiceLangOf = async () => ev(`Object.fromEntries(speechSynthesis.getVoices().map(v=>[v.name,v.lang]))`);
+// D1: ?lang=en from the start (fake backend, debug)
+await nav("booth05/?lang=en&case=case01&debug=1", { __fakeVoices: "natural", __fakeSR: "1" });
+ok("?lang=en -> EN in the header", (await text("#langBtn")) === "EN");
+ok("debug overlay shows recognition en-US + English voice", /recognition: en-US · patient voice: Microsoft Guy/.test(await text("#debugOverlay")), await text("#debugOverlay"));
+await checkIn("999500030", "E2E English");
+await ev(`window.__spoken.length=0`);
+await click("#startConsultBtn");
+await waitFor(`document.querySelector('.bubble.patient')`, 5000);
+ok("call screen: EN badge", (await text("#langBadge")) === "EN");
+ok("EN: opener in English", (await text(".bubble.patient")).includes(c1.profile.openerEn));
+await idleSpeech();
+ok("EN: opener spoken with the English male voice (Guy) for a male patient", (await ev(`window.__spoken.length>0 && window.__spoken.every(s=>/Guy/.test(s.voice))`)), JSON.stringify(await ev(`window.__spoken.map(s=>s.voice)`)));
+let nT = calls("patientTurn").length;
+ok("EN: confident English question -> English scripted answer, no AI call", (await ask("When did the pain start?")) === c1.keyQuestions[1].answerEn && calls("patientTurn").length === nT);
+await idleSpeech();
+const enAi = await ask("How was your holiday?");
+const enBody = calls("patientTurn").pop().body;
+ok("EN: AI request carries lang=en and an English-only system prompt", enBody.lang === "en" && /Reply ONLY in simple everyday English/.test(enBody.system) && enBody.system.includes(c1.profile.openerEn), enBody.lang);
+ok("EN: AI reply in English is used", enAi === FAKE.replyEn);
+await idleSpeech();
+ok("EN: Arabic question in EN mode is not answered from the Arabic script", (await ask("من متى بدأ الألم؟")) !== c1.keyQuestions[1].answer);
+await idleSpeech();
+await ev(`window.__nextUtterance='Does it wake you up at night?'`);
+await click("#talkBtn");
+await waitFor(`[...document.querySelectorAll('.bubble.dentist')].pop().lastChild.textContent==='Does it wake you up at night?' && !document.getElementById('sendBtn').disabled`, 5000);
+ok("EN: speech recognition runs as en-US", (await ev(`window.__recLangs.slice(-1)[0]`)) === "en-US");
+await idleSpeech();
+
+// D2: switch to AR mid-session
+await click("#langBtn");
+ok("toggle mid-session -> AR badge, recognition ar-SA in debug", (await text("#langBadge")) === "AR" && /recognition: ar-SA · patient voice: Microsoft Hamed/.test(await text("#debugOverlay")), await text("#debugOverlay"));
+nT = calls("patientTurn").length;
+ok("AR after the switch: Arabic scripted answer", (await ask("من متى بدأ معك الألم؟")) === c1.keyQuestions[1].answer && calls("patientTurn").length === nT);
+await idleSpeech();
+const arAi = await ask("كيف كانت الإجازة؟");
+ok("AR after the switch: AI request lang=ar, Arabic reply", calls("patientTurn").pop().body.lang === "ar" && arAi === FAKE.reply);
+await idleSpeech();
+await ev(`window.__nextUtterance='يصحيك من النوم؟'`);
+await click("#talkBtn");
+await waitFor(`[...document.querySelectorAll('.bubble.dentist')].pop().lastChild.textContent==='يصحيك من النوم؟' && !document.getElementById('sendBtn').disabled`, 5000);
+ok("AR after the switch: speech recognition runs as ar-SA", (await ev(`window.__recLangs.slice(-1)[0]`)) === "ar-SA");
+await idleSpeech();
+
+// D3: wrong-language AI reply -> scripted answer for that turn
+FAKE.wrongLang = true;
+await ev(`window.__spoken.length=0`);
+const wr = await ask("وش رايك في الزحمة؟");
+ok("AI answers in English while in AR mode -> scripted Arabic line instead", C_isArabic(wr) && wr !== FAKE.replyEn, wr);
+ok("debug overlay names the wrong-language fallback", await waitFor(`/AI replied in the wrong language/.test(document.getElementById('debugOverlay').textContent)`, 3000));
+FAKE.wrongLang = false;
+await idleSpeech();
+ok("AI is not switched off by a wrong-language reply (next reply comes from the AI again)", (await ask("كيف الحال؟")) === FAKE.reply);
+await idleSpeech();
+
+// D4: every spoken sentence used a voice of its own language
+const vl = await voiceLangOf();
+const spokenAll = await ev(`window.__spoken.map(s=>({text:s.text,voice:s.voice,lang:s.lang}))`);
+ok("voice matches the language of the TEXT (Arabic text -> ar voice, English -> en voice)", spokenAll.length > 0 && spokenAll.every((s) => {
+  const t = /[\u0621-\u064A]/.test(s.text) && !/[A-Za-z]{3}/.test(s.text) ? "ar" : "en";
+  return (vl[s.voice] || "").slice(0, 2) === t && s.lang.slice(0, 2) === t; }), JSON.stringify(spokenAll.slice(0, 4)));
+
+await click("#readyBtn");
+await waitFor(`document.getElementById('diagnosisInput')`);
+await type("#diagnosisInput", "irreversible pulpitis"); await click("#nextStepBtn");
+await waitFor(`document.getElementById('treatmentInput')`);
+await type("#treatmentInput", "root canal treatment"); await click("#submitBtn");
+await waitFor(`document.getElementById('tutorSays')`, 10000);
+await click("#langBtn");
+ok("feedback: switching to EN shows the tutor summary in English", /^You asked \d of 8 key questions/.test(await text("#tutorSays")), await text("#tutorSays"));
+await sleep(600);
+const wb = calls("score").pop();
+ok("saved sources mark the wrong-language turn ('w')", !!wb && /w/.test(wb.body.details.sources), wb && wb.body.details.sources);
+
+// D5: remembered choice; ?lang overrides; female patient voices
+await nav("booth05/?mock=1&case=case02");
+ok("last choice (EN) is remembered without ?lang", (await text("#langBtn")) === "EN");
+await nav("booth05/?mock=1&case=case02&lang=ar");
+ok("?lang=ar overrides the remembered choice", (await text("#langBtn")) === "AR");
+await checkIn("999500031", "E2E Female");
+await ev(`window.__spoken.length=0`);
+await click("#startConsultBtn");
+await waitFor(`document.querySelector('.bubble.patient')`, 5000);
+await idleSpeech();
+ok("female patient (AR): Zariyah voice", await ev(`window.__spoken.length>0 && window.__spoken.every(s=>/Zariyah/.test(s.voice))`), JSON.stringify(await ev(`window.__spoken.map(s=>s.voice)`)));
+await click("#langBtn");
+await ev(`window.__spoken.length=0`);
+await ask("Do you have a fever?");
+await idleSpeech();
+ok("female patient (EN): Aria voice", await ev(`window.__spoken.length>0 && window.__spoken.every(s=>/Aria/.test(s.voice))`), JSON.stringify(await ev(`window.__spoken.map(s=>s.voice)`)));
+await click("#settingsBtn"); await sleep(200);
+ok("Settings (EN, female patient): English voices only, slot en-female", (await ev(`document.getElementById('voiceSex').value`)) === "female" &&
+  (await ev(`[...document.getElementById('voiceSelect').options].slice(1).every(o=>/\\(en-/.test(o.textContent))`)) && /English voice — female patient/.test(await text("#voiceLabel")));
+await ev(`(()=>{const s=document.getElementById('voiceSelect');s.value='Samantha';s.dispatchEvent(new Event('change'))})()`);
+ok("Settings: choice saved under patient_voice_en-female only", (await ev(`localStorage.getItem('patient_voice_en-female')`)) === "Samantha" && !(await ev(`localStorage.getItem('patient_voice_ar-female')`)));
+await click("#drawerClose");
+await ev(`window.__spoken.length=0`);
+await ask("Is it hard to open your mouth?");
+await idleSpeech();
+ok("saved en-female voice is used", await ev(`window.__spoken.every(s=>s.voice==='Samantha')`));
+await ev(`localStorage.setItem('patient_voice_ar-female','Microsoft Guy Online (Natural) - English (United States)')`);
+await click("#langBtn");
+await ev(`window.__spoken.length=0`);
+await ask("عندك حرارة؟");
+await idleSpeech();
+ok("an English voice saved for Arabic is never used for Arabic text", await ev(`window.__spoken.length>0 && window.__spoken.every(s=>/Zariyah/.test(s.voice))`), JSON.stringify(await ev(`window.__spoken.map(s=>s.voice)`)));
+ok("Part D: no exceptions or console errors", errs.length === 0, errs.join(" | "));
+await ev(`localStorage.setItem('patient_lang','ar')`);
 
 console.log("\nMeasured with ?debug=1 (fake backend latency 300 ms, fake speech output):");
 for (const [n, t] of [["typed, fast scripted", tFast], ["typed, AI", tAi], ["voice, AI", tVoice]]) {

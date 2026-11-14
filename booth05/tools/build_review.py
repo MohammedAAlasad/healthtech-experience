@@ -75,24 +75,30 @@ def case_html(c):
            "<h3>Patient profile</h3><table><tr><th style=width:22%>Field</th><th>Value</th>" + "<th style=width:112px>Review</th></tr>",
            f"<tr><td>Name / age / sex</td><td>{esc(p['name'])} ({esc(p['nameAr'])}), {esc(p['age'])}, {esc(p['sex'])}</td>{chk()}</tr>",
            f"<tr><td>Personality</td><td>{esc(p['personality'])}</td>{chk()}</tr>",
-           f"<tr><td>Opening line</td><td class=ar>{esc(p['opener'])}</td>{chk()}</tr></table>",
+           f"<tr><td>Opening line (Arabic)</td><td class=ar>{esc(p['opener'])}</td>{chk()}</tr>",
+           f"<tr><td>Opening line (English)</td><td>{esc(p.get('openerEn'))}</td>{chk()}</tr></table>",
            "<h3>Case facts (what the patient knows; shared only when asked)</h3><table><tr><th style=width:22%>Fact</th><th>Value</th><th style=width:112px>Review</th></tr>"]
     for k, v in c["facts"].items():
         out.append(f"<tr><td>{esc(label(k))}</td><td>{esc(v)}</td>{chk()}</tr>")
-    out.append("</table><h3>8 key history questions (5 points) and the patient's scripted answer</h3>"
-               "<table><tr><th style=width:6%>Id</th><th style=width:30%>Question the student should ask</th><th>Expected answer (Saudi Arabic)</th><th style=width:112px>Review</th></tr>")
+    out.append("</table><h3>8 key history questions (5 points) and the patient's scripted answer (Arabic and English mode)</h3>"
+               "<table><tr><th style=width:5%>Id</th><th style=width:20%>Question the student should ask</th><th>Expected answer (Saudi Arabic)</th><th>Expected answer (English)</th><th style=width:112px>Review</th></tr>")
     for q in c["keyQuestions"]:
-        out.append(f"<tr><td>{esc(q['id'])}</td><td>{esc(q['label'])}</td><td class=ar>{esc(q['answer'])}</td>{chk()}</tr>")
+        out.append(f"<tr><td>{esc(q['id'])}</td><td>{esc(q['label'])}</td><td class=ar>{esc(q['answer'])}</td><td>{esc(q.get('answerEn'))}</td>{chk()}</tr>")
     d = c["diagnosis"]
     out.append("</table><h3>Diagnosis (3 points)</h3><table><tr><th style=width:22%>Accepted diagnosis</th><th>Accepted synonyms</th><th style=width:112px>Review</th></tr>"
                f"<tr><td><b>{esc(d['label'])}</b></td><td>{esc(' · '.join(d['accept']))}</td>{chk()}</tr></table>")
     out.append("<h3>Treatment options (2 points: correct = 2, partial = 1, others = 0) and the 7-day outcome</h3>"
-               "<table><tr><th style=width:5%>Id</th><th style=width:25%>Plan</th><th style=width:11%>Tier / outcome</th><th>Patient after 7 days (Saudi Arabic)</th><th style=width:20%>Why (shown to the student)</th><th style=width:112px>Review</th></tr>")
+               "<table><tr><th style=width:4%>Id</th><th style=width:17%>Plan</th><th style=width:9%>Tier / outcome</th><th>Patient after 7 days (Saudi Arabic)</th><th>Patient after 7 days (English)</th><th style=width:14%>Why (shown to the student)</th><th style=width:112px>Review</th></tr>")
     for o in c["treatmentOptions"]:
         out.append(f"<tr><td>{esc(o['id'])}</td><td>{esc(o['label'])}</td><td>{esc(TIER[o['tier']])}<br><span class=small>{esc(OUTCOME[o['outcomeTier']])}</span></td>"
-                   f"<td class=ar>{esc(o['outcome'])}</td><td>{esc(o['why'])}</td>{chk()}</tr>")
+                   f"<td class=ar>{esc(o['outcome'])}</td><td>{esc(o.get('outcomeEn'))}</td><td>{esc(o['why'])}</td>{chk()}</tr>")
     um = c["unmatchedOutcome"]
-    out.append(f"<tr><td>—</td><td>Plan not recognised (supervisor reviews)</td><td>{esc(OUTCOME['unclear'])}</td><td class=ar>{esc(um['outcome'])}</td><td>{esc(um['why'])}</td>{chk()}</tr></table>")
+    out.append(f"<tr><td>—</td><td>Plan not recognised (supervisor reviews)</td><td>{esc(OUTCOME['unclear'])}</td><td class=ar>{esc(um['outcome'])}</td><td>{esc(c.get('unmatchedOutcomeEn'))}</td><td>{esc(um['why'])}</td>{chk()}</tr></table>")
+    out.append("<h3>Neutral lines (question not understood)</h3><table><tr><th>Arabic</th><th>English</th><th style=width:112px>Review</th></tr>")
+    fa, fe = c.get("fallbackLines") or [], c.get("fallbackLinesEn") or []
+    for i in range(max(len(fa), len(fe))):
+        out.append(f"<tr><td class=ar>{esc(fa[i] if i < len(fa) else '')}</td><td>{esc(fe[i] if i < len(fe) else '')}</td>{chk()}</tr>")
+    out.append("</table>")
     out.append("<h3>Points to double-check (reviewNotes)</h3><table><tr><th>Note</th><th style=width:112px>Review</th></tr>")
     for n in c["reviewNotes"]:
         out.append(f"<tr><td>{esc(n)}</td>{chk()}</tr>")
@@ -106,7 +112,8 @@ def build_html(data):
             '<p><span class="draft">DRAFT — not yet approved by Dentistry</span></p>',
             "<p>Please tick <b>Approve</b> or <b>Needs change</b> on every row and add comments. The patient is played by an AI that only sees the "
             "profile and facts; it never sees the diagnosis or the treatment options. The 7-day outcomes are pre-written (never generated). "
-            "Score: 5 history + 3 diagnosis + 2 treatment = 10. No dosages or brand names are used anywhere.</p>"]
+            "Score: 5 history + 3 diagnosis + 2 treatment = 10. No dosages or brand names are used anywhere. "
+            "The booth runs in Arabic or English (AR/EN switch); please check that both columns say the same thing medically.</p>"]
     body += [case_html(c) for c in cases]
     return f"<!DOCTYPE html><html lang=en><head><meta charset=utf-8><title>Booth 05 review</title><style>{CSS}</style></head><body>{''.join(body)}</body></html>"
 

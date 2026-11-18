@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Leaderboard — HealthTech Experience</title>
+<script>
+/* Layout: ?rotate=90|270 (landscape design rotated into a portrait screen), ?layout=portrait|landscape (forced;
+   landscape on a portrait screen is shown letterboxed),
+   otherwise the (orientation: portrait) media query decides, live. Sets html.portrait / .landscape / .rotated. */
+(function () {
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const rot = q.get("rotate"), lay = q.get("layout");
+  if (rot === "90" || rot === "270") { root.classList.add("rotated"); root.dataset.deg = rot; return; }
+  // Forced landscape on a portrait screen: show the 1920x1080 design letterboxed (same frame, no rotation).
+  if (lay === "landscape" && innerHeight > innerWidth) { root.classList.add("rotated"); root.dataset.deg = "0"; return; }
+  if (lay === "portrait" || lay === "landscape") { root.classList.add(lay); return; }
+  const mq = matchMedia("(orientation: portrait)");
+  const apply = () => { root.classList.toggle("portrait", mq.matches); root.classList.toggle("landscape", !mq.matches); };
+  apply();
+  mq.addEventListener("change", apply);
+})();
+</script>
 <style>
   :root { --bg: #0b1418; --panel: #13232a; --row: #172b33; --ink: #f2f7f9; --muted: #8fa7b0; --teal: #2ec4d6;
     --gold: #ffcf3f; --silver: #d4dde2; --bronze: #e0955a; --bad: #ff5c6c; }
@@ -20,7 +38,7 @@
   /* minmax(0, …) stops long names from widening the columns and pushing content off-screen. */
   .grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: 1.6vw; min-height: 0; }
   .board { position: relative; display: flex; flex-direction: column; gap: .8vh; min-height: 0; min-width: 0; }
-  /* One row = one line: rank | name (ellipsis) | two score chips | total. Fixed min-height, never shrinks. */
+  /* Landscape: one row = one line: rank | name (ellipsis) | four score chips | total. Fixed height, never shrinks. */
   .row { display: flex; align-items: center; gap: 1.2vw; flex: none; box-sizing: border-box;
     min-height: 8vh; height: 8vh; padding: 0 1.4vw; line-height: 1.2; background: var(--row);
     border-radius: 1.4vh; border: .3vh solid transparent; will-change: transform; }
@@ -30,7 +48,7 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chips { flex: none; display: flex; align-items: center; gap: .5vw; }
   .chip { display: inline-flex; align-items: baseline; gap: .5em; white-space: nowrap;
-    font-size: max(28px, 2.6vh); line-height: 1.2; padding: .5vh .8vw; border-radius: 999px;
+    font-size: max(22px, 2.6vh); line-height: 1.2; padding: .5vh .8vw; border-radius: 999px;
     font-weight: 600; color: #08161b; font-variant-numeric: tabular-nums; }
   .chip b { font-weight: 900; min-width: 2ch; text-align: right; } /* fixed width: chips line up in columns */
   .chip span { font-size: .8em; } /* smaller label, full-size number: four chips leave room for the name */
@@ -66,6 +84,55 @@
   .count-panel { display: flex; align-items: baseline; gap: 1vw; }
   .count { font-size: 6vh; font-weight: 900; line-height: 1; color: var(--ink); }
   .count-label { font-size: 2.4vh; color: var(--muted); }
+
+  /* Kiosk: the cursor disappears after 3 s without mouse movement. */
+  html.nocursor, html.nocursor * { cursor: none !important; }
+
+  /* ?rotate=90|270: this page only holds a 1920x1080 frame showing the landscape design, rotated and scaled to fit. */
+  html.rotated .wrap, html.rotated .ht-badge { display: none !important; }
+  #rotFrame { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; border: 0; display: block; }
+
+  /* Portrait kiosk (designed for exactly 1080x1920). --u = 1/100 of a 1080x1920 box fitted into the screen,
+     so a 1080x1920 screen is filled exactly and other portrait sizes are letterboxed, never cut off. */
+  html.portrait { --u: min(1vw, .5625vh); }
+  html.portrait .wrap { width: calc(var(--u) * 100); height: calc(var(--u) * 177.77); margin: 0 auto;
+    padding: calc(var(--u) * 2.4) calc(var(--u) * 2.8); gap: calc(var(--u) * 1.6); grid-template-rows: auto minmax(0, 1fr); }
+  html.portrait header { flex-wrap: wrap; row-gap: calc(var(--u) * .4); column-gap: calc(var(--u) * 2); }
+  html.portrait .titles { gap: calc(var(--u) * 2); }
+  html.portrait h1 { font-size: calc(var(--u) * 6.4); }
+  html.portrait .event { font-size: calc(var(--u) * 3.2); }
+  html.portrait .status { font-size: calc(var(--u) * 2.4); margin-left: auto; }
+  html.portrait .grid { display: flex; flex-direction: column; gap: calc(var(--u) * 1.6); }
+  html.portrait .board { flex: 1 1 auto; gap: calc(var(--u) * .8); }
+  /* Two-line row: rank | name over the four chips | total. The name gets the full width, so ~25 characters fit. */
+  html.portrait .row { display: grid; grid-template-columns: calc(var(--u) * 7) minmax(0, 1fr) auto;
+    grid-template-areas: "rank name total" "rank chips total"; align-items: center;
+    column-gap: calc(var(--u) * 1.6); row-gap: calc(var(--u) * .3); height: auto; min-height: 0;
+    padding: calc(var(--u) * .5) calc(var(--u) * 2); border-radius: calc(var(--u) * 1.4); border-width: calc(var(--u) * .3); }
+  html.portrait .rank { grid-area: rank; width: auto; font-size: calc(var(--u) * 5.4); }
+  html.portrait .name { grid-area: name; font-size: calc(var(--u) * 3.8); line-height: 1.15; }
+  html.portrait .chips { grid-area: chips; gap: calc(var(--u) * .8); }
+  html.portrait .chip { font-size: calc(var(--u) * 2.8); line-height: 1.1; padding: calc(var(--u) * .25) calc(var(--u) * .9); gap: .4em; }
+  html.portrait .chip span { font-size: .76em; }
+  /* Fixed width (fits "100" and "93.5"): the chip line has the same room in every row and never reaches the total. */
+  html.portrait .total { grid-area: total; font-size: calc(var(--u) * 6); width: 3.7ch; min-width: 0; }
+  html.portrait .empty { font-size: calc(var(--u) * 4.4); margin-top: calc(var(--u) * 30); }
+  /* The four top-3 panels in a 2x2 grid under the ranking, then the participant count across both columns. */
+  html.portrait aside { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: calc(var(--u) * 1.4); flex: none; }
+  html.portrait .panel { border-radius: calc(var(--u) * 1.6); padding: calc(var(--u) * 1.2) calc(var(--u) * 1.8); }
+  html.portrait .panel h2 { font-size: calc(var(--u) * 2.7); margin-bottom: calc(var(--u) * .6); }
+  html.portrait .mini li { grid-template-columns: calc(var(--u) * 3.6) minmax(0, 1fr) auto; column-gap: calc(var(--u) * 1.2);
+    font-size: calc(var(--u) * 2.8); padding: calc(var(--u) * .35) 0; }
+  html.portrait .mini .info { font-size: calc(var(--u) * 2.1); margin-top: calc(var(--u) * -.3); }
+  html.portrait .count-panel { grid-column: 1 / -1; gap: calc(var(--u) * 1.6); padding-top: calc(var(--u) * .9); padding-bottom: calc(var(--u) * .9); }
+  html.portrait .count { font-size: calc(var(--u) * 5.6); }
+  html.portrait .count-label { font-size: calc(var(--u) * 2.8); }
+  html.portrait .row.flash { animation-name: flash-p; }
+  @keyframes flash-p {
+    0%, 30%, 60% { box-shadow: 0 0 0 calc(var(--u) * .6) var(--teal), 0 0 calc(var(--u) * 4) var(--teal); background: #1f5560; }
+    15%, 45%, 75% { box-shadow: 0 0 0 0 transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
 </style>
 </head>
 <body>
@@ -92,6 +159,36 @@
 <script src="../shared/shared.js"></script>
 <script>
 (function () {
+  const root = document.documentElement;
+
+  // Hide the mouse cursor after 3 s idle (kiosk). Runs in the rotated frame too.
+  let cursorTimer = null;
+  const wake = () => { root.classList.remove("nocursor"); clearTimeout(cursorTimer); cursorTimer = setTimeout(() => root.classList.add("nocursor"), 3000); };
+  ["mousemove", "mousedown", "touchstart", "wheel"].forEach((e) => addEventListener(e, wake, { passive: true }));
+  wake();
+
+  // ?rotate=90|270 (or forced landscape on a portrait screen): show this same page (forced landscape, all other parameters such as ?mock=1 kept) in a
+  // 1920x1080 frame, rotated and scaled to fill the screen. This outer page does not poll the backend.
+  if (root.classList.contains("rotated")) {
+    const q = new URLSearchParams(location.search);
+    const deg = Number(root.dataset.deg) || 0;
+    q.delete("rotate");
+    q.set("layout", "landscape");
+    const frame = document.createElement("iframe");
+    frame.id = "rotFrame";
+    frame.title = "Leaderboard";
+    frame.setAttribute("scrolling", "no");
+    frame.src = location.pathname + "?" + q.toString();
+    const fit = () => {
+      const scale = deg ? Math.min(innerWidth / 1080, innerHeight / 1920) : Math.min(innerWidth / 1920, innerHeight / 1080);
+      frame.style.transform = "translate(-50%, -50%) rotate(" + deg + "deg) scale(" + scale + ")";
+    };
+    fit();
+    addEventListener("resize", fit);
+    document.body.appendChild(frame);
+    return;
+  }
+
   const POLL_MS = 5000;
   const board = document.getElementById("board");
   const statusEl = document.getElementById("status");
@@ -106,6 +203,20 @@
     return e;
   }
   const keyOf = (p) => p.idLast4 + "|" + p.name;
+
+  /* Long names: shrink the font (down to 65%) until the name fits on its one line; only then the ellipsis shows. */
+  const range = document.createRange();
+  // Real text width vs the box (scrollWidth is rounded and misses sub-pixel overflow that still shows "…").
+  const overflows = (e) => { range.selectNodeContents(e); return range.getBoundingClientRect().width > e.getBoundingClientRect().width + 0.1; };
+  function fitText(e) {
+    e.style.fontSize = "";
+    if (!overflows(e)) return;
+    const base = parseFloat(getComputedStyle(e).fontSize);
+    for (let pct = 95; pct >= 65 && overflows(e); pct -= 5) e.style.fontSize = (base * pct / 100).toFixed(1) + "px";
+  }
+  const fitAll = () => document.querySelectorAll(".row .name, .mini .nm").forEach(fitText);
+  let fitQueued = false;
+  addEventListener("resize", () => { if (!fitQueued) { fitQueued = true; requestAnimationFrame(() => { fitQueued = false; fitAll(); }); } });
   const timeStr = (d) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   function renderTop(top) {
@@ -206,6 +317,7 @@
       renderMini("b05", data.perBooth && data.perBooth.booth05);
       renderMini("b01", data.perBooth && data.perBooth.booth01);
       document.getElementById("count").textContent = data.totalParticipants;
+      fitAll();
       lastOkAt = new Date();
       statusEl.className = "status";
       statusEl.textContent = "Last updated " + timeStr(lastOkAt);

@@ -81,6 +81,7 @@ Mock mode is also used automatically while `API_URL` in `shared/shared.js` is em
    - Booth 03 laptop: `https://<you>.github.io/<repo>/booth03/`
    - Booth 05 laptop (Chrome or Edge, headset): `https://<you>.github.io/<repo>/booth05/`
    - TV: `https://<you>.github.io/<repo>/dashboard/` (press F11 for full screen)
+   - Portrait kiosk stand (1080×1920): the same URL. A portrait screen gets the portrait layout automatically. If the laptop sends a landscape picture to a stand that does not rotate it, add `?rotate=90` (or `?rotate=270` if it is upside down). `?layout=portrait` / `?layout=landscape` force a layout. The mouse cursor hides after 3 s.
 
 The empty `.nojekyll` file tells GitHub Pages to serve the files as they are (no Jekyll processing).
 

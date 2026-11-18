@@ -39,6 +39,7 @@ Put your page in its own folder at the repo root, e.g. `boothNN/index.html` (sam
 |---|---|---|
 | `booth03` | Read the Scan | **30** |
 | `booth06` | Clinical Diagnosis Challenge | **40** |
+| `booth01` | AI Personal Trainer | **20** |
 
 - **First attempt counts.** A student's first saved score at a booth goes to the leaderboard; later ones are stored as practice (`counted:false`).
 - Points must be a number from 0 to the booth max; otherwise the server returns an error.

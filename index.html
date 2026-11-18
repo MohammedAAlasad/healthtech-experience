@@ -32,14 +32,18 @@
     <a class="tile" href="booth05/"><div><div class="name">Booth 05 — Virtual Patient</div><div class="desc">Talk to the patient, diagnose and plan treatment · max 10 points</div></div><span class="go" aria-hidden="true">→</span></a>
     <a class="tile" href="booth03/"><div><div class="name">Booth 03 — Read the Scan</div><div class="desc">Read the X-rays and beat the AI · max 30 points</div></div><span class="go" aria-hidden="true">→</span></a>
     <a class="tile" href="booth02/"><div><div class="name">Booth 02 — Research Smarter with Claude</div><div class="desc">Take-home page: five research tools and the slides</div></div><span class="go" aria-hidden="true">→</span></a>
+    <a class="tile" href="https://ai-personal-trainer-iau.netlify.app/" target="_blank" rel="noopener"><div><div class="name">Booth 01 — AI Personal Trainer</div><div class="desc">Exercise in front of the camera and get live feedback · max 20 points</div></div><span class="go" aria-hidden="true">↗</span></a>
     <a class="tile" href="dashboard/"><div><div class="name">Leaderboard</div><div class="desc">TV screen · live ranking of all booths</div></div><span class="go" aria-hidden="true">→</span></a>
   </nav>
   <p class="mock" id="mockNote" hidden>Mock mode: links open the booths with ?mock=1 (test data in this browser only).</p>
 </main>
 <script>
-  // Opened with ?mock=1? Pass it on to every booth link.
+  // Opened with ?mock=1? Pass it on to every booth link (not to external sites).
   if (new URLSearchParams(location.search).get("mock") === "1") {
-    document.querySelectorAll("a.tile").forEach((a) => { a.href = a.getAttribute("href") + "?mock=1"; });
+    document.querySelectorAll("a.tile").forEach((a) => {
+      const href = a.getAttribute("href");
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(href)) a.href = href + "?mock=1";
+    });
     document.getElementById("mockNote").hidden = false;
   }
 </script>

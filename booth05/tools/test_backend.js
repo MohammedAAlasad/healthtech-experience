@@ -114,6 +114,7 @@ const gem = (text, extraParts) => ({ code: 200, body: JSON.stringify({ candidate
   eq("booth06 score 31 accepted", E.post({ action: "score", studentId: "999000001", booth: "booth06", points: 31, details: { attemptId: "a2" } }).counted, true);
   eq("booth03 retry with same attemptId -> duplicate", E.post({ action: "score", studentId: "999000001", booth: "booth03", points: 25, details: { attemptId: "a1" } }).duplicate, true);
   eq("booth03 max still 30", E.post({ action: "score", studentId: "999000001", booth: "booth03", points: 31, details: {} }).error, "points for booth03 must be at most 30.");
+  eq("booth01 max is 20", E.post({ action: "score", studentId: "999000001", booth: "booth01", points: 20.5, details: {} }).error, "points for booth01 must be at most 20.");
   eq("booth05 max is now 10", E.post({ action: "score", studentId: "999000001", booth: "booth05", points: 10.5, details: {} }).error, "points for booth05 must be at most 10.");
   eq("booth05 score 8.5 accepted", E.post({ action: "score", studentId: "999000001", booth: "booth05", points: 8.5,
     details: { attemptId: "a3", caseId: "case02", outcomeTier: "healed", durationS: 262, history: 3.8, mode: "ai" } }).counted, true);
@@ -121,7 +122,7 @@ const gem = (text, extraParts) => ({ code: 200, body: JSON.stringify({ candidate
   E.post({ action: "score", studentId: "999000002", booth: "booth05", points: 4, details: { attemptId: "b1", caseId: "x".repeat(30), outcomeTier: "worse", durationS: 300 } });
   const lb = E.get({ action: "leaderboard" });
   eq("leaderboard: totals include booth05", lb.top[0].total, 64.5);
-  eq("leaderboard: perBooth chips include booth05", lb.top[0].perBooth, { booth03: 25, booth06: 31, booth05: 8.5 });
+  eq("leaderboard: perBooth chips include booth05 (and booth01)", lb.top[0].perBooth, { booth03: 25, booth06: 31, booth05: 8.5, booth01: 0 });
   eq("leaderboard: booth05 top list with case/outcome/duration", lb.perBooth.booth05[0], { rank: 1, name: "'=Test One", idLast4: "0001", points: 8.5,
     info: { caseId: "case02", outcomeTier: "healed", durationS: 262 } });
   eq("leaderboard: long strings are dropped from info", lb.perBooth.booth05[1].info, { outcomeTier: "worse", durationS: 300 });

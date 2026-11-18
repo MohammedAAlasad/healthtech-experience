@@ -48,8 +48,8 @@ const CONFIG = {
   PATIENT_PROMPT_MAX_CHARS: 24000,
   PATIENT_MAX_WORDS: 35,
   BOOTHS: ["booth01", "booth02", "booth03", "booth04", "booth05", "booth06"],
-  MAX_POINTS: { booth01: 100, booth02: 100, booth03: 30, booth04: 100, booth05: 10, booth06: 40 },
-  LEADERBOARD_BOOTHS: ["booth03", "booth06", "booth05"],
+  MAX_POINTS: { booth01: 20, booth02: 100, booth03: 30, booth04: 100, booth05: 10, booth06: 40 },
+  LEADERBOARD_BOOTHS: ["booth03", "booth06", "booth05", "booth01"],
   // Extra fields copied from the score details into the per-booth top list (short strings / numbers only).
   LEADERBOARD_INFO: { booth05: ["caseId", "outcomeTier", "durationS"] },
   TOP_N: 20,

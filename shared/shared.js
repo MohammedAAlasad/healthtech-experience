@@ -14,8 +14,8 @@ const HT_RETRY_MS = 15000;
 const HT_QUEUE_KEY = "pendingScores";
 const HT_MOCK_DB_KEY = "htMockDb";
 const HT_BOOTHS = ["booth01", "booth02", "booth03", "booth04", "booth05", "booth06"];
-const HT_MAX_POINTS = { booth01: 100, booth02: 100, booth03: 30, booth04: 100, booth05: 10, booth06: 40 };
-const HT_LEADERBOARD_BOOTHS = ["booth03", "booth06", "booth05"];
+const HT_MAX_POINTS = { booth01: 20, booth02: 100, booth03: 30, booth04: 100, booth05: 10, booth06: 40 };
+const HT_LEADERBOARD_BOOTHS = ["booth03", "booth06", "booth05", "booth01"];
 const HT_LEADERBOARD_INFO = { booth05: ["caseId", "outcomeTier", "durationS"] }; // extra fields in perBooth entries
 const HT_NAME_MAX = 60;
 
@@ -472,6 +472,7 @@ function _htMockDb() {
     ];
     const t0 = Date.now() - 3600 * 1000;
     const demo5 = { "999000101": [8.5, "case01", "healed", 262], "999000103": [6, "case02", "improved", 291], "999000106": [4.5, "case03", "worse", 300] };
+    const demo1 = { "999000101": 16, "999000102": 12, "999000104": 18, "999000105": 9, "999000107": 14 };
     demo.forEach(([id, name, b3, b6], i) => {
       db.participants[id] = { name, registeredAt: new Date(t0 + i * 60000).toISOString() };
       if (b3 != null) db.scores.push({ time: t0 + i * 60000 + 1000, studentId: id, name, booth: "booth03", points: b3, counted: true, details: { attemptId: "demo-3-" + id } });
@@ -479,6 +480,7 @@ function _htMockDb() {
       const d5 = demo5[id];
       if (d5) db.scores.push({ time: t0 + i * 60000 + 3000, studentId: id, name, booth: "booth05", points: d5[0], counted: true,
         details: { attemptId: "demo-5-" + id, caseId: d5[1], outcomeTier: d5[2], durationS: d5[3] } });
+      if (demo1[id] != null) db.scores.push({ time: t0 + i * 60000 + 4000, studentId: id, name, booth: "booth01", points: demo1[id], counted: true, details: { attemptId: "demo-1-" + id } });
     });
     localStorage.setItem(HT_MOCK_DB_KEY, JSON.stringify(db));
   }

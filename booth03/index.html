@@ -112,6 +112,14 @@
   .mode.ai { background: rgba(181,140,255,.2); color: var(--ai); }
   .timeup { background: var(--bad); color: #fff; font-weight: 900; font-size: 1.3rem; padding: 8px 16px; border-radius: 10px; }
   .feedback { font-size: 1.4rem; font-weight: 700; margin: 0 0 18px; }
+  .result-summary { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 18px 32px; margin: 0 0 18px; }
+  .expert-dx { font-size: 1.6rem; font-weight: 800; margin: 0; flex: 1 1 360px; line-height: 1.35; }
+  .expert-dx .lbl { color: var(--ok); }
+  .result-summary .result-figure { margin: 0; flex: 0 1 auto; max-width: min(100%, 520px); }
+  .result-summary .result-figure img { max-height: 25vh; }
+  .result-summary .img-source { font-size: 1rem; }
+  /* Detail view (columns + grading mode) only with ?debug=1; hidden but kept in the DOM otherwise. */
+  #result:not(.debug) .cols, #result:not(.debug) #gradingMode { display: none; }
   .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
   @media (max-width: 1100px) { .cols { grid-template-columns: 1fr; } }
   .col { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px; font-size: 1.15rem; line-height: 1.45; }
@@ -1135,6 +1143,7 @@ if (typeof module !== "undefined") {
 <script>
 (function () {
   const app = document.getElementById("app");
+  const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
   const timerBar = document.getElementById("timerBar");
   const timerFill = document.getElementById("timerFill");
   const timerText = document.getElementById("timerText");
@@ -1346,7 +1355,7 @@ if (typeof module !== "undefined") {
     const last = S.round + 1 >= ROUNDS;
 
     const ai = c.aiReading;
-    app.appendChild(h("div", { id: "result" },
+    app.appendChild(h("div", { id: "result", class: DEBUG ? "debug" : "" },
       h("div", { class: "scorebar" },
         h("div", { class: "scorebox you" }, h("div", { class: "lbl", text: "Your score" }),
           h("div", { class: "val", id: "studentScore" }, fmtPts(r.score), h("small", { text: " / 10" }))),
@@ -1363,6 +1372,12 @@ if (typeof module !== "undefined") {
           } }, last ? "See final score" : "Next"))
       ),
       h("p", { class: "feedback", dir: "auto", text: g.feedback }),
+      h("div", { class: "result-summary" },
+        h("p", { class: "expert-dx", id: "expertDx" },
+          h("span", { class: "lbl", text: "Expert diagnosis: " }), h("span", { dir: "auto", text: c.key.diagnosis })),
+        h("figure", { class: "result-figure" },
+          h("img", { src: c.image, alt: "Dental radiograph " + c.id }),
+          c.source ? h("figcaption", { class: "img-source", id: "imgSource", text: "Image source: " + c.source }) : null)),
       h("div", { class: "cols" },
         h("section", { class: "col you", id: "colYou" },
           h("h2", { text: "Your reading" }),
@@ -1393,10 +1408,7 @@ if (typeof module !== "undefined") {
           h("div", { class: "sub", text: "Diagnosis" }),
           h("ul", { class: "list" }, h("li", {}, h("span", { class: "impression", dir: "auto", text: c.key.diagnosis }), h("span", { class: "pts", text: c.key.diagnosisPoints + " pts" }))),
           h("div", { class: "sub", text: "Why" }),
-          h("div", { class: "explain", dir: "auto", text: c.expertExplanation }),
-          h("figure", { class: "result-figure" },
-            h("img", { src: c.image, alt: "Dental radiograph " + c.id }),
-            c.source ? h("figcaption", { class: "img-source", id: "imgSource", text: "Image source: " + c.source }) : null)
+          h("div", { class: "explain", dir: "auto", text: c.expertExplanation })
         )
       )
     ));

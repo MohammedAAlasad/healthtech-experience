@@ -7,7 +7,7 @@
       "keyFindings": [
         {
           "finding": "Periapical radiolucency around the roots",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "periapical radiolucency",
             "periapical radiolucent",
@@ -19,7 +19,7 @@
         },
         {
           "finding": "Loss of normal periapical trabecular pattern",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "trabecular pattern",
             "loss of trabeculation",
@@ -31,7 +31,7 @@
         },
         {
           "finding": "Apical bone destruction",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "bone destruction",
             "apical bone loss",
@@ -43,7 +43,7 @@
         }
       ],
       "diagnosis": "Periapical inflammatory lesion; acute apical abscess only if supported by symptoms and examination",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "periapical lesion",
         "periapical inflammatory lesion",
@@ -70,7 +70,7 @@
       "keyFindings": [
         {
           "finding": "Triangular radiolucency at the proximal surface",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "triangular radiolucency",
             "triangular radiolucent",
@@ -82,7 +82,7 @@
         },
         {
           "finding": "Lesion extending into the tooth structure",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "into dentin",
             "into the dentin",
@@ -94,7 +94,7 @@
         },
         {
           "finding": "Location beneath the contact area",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "contact area",
             "contact point",
@@ -106,7 +106,7 @@
         }
       ],
       "diagnosis": "Proximal dental caries",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "proximal caries",
         "interproximal caries",
@@ -133,7 +133,7 @@
       "keyFindings": [
         {
           "finding": "Extensive radiolucent bone defect",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "radiolucent bone defect",
             "bone defect",
@@ -145,7 +145,7 @@
         },
         {
           "finding": "Marked loss of supporting alveolar bone",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "alveolar bone loss",
             "loss of supporting bone",
@@ -157,7 +157,7 @@
         },
         {
           "finding": "Involvement extending toward the root/apical region",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "toward the apex",
             "to the apex",
@@ -169,7 +169,7 @@
         }
       ],
       "diagnosis": "Extensive periodontal-endodontic lesion, provisional",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "perio-endo lesion",
         "perio endo lesion",
@@ -195,7 +195,7 @@
       "keyFindings": [
         {
           "finding": "Well-defined unilocular radiolucency",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "unilocular",
             "well-defined radiolucency",
@@ -207,7 +207,7 @@
         },
         {
           "finding": "Association with the crown of an unerupted tooth",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "around the crown",
             "surrounding the crown",
@@ -219,7 +219,7 @@
         },
         {
           "finding": "Displacement of the unerupted tooth",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "displaced",
             "displacement",
@@ -231,7 +231,7 @@
         }
       ],
       "diagnosis": "Dentigerous cyst, reported case diagnosis",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "dentigerous cyst",
         "dentigerous",
@@ -255,7 +255,7 @@
       "keyFindings": [
         {
           "finding": "Unerupted upper third molar",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "unerupted",
             "not erupted",
@@ -267,7 +267,7 @@
         },
         {
           "finding": "Abnormal tooth orientation",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "abnormal orientation",
             "abnormal angulation",
@@ -281,7 +281,7 @@
         },
         {
           "finding": "Ectopic high position relative to the dental arch",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "ectopic",
             "high position",
@@ -293,7 +293,7 @@
         }
       ],
       "diagnosis": "Impacted maxillary third molar",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "impacted third molar",
         "impacted maxillary third molar",
@@ -319,7 +319,7 @@
       "keyFindings": [
         {
           "finding": "Multiple unerupted teeth beyond expected positions",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "multiple unerupted",
             "several unerupted",
@@ -331,7 +331,7 @@
         },
         {
           "finding": "Abnormal eruption pathways",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "eruption path",
             "eruption pathway",
@@ -343,7 +343,7 @@
         },
         {
           "finding": "Displaced anterior tooth position",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "displaced anterior",
             "displaced incisor",
@@ -355,7 +355,7 @@
         }
       ],
       "diagnosis": "Multiple impacted teeth",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "multiple impacted teeth",
         "multiple impactions",
@@ -382,7 +382,7 @@
       "keyFindings": [
         {
           "finding": "Additional tooth-like structures",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "extra tooth",
             "extra teeth",
@@ -395,7 +395,7 @@
         },
         {
           "finding": "Location superior to permanent maxillary incisors",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "above the incisors",
             "above the central incisors",
@@ -408,7 +408,7 @@
         },
         {
           "finding": "Altered eruption path / crowding potential",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "crowding",
             "eruption path",
@@ -420,7 +420,7 @@
         }
       ],
       "diagnosis": "Impacted supernumerary teeth",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "supernumerary teeth",
         "supernumerary tooth",
@@ -446,7 +446,7 @@
       "keyFindings": [
         {
           "finding": "Well-defined radiolucent enlargement within the root canal space",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "enlarged canal",
             "widened canal",
@@ -459,7 +459,7 @@
         },
         {
           "finding": "Balloon-like outline of the canal",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "balloon",
             "ballooning",
@@ -471,7 +471,7 @@
         },
         {
           "finding": "Apparent continuity with the canal",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "continuous with the canal",
             "continuity with the canal",
@@ -483,7 +483,7 @@
         }
       ],
       "diagnosis": "Internal root resorption, suspected",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "internal resorption",
         "internal root resorption",
@@ -508,7 +508,7 @@
       "keyFindings": [
         {
           "finding": "Reduced interdental crestal bone height",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "reduced bone height",
             "crestal bone loss",
@@ -520,7 +520,7 @@
         },
         {
           "finding": "Relatively even bone level across adjacent teeth",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "even bone level",
             "uniform bone loss",
@@ -532,7 +532,7 @@
         },
         {
           "finding": "Alveolar crest approximately parallel to CEJ line",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "parallel to the cej",
             "parallel to cej",
@@ -544,7 +544,7 @@
         }
       ],
       "diagnosis": "Horizontal periodontal bone loss",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "horizontal bone loss",
         "horizontal periodontal bone loss",
@@ -570,7 +570,7 @@
       "keyFindings": [
         {
           "finding": "Angular interdental bone defect",
-          "points": 3,
+          "points": 1.5,
           "keywords": [
             "angular defect",
             "angular bone defect",
@@ -582,7 +582,7 @@
         },
         {
           "finding": "Unequal bone heights around adjacent roots",
-          "points": 2,
+          "points": 1,
           "keywords": [
             "unequal bone",
             "uneven bone",
@@ -594,7 +594,7 @@
         },
         {
           "finding": "Oblique rather than horizontal bone-loss pattern",
-          "points": 1,
+          "points": 0.5,
           "keywords": [
             "oblique",
             "slanted",
@@ -606,7 +606,7 @@
         }
       ],
       "diagnosis": "Vertical/angular periodontal bone loss",
-      "diagnosisPoints": 4,
+      "diagnosisPoints": 7,
       "diagnosisKeywords": [
         "vertical bone loss",
         "angular bone loss",
